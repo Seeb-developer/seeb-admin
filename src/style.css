@@ -1,0 +1,18 @@
+/* src/styles.css */
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap");
+
+body,
+html {
+  font-family: "Poppins", sans-serif;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+.nothing[type="number"]::-webkit-inner-spin-button,
+.nothing[type="number"]::-webkit-outer-spin-button {
+  appearance: none !important;
+  margin: 0;
+}
