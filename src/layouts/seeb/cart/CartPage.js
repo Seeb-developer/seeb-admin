@@ -6,7 +6,6 @@ import { Toaster } from "react-hot-toast";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Pagination from "components/pagination";
-import moment from "moment";
 import { FaSortDown, FaSortUp } from "react-icons/fa";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;

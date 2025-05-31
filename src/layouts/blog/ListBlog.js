@@ -139,16 +139,27 @@ const ListBlog = () => {
                       <tr className="border-b" key={blog.id}>
                         <td className="text-center px-6 py-4">{index + 1}</td>
                         <td className="text-center px-6 py-4">
-                          {/* Check if there's an image URL available */}
                           {blog.blog_image && (
-                            <img
-                              src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + blog.blog_image}
-                              alt={blog.title}
-                              className="w-16 h-16 object-cover rounded"
-                            />
+                            <div
+                              className="inline-block cursor-pointer"
+                              onClick={() => navigate('/blog-sections', { state: { blogId: blog.id } })}
+                            >
+                              <img
+                                src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + blog.blog_image}
+                                alt={blog.title}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                            </div>
                           )}
                         </td>
-                        <td className="text-center px-6 py-4">{blog.title}</td>
+
+                        <td
+                          className="text-center px-6 py-4 cursor-pointer text-blue-600 hover:underline"
+                          onClick={() => navigate('/blog-sections', { state: { blogId: blog.id } })}
+                        >
+                          {blog.title}
+                        </td>
+
                         <td className="text-center px-6 py-4">
                           {truncateDescription(blog.description, 250)}
                         </td>
@@ -173,7 +184,7 @@ const ListBlog = () => {
                           <FaPlus
                             className="text-yellow-500 hover:text-yellow-600"
                             size={20}
-                            onClick={() => navigate(`/AddBlogSection/${blog.id}`)}
+                            onClick={() => navigate('/blog-sections', { state: { blogId: blog.id } })}
                           />
                           <FaEye
                             className="text-blue-600 hover:text-blue-700 mr-2"

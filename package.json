@@ -48,6 +48,7 @@
     "react-dom": "18.2.0",
     "react-drag-and-drop": "^3.0.0",
     "react-flatpickr": "3.10.13",
+    "react-helmet-async": "^2.0.5",
     "react-hot-toast": "^2.4.1",
     "react-html-table-to-excel": "^2.0.0",
     "react-icon": "^1.0.0",

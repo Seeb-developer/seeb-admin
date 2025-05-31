@@ -65,9 +65,13 @@ const ListAssets = () => {
         let filtered = [...assets];
 
         if (searchQuery) {
-            filtered = filtered.filter((item) =>
-                item.name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            filtered = filtered.filter((item) => {
+                const query = searchQuery.toLowerCase();
+                return (
+                    item.title?.toLowerCase().includes(query) ||
+                    item.room_name?.toLowerCase().includes(query)
+                );
+            });
         }
 
         if (dateRange.length === 2) {

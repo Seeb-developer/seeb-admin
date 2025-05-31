@@ -139,6 +139,9 @@ import EditPrompt from "layouts/seeb/Prompt/EditPrompt";
 import Styles from "layouts/seeb/Styles";
 import FaqsCategory from "layouts/seeb/faq/FaqsCategory";
 import Faqs from "layouts/seeb/faq/Faqs";
+import AddBlogCTA from "layouts/blog/AddBlogCTA";
+import { Update } from "@mui/icons-material";
+import UpdateBlogCTA from "layouts/blog/UpdateBlogCTA";
 
 
 
@@ -567,11 +570,45 @@ export default function App() {
                   <Route path="/update-staff" element={<StaffUpdate />} />
                 </>
               )}
-
-            {/* Seeb Dashboard */}
+            {/* Guide Images and Videos */}
             {accessKeys &&
               accessKeys.includes(
                 "24aca47201d0153b25d26ab322e0579082163a20e60688f03048e441f02e5f46"
+              ) && (
+                <>
+                  <Route path="/guide-images" element={<GuideImages />} />
+                  <Route path="/guide-videos" element={<GuideVideos />} />
+                </>
+              )}
+
+
+            {accessKeys &&
+              accessKeys.includes(
+                "cbe8ff27e5d5d13fcc3069b741f7f98df1240f35180298326061533791fdf79b"
+              ) && (
+                <>
+                  <Route path="/ticket" element={<ListTicket />} />
+                  <Route path="/ticket-details" element={<TicketDetails />} />
+                </>
+              )}
+
+            {accessKeys &&
+              accessKeys.includes(
+                "5d1b303766542ff04f8a0768ff96546b1fc65f342fb0a5f7c6145ffe1957deb5"
+              ) && (
+                <>
+                  <Route path="/styles" element={<StyleManagement />} />
+                  <Route path="/add-asset" element={<AddAsset />} />
+                  <Route path="/list-asset" element={<ListAssets />} />
+                  <Route path="/room-elements" element={<RoomElementsManagement />} />
+                </>
+              )}
+
+            {/* Seeb Dashboard */}
+
+            {accessKeys &&
+              accessKeys.includes(
+                "36c596f0cb5516dc4dd83d4656f755b246e5f7ae1a1d758e71d584a216ff7340"
               ) && (
                 <>
                   <Route path="/seeb-dashboard" element={<SeebDashboard />} />
@@ -584,14 +621,6 @@ export default function App() {
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/cart-details" element={<UserCartDetails />} />
 
-                  <Route path="/guide-images" element={<GuideImages />} />
-                  <Route path="/guide-videos" element={<GuideVideos />} />
-                  <Route path="/ticket" element={<ListTicket />} />
-                  <Route path="/ticket-details" element={<TicketDetails />} />
-                  <Route path="/styles" element={<StyleManagement />} />
-                  <Route path="/add-asset" element={<AddAsset />} />
-                  <Route path="/list-asset" element={<ListAssets />} />
-                  <Route path="/room-elements" element={<RoomElementsManagement />} />
                   <Route path="/prompts" element={<ListPrompts />} />
                   <Route path="/add-prompt" element={<AddPrompts />} />
                   <Route path="/edit-prompt" element={<EditPrompt />} />
@@ -647,7 +676,7 @@ export default function App() {
             {/* Staff  */}
             {accessKeys &&
               accessKeys.includes(
-                "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493"
+                "617977b944da12c4428169cf3a16d7b3a6e2a0f2c0c397585e40e6016a401e3a"
               ) && (
                 <>
                   <Route path="/addstaff" element={<Staff />} />
@@ -672,12 +701,13 @@ export default function App() {
                 <>
                   <Route path="/AddBlog" element={<Blog />} />
                   <Route path="/ListBlog" element={<ListBlog />} />
-                  <Route path="/AddBlogSection/:id" element={<AddBlogSection />} />
-                  <Route path="/ListBlogSection" element={<ListBlogSection />} />
+                  <Route path="/blog-sections/add" element={<AddBlogSection />} />
+                  <Route path="/blog-sections" element={<ListBlogSection />} />
                   <Route path="/UpdateBlogSection/:id" element={<UpdateBlogSection />} />
                   <Route path="/viewblog/:id" element={<ViewSingleBlog />} />
                   <Route path="/UpdateBlog/:id" element={<UpdateBlog />} />
-
+                  <Route path="/blog-cta/add" element={<AddBlogCTA />} />
+                  <Route path="/update-cta/:id" element={<UpdateBlogCTA />} />
                 </>
               )}
             {/* notification */}
@@ -700,7 +730,15 @@ export default function App() {
                   <Route path="/admin-registration" element={<AdminRegistration />} />
                   <Route path="/update-admin-registration" element={<UpdateAdminRegistration />} />
                   <Route path="/admin-list" element={<AdminList />} />
+                </>
+              )}
 
+            {/* Freepik AI Image Generator */}
+            {accessKeys &&
+              accessKeys.includes(
+                "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0"
+              ) && (
+                <>
                   <Route path="/freePik" element={<FreepikAIImageGenerator />} />
                   <Route path="/open-ai" element={<AIAPIHistory />} />
                   <Route path="/open-ai/by-user" element={<UserAPIUsageDetails />} />

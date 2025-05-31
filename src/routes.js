@@ -138,8 +138,8 @@ const routes = [
   {
     type: "title",
     title: "Seeb Dashboard",
-    key: "Quotation",
-    accessKey: "24aca47201d0153b25d26ab322e0579082163a20e60688f03048e441f02e5f46",
+    key: "seeb-dashboard",
+    accessKey: "36c596f0cb5516dc4dd83d4656f755b246e5f7ae1a1d758e71d584a216ff7340",
     icon: <FaTachometerAlt size="12px" />, // Dashboard icon
     children: [
       {
@@ -758,7 +758,7 @@ const routes = [
     type: "title",
     title: "Office Account",
     key: "Quotation",
-    accessKey: "24aca47201d0153b25d26ab322e0579082163a20e60688f03048e441f02e5f46",
+    accessKey: "733a3225a334aa67d15a5a8efc9238a46d93805b1a9b14c1236214d7ad2e3220",
     icon: <FaTachometerAlt size="12px" />, // Dashboard icon
     children: [
       // {
@@ -958,22 +958,11 @@ const routes = [
 
   {
     type: "title",
-    title: "Employee & Apis Others",
-    key: "Employee",
-    accessKey: "24aca47201d0153b25d26ab322e0579082163a20e60688f03048e441f02e5f46",
+    title: "Blog",
+    key: "Blog",
+    accessKey: "33e26e2aac9ffe7442b91197f2cf4932e95686975370612c1290e3e6e4da02ba",
     icon: <FaTachometerAlt size="12px" />, // Dashboard icon
     children: [
-      {
-        type: "collapse",
-        name: "Employee",
-        key: "ListStaff",
-        accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
-        icon: <FaUsers size="12px" />,  // Team Icon
-        route: "/ListStaff",
-        component_name: "ListStaff",
-        noCollapse: true,
-        component: <ListStaff />,
-      },
       {
         type: "collapse",
         name: "Blog",
@@ -985,11 +974,20 @@ const routes = [
         component_name: "ListBlog",
         noCollapse: true,
       },
+    ]
+  },
+  {
+    type: "title",
+    title: "APi History",
+    key: "ApiHistory",
+    accessKey: "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0",
+    icon: <FaTachometerAlt size="12px" />, // Dashboard icon
+    children: [
       {
         type: "collapse",
         name: "Free Api History",
         key: "list-api-history",
-        accessKey: "21c895af98e472d757bdbad206d58ff3f45355c0a83af9e56d160d837e76e839",
+        accessKey: "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0",
         icon: <FaBlog size="12px" />,  // Blog Icon
         route: "/list-api-history",
         component: <ListApiHistory />,
@@ -1000,7 +998,7 @@ const routes = [
         type: "collapse",
         name: "Open AI History",
         key: "open-ai",
-        accessKey: "21c895af98e472d757bdbad206d58ff3f45355c0a83af9e56d160d837e76e839",
+        accessKey: "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0",
         icon: <FaBlog size="12px" />,  // Blog Icon
         route: "/open-ai",
         component: <AIAPIHistory />,
@@ -1045,7 +1043,7 @@ const routes = [
     type: "title",
     title: "Ticket",
     key: "ticket",
-    accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
+    accessKey: "cbe8ff27e5d5d13fcc3069b741f7f98df1240f35180298326061533791fdf79b",
     icon: <FaUsers size="12px" />,  // Team Icon
     route: "/ticket",
     component_name: "ListTicket",
@@ -1068,7 +1066,7 @@ const routes = [
     type: "title",
     title: "Assets",
     key: "assets",
-    accessKey: "24aca47201d0153b25d26ab322e0579082163a20e60688f03048e441f02e5f46",
+    accessKey: "5d1b303766542ff04f8a0768ff96546b1fc65f342fb0a5f7c6145ffe1957deb5",
     icon: <FaUsers size="12px" />,  // Team Icon
     noCollapse: true,
     children: [
