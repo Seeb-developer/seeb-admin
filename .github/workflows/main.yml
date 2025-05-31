@@ -9,7 +9,7 @@ jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
 
-    env:  # 👈 This should NOT be indented
+    env:
       REACT_APP_HAPS_MAIN_BASE_URL: ${{ secrets.REACT_APP_HAPS_MAIN_BASE_URL }}
       HTTPS: ${{ secrets.HTTPS }}
 
@@ -22,10 +22,16 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install and Build
+      - name: Install dependencies
+        run: npm install --force
+
+      - name: Debug ENV
         run: |
-          npm install --force
-          npm run build
+          echo "Base URL: $REACT_APP_HAPS_MAIN_BASE_URL"
+          echo "HTTPS: $HTTPS"
+
+      - name: Build React App
+        run: npm run build
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
