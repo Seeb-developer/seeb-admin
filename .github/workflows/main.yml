@@ -11,7 +11,7 @@ jobs:
 
      env:
       REACT_APP_HAPS_MAIN_BASE_URL: ${{ secrets.REACT_APP_HAPS_MAIN_BASE_URL }}
-      HTTPS:${{secrets.HTTPS}}
+      HTTPS: ${{ secrets.HTTPS }}
 
     steps:
       - name: Checkout code
