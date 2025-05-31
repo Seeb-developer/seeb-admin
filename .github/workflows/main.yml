@@ -9,7 +9,7 @@ jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
 
-     env:
+    env:  # 👈 This should NOT be indented
       REACT_APP_HAPS_MAIN_BASE_URL: ${{ secrets.REACT_APP_HAPS_MAIN_BASE_URL }}
       HTTPS: ${{ secrets.HTTPS }}
 
