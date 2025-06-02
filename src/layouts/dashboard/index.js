@@ -175,7 +175,7 @@ function Dashboard() {
             </Grid>
           </Grid>
         </SoftBox> */}
-            <SoftBox mb={3}>
+            {/* <SoftBox mb={3}>
               <Grid container spacing={3}>
                 <Grid item xs={12} lg={5}>
                   <ReportsBarChart
@@ -216,7 +216,7 @@ function Dashboard() {
                   />
                 </Grid>
               </Grid>
-            </SoftBox>
+            </SoftBox> */}
             <Grid container spacing={3}>
               <Grid item xs={12} md={6} lg={8}>
                 <Projects />

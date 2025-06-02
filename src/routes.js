@@ -117,7 +117,7 @@ const routes = [
     type: "collapse",
     name: "Dashboard",
     key: "dashboard",
-    accessKey: "a14bc83bb7c780880386323d892b836df8802ae94f98ec127165e6a5739e3333",
+    accessKey: "36c596f0cb5516dc4dd83d4656f755b246e5f7ae1a1d758e71d584a216ff7340",
     route: "/dashboard",
     icon: <FaTv size="17px" />,
     component_name: "Dashboard",
