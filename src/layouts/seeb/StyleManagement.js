@@ -103,9 +103,9 @@ const StyleManagement = () => {
         setEditingId(style.id);
         setStyleName(style.name);
         setStyleStatus(style.status || "active");
-        setSelectedCategoryId(style.style_category_id || "");
+        setSelectedCategoryId(style.styles_category_id || "");
         setStyleImage(null); // Reset uploaded file
-        setStyleImagePreview(style.image || null); // Preview existing image
+        setStyleImagePreview(process.env.REACT_APP_HAPS_MAIN_BASE_URL + style.image || null); // Preview existing image
     };
 
     const handleCancel = () => {
@@ -172,7 +172,7 @@ const StyleManagement = () => {
         setEditingCatId(cat.id);
         setCatName(cat.name);
         setCatStatus(cat.status);
-        setCatImagePreview(cat.image);
+        setCatImagePreview(process.env.REACT_APP_HAPS_MAIN_BASE_URL + cat.image);
     };
 
     const resetCategoryForm = () => {
@@ -313,7 +313,7 @@ const StyleManagement = () => {
                                 <tbody>
                                     {styles.length > 0 ? (
                                         styles.map((style, index) => {
-                                            const category = categories.find(cat => cat.id === style.style_category_id);
+                                            const category = categories.find(cat => cat.id == style.styles_category_id);
                                             return (
                                                 <tr key={style.id} className="border-b">
                                                     <td className="py-2 px-4 text-sm">{index + 1}</td>
