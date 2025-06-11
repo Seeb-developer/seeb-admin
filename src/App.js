@@ -193,6 +193,7 @@ export default function App() {
       method: "GET",
       redirect: "follow",
     };
+    
 
     fetch(
       process.env.REACT_APP_HAPS_MAIN_BASE_URL +

@@ -10,17 +10,17 @@ const Styles = () => {
     const [editingName, setEditingName] = useState("");
 
     const fetchStyles = async () => {
-        try {
-            const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}styles`);
-            const result = await res.json();
-            if (result.status === 200) {
-                setStyles(result.data);
-            } else {
-                toast.error("Failed to fetch styles");
-            }
-        } catch {
-            toast.error("Something went wrong");
-        }
+        // try {
+        //     const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}styles`);
+        //     const result = await res.json();
+        //     if (result.status === 200) {
+        //         setStyles(result.data || []);
+        //     } else {
+        //         toast.error("Failed to fetch styles");
+        //     }
+        // } catch {
+        //     toast.error("Something went wrong");
+        // }
     };
 
     const addStyle = async (e) => {
@@ -101,7 +101,7 @@ const Styles = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {styles.map((style, i) => (
+                            {styles?.map((style, i) => (
                                 <tr key={style.id} className="border-t hover:bg-gray-50">
                                     <td className="px-4 py-2">{i + 1}</td>
                                     <td className="px-4 py-2">
