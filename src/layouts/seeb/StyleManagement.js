@@ -72,8 +72,8 @@ const StyleManagement = () => {
         if (styleImage) formData.append("image", styleImage);
 
         try {
-            const url = editingId ? `${API_BASE_URL}/${editingId}` : API_BASE_URL;
-            const method = editingId ? "PUT" : "POST"; // use PUT if supported
+            const url = editingId ? `${API_BASE_URL}/update/${editingId}` : API_BASE_URL;
+            const method = editingId ? "POST" : "POST"; // use PUT if supported
             const response = await fetch(url, {
                 method,
                 body: formData,
@@ -150,7 +150,7 @@ const StyleManagement = () => {
             const response = await fetch(
                 editingCatId ? `${CATEGORY_API}/update/${editingCatId}` : `${CATEGORY_API}/create`,
                 {
-                    method: editingCatId ? "PUT" : "POST", // You can use PUT if supported
+                    method: editingCatId ? "POST" : "POST",
                     body: formData,
                 }
             );
@@ -298,7 +298,7 @@ const StyleManagement = () => {
                         </div>
 
                         {/* Table to Display Styles */}
-                        <div className="overflow-x-auto bg-gray-100 p-4 rounded-lg">
+                        <div className="overflow-y-auto max-h-[60vh] bg-gray-100 p-4 rounded-lg">
                             <table className="min-w-full bg-white shadow-md rounded-lg">
                                 <thead>
                                     <tr className="bg-gray-200 text-left">
@@ -414,7 +414,7 @@ const StyleManagement = () => {
                         </div>
 
                         {/* Category Table */}
-                        <div className="overflow-x-auto bg-gray-100 p-4 rounded-lg">
+                        <div className="overflow-y-auto max-h-[60vh] bg-gray-100 p-4 rounded-lg">
                             <table className="min-w-full bg-white shadow-md rounded-lg">
                                 <thead>
                                     <tr className="bg-gray-200 text-left">
