@@ -106,35 +106,90 @@ const BookingDetails = () => {
                             <table className="w-full text-sm text-left text-gray-500 border border-gray-300">
                                 <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                                     <tr>
-                                        <th className="py-3 px-6">Sr No</th>
-                                        <th className="py-3 px-6">Service Name</th>
-                                        {/* <th className="py-3 px-6">Description</th> */}
-                                        <th className="py-3 px-6">Rate Type</th>
-                                        <th className="py-3 px-6">Size</th>
-                                        <th className="py-3 px-6">Rate (₹)</th>
-                                        <th className="py-3 px-6">Total (₹)</th>
+                                        <th className="py-4 px-6">Sr No</th>
+                                        <th className="py-4 px-6">Service Name</th>
+                                        <th className="py-4 px-6">Rate Type</th>
+                                        <th className="py-4 px-6">Size</th>
+                                        <th className="py-4 px-6">Rate (₹)</th>
+                                        <th className="py-4 px-6">Amount (₹)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {bookingData?.services?.length > 0 ? (
-                                        bookingData.services.map((service, index) => (
-                                            <tr className="bg-white border-b hover:bg-gray-50" key={service.service_id}>
-                                                <td className="py-4 px-6">{index + 1}</td>
-                                                <td className="py-4 px-6">{service.service_name}</td>
-                                                {/* <td className="py-4 px-6">{service.service_description}</td> */}
-                                                <td className="py-4 px-6">{service.rate_type}</td>
-                                                <td className="py-4 px-6">{service.value}</td>
-                                                <td className="py-4 px-6">{service.rate}</td>
-                                                <td className="py-4 px-6 font-semibold">{service.amount}</td>
-                                            </tr>
-                                        ))
+                                        bookingData.services.map((service, index) => {
+                                            const addons = service.addons ? JSON.parse(service.addons) : [];
+                                            const addonTotal = addons.reduce((sum, a) => sum + parseFloat(a.total), 0);
+                                            // const finalAmount = parseFloat(service.amount) + addonTotal;
+
+                                            return (
+                                                <React.Fragment key={service.service_id}>
+                                                    {/* Main Service Row */}
+                                                    <tr className="bg-white border-b hover:bg-gray-50">
+                                                        <td className="py-4 px-6 font-bold">{index + 1}</td>
+                                                        <td className="py-4 px-6 font-semibold">{service.service_name}</td>
+                                                        <td className="py-4 px-6">{service.rate_type}</td>
+                                                        <td className="py-4 px-6">{service.value}</td>
+                                                        <td className="py-4 px-6">₹{service.rate}</td>
+                                                        <td className="py-4 px-6 font-semibold">
+                                                            ₹
+                                                            {(() => {
+                                                                const rate = parseFloat(service.rate || 0);
+                                                                let total = 0;
+
+                                                                if (service.rate_type === "square_feet" && service.value?.includes("X")) {
+                                                                    const [w, h] = service.value.split("X").map(v => parseFloat(v.trim()) || 0);
+                                                                    total = w * h * rate;
+                                                                } else {
+                                                                    const quantity = parseFloat(service.value || 0);
+                                                                    total = quantity * rate;
+                                                                }
+
+                                                                return total.toFixed(2);
+                                                            })()}
+                                                        </td>
+                                                    </tr>
+
+                                                    {/* Addon Header */}
+                                                    {addons.length > 0 && (
+                                                        <tr className="bg-gray-100 text-sm text-gray-700 font-semibold border-b">
+                                                            <td></td>
+                                                            <td className="py-2 px-6">Addon Name</td>
+                                                            <td className="py-2 px-6">Qty</td>
+                                                            <td className="py-2 px-6">Unit Price</td>
+                                                            <td className="py-2 px-6">Price Type</td>
+                                                            <td className="py-2 px-6">Total</td>
+                                                        </tr>
+                                                    )}
+
+                                                    {/* Addon Rows */}
+                                                    {addons.map((addon, i) => (
+                                                        <tr key={i} className="bg-gray-50 text-sm border-b">
+                                                            <td></td>
+                                                            <td className="py-2 px-6">{addon.name}</td>
+                                                            <td className="py-2 px-6">{addon.qty}</td>
+                                                            <td className="py-2 px-6">₹{addon.price}</td>
+                                                            <td className="py-2 px-6">{addon.price_type}</td>
+                                                            <td className="py-2 px-6">₹{addon.total}</td>
+                                                        </tr>
+                                                    ))}
+
+                                                    {/* Final Total */}
+                                                    <tr className="bg-green-50 font-bold text-green-800 border-b">
+                                                        <td></td>
+                                                        <td className="py-3 px-6" colSpan="4">Total (Service + Addons)</td>
+                                                        <td className="py-3 px-6">₹{service.amount}</td>
+                                                    </tr>
+                                                </React.Fragment>
+                                            );
+                                        })
                                     ) : (
                                         <tr>
-                                            <td colSpan="5" className="py-4 text-center">No services found.</td>
+                                            <td colSpan="6" className="py-4 text-center">No services found.</td>
                                         </tr>
                                     )}
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
 
