@@ -107,7 +107,7 @@ import BalanceSheet from "layouts/quotation/BalanceSheet";
 import OfficeExpense from "layouts/quotation/OfficeExpense";
 import StaffUpdate from "layouts/staff/StaffUpdate";
 import QuotationDetails from "layouts/quotation/QuotationDetails";
-import FreepikAIImageGenerator from "layouts/quotation/FreepikAIImageGenerator";
+
 import ListApiHistory from "layouts/freepik/ListApiHistory";
 import ApiUsageDetails from "layouts/freepik/ApiUsageDetails";
 import ListRooms from "layouts/seeb/ListRooms";
@@ -740,7 +740,6 @@ export default function App() {
                 "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0"
               ) && (
                 <>
-                  <Route path="/freePik" element={<FreepikAIImageGenerator />} />
                   <Route path="/open-ai" element={<AIAPIHistory />} />
                   <Route path="/open-ai/by-user" element={<UserAPIUsageDetails />} />
                   <Route path="/list-api-history" element={<ListApiHistory />} />
