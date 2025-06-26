@@ -149,6 +149,7 @@ const routes = [
         route: "/seeb-dashboard",
         icon: <FaPlusSquare size="12px" />, // Add Box icon
         component_name: "Seeb Dashboard",
+
         component: <SeebDashboard />,
         noCollapse: true,
         state: { type: "Interior" }
@@ -573,16 +574,16 @@ const routes = [
         component: <ContactLeads />,
         noCollapse: true,
       },
-      {
-        type: "collapse",
-        name: "Interior Leads",
-        key: "interior-leads",
-        route: "/interior-leads",
-        icon: <FaCircleNotch size="12px" />,
-        component_name: "InteriorLeads",
-        component: <InteriorLeads />,
-        noCollapse: true,
-      },
+      // {
+      //   type: "collapse",
+      //   name: "Interior Leads",
+      //   key: "interior-leads",
+      //   route: "/interior-leads",
+      //   icon: <FaCircleNotch size="12px" />,
+      //   component_name: "InteriorLeads",
+      //   component: <InteriorLeads />,
+      //   noCollapse: true,
+      // },
     ],
   },
 
