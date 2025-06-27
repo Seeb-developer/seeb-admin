@@ -110,6 +110,7 @@ import ListPrompts from "layouts/seeb/Prompt/ListPrompts";
 import Styles from "layouts/seeb/Styles";
 import FaqsCategory from "layouts/seeb/faq/FaqsCategory";
 import Faqs from "layouts/seeb/faq/Faqs";
+import SavedFloorPlans from "layouts/seeb/savedFloorplans/floorplanList";
 
 
 const routes = [
@@ -173,6 +174,17 @@ const routes = [
         icon: <FaPlusSquare size="12px" />, // Add Box icon
         component_name: "cart",
         component: <CartPage />,
+        noCollapse: true,
+        state: { type: "Interior" }
+      },
+      {
+        type: "collapse",
+        name: "Saved Floorplans",
+        key: "saved-floorplans",
+        route: "/saved-floorplans",
+        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        component_name: "saved-floorplans",
+        component: <SavedFloorPlans />,
         noCollapse: true,
         state: { type: "Interior" }
       },

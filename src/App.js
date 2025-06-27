@@ -142,6 +142,9 @@ import Faqs from "layouts/seeb/faq/Faqs";
 import AddBlogCTA from "layouts/blog/AddBlogCTA";
 import { Update } from "@mui/icons-material";
 import UpdateBlogCTA from "layouts/blog/UpdateBlogCTA";
+import SavedFloorPlans from "layouts/seeb/savedFloorplans/floorplanList";
+import SavedFloorPlansDetails from "layouts/seeb/savedFloorplans/floorplanDetail";
+import FloorplanSummary from "layouts/seeb/savedFloorplans/floorplanSummary";
 
 
 
@@ -621,6 +624,9 @@ export default function App() {
                   <Route path="/booking-details" element={<BookingDetails />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/cart-details" element={<UserCartDetails />} />
+                  <Route path="/saved-floorplans" element={<SavedFloorPlans />} />
+                  <Route path="/saved-floorplans-details" element={<SavedFloorPlansDetails />} />
+                  <Route path="/saved-floorplans-summary" element={<FloorplanSummary />} />
 
                   <Route path="/prompts" element={<ListPrompts />} />
                   <Route path="/add-prompt" element={<AddPrompts />} />
