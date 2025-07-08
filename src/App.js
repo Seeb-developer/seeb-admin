@@ -145,8 +145,8 @@ import UpdateBlogCTA from "layouts/blog/UpdateBlogCTA";
 import SavedFloorPlans from "layouts/seeb/savedFloorplans/floorplanList";
 import SavedFloorPlansDetails from "layouts/seeb/savedFloorplans/floorplanDetail";
 import FloorplanSummary from "layouts/seeb/savedFloorplans/floorplanSummary";
-import AssignWorker from "layouts/seeb/booking/AssignWorker";
-import WorkerDetail from "layouts/seeb/booking/WorkerDetail";
+// import AssignWorker from "layouts/seeb/booking/AssignWorker";
+// import WorkerDetail from "layouts/seeb/booking/WorkerDetail";
 import { requestForToken } from "./firebaseConfig";
 
 export default function App() {
@@ -624,8 +624,8 @@ useEffect(() => {
                   <Route path="/services/create" element={<AddService />} />
                   <Route path="/bookings" element={<ListBookings />} />
                   <Route path="/booking-details" element={<BookingDetails />} />
-                  <Route path="/assign-worker" element={<AssignWorker />} />
-                  <Route path="/worker/:id" element={<WorkerDetail />} />
+                  {/* <Route path="/assign-worker" element={<AssignWorker />} /> */}
+                  {/* <Route path="/worker/:id" element={<WorkerDetail />} /> */}
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/cart-details" element={<UserCartDetails />} />
                   <Route path="/saved-floorplans" element={<SavedFloorPlans />} />
