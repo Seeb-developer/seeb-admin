@@ -31,7 +31,7 @@ export const requestForToken = async () => {
     const registration = await navigator.serviceWorker.ready; // ✅ wait for registration
 
     const currentToken = await getToken(getMessaging(), {
-      vapidKey: "eAHKfgMz4JTOnKE0DT6rIofnuqVpCh3XQw11SyZrbLs",
+      vapidKey: "BAP4Ja73AJGZ9gax3vydaIUzXxB2HFCRUWrZzhBDtxXLeMjdHp3MRcAzMXGC2Y_xSEOLmgUQSZBssSIcPUg5d6w",
       serviceWorkerRegistration: registration, // ✅ pass it explicitly
     });
 
