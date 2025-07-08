@@ -47,17 +47,25 @@ function Notification() {
   const [show, setShow] = useState(false);
   const [notification, setNotification] = useState({title: '', body: ''});
   const [isTokenFound, setTokenFound] = useState(false);
-  getToken(setTokenFound);
+  // getToken(setTokenFound);
 
-  onMessageListener().then(payload => {+
-    setShow(true);
-    toast.success("Vendor Added Successfully", {
-      theme: "light",
-      autoClose: "2000",
-    });
-    setNotification({title: payload.notification.title, body: payload.notification.body})
-    console.log(payload);
-  }).catch(err => console.log('failed: ', err));
+ useEffect(() => {
+  requestForToken()
+    .then(() => setTokenFound(true))
+    .catch(() => setTokenFound(false));
+
+  const unsubscribe = onMessageListener()
+    .then((payload) => {
+      toast.info(`${payload?.notification?.title}: ${payload?.notification?.body}`, {
+        autoClose: 3000,
+      });
+      setNotification({ title: payload?.notification?.title, body: payload?.notification?.body });
+    })
+    .catch((err) => console.log('failed: ', err));
+
+  return () => unsubscribe;
+}, []);
+
 
   return (
     <div className="App">

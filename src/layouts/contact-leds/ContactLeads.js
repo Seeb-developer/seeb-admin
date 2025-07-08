@@ -126,7 +126,7 @@ function ContactLeads() {
     await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "customer/getAllContactUs", requestOptions)
       .then(response => response.json())
       .then(result => {
-        console.log(result)
+        // console.log(result)
         if (result.status === 200) {
           setLead(result.data)
           setCurrentPage(result.pagination.current_page);
@@ -341,7 +341,10 @@ function ContactLeads() {
                         Phone No.
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        Message
+                        City
+                      </th>
+                       <th scope="col" className="px-6 py-3">
+                        Space For
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Date / Time
@@ -372,7 +375,7 @@ function ContactLeads() {
                         </td>
                         <td className="px-6 py-4 ">{el.email_id}</td>
                         <td className="px-6 py-4 ">{el.contact_number}</td>
-                        <td className="px-6 py-4" style={{ wordWrap: 'break-word', maxWidth: '200px' }}>
+                        {/* <td className="px-6 py-4" style={{ wordWrap: 'break-word', maxWidth: '200px' }}>
                           {el.message?.split(" ").slice(0, 10).join(" ")}
                           {el.message?.split(" ").length > 10 && (
                             <button
@@ -383,7 +386,9 @@ function ContactLeads() {
                             </button>
                           )}
 
-                        </td>
+                        </td> */}
+                        <td className="px-6 py-4 ">{el.city}</td>
+                        <td className="px-6 py-4 ">{el.space_type}</td>
                         <td className="px-6 py-4 ">{el.created_at}</td>
                         <td className="px-6 py-4 flex gap-2">
                           <button
