@@ -28,15 +28,18 @@ const messaging = getMessaging(app);
 // 🔑 Request FCM Token
 export const requestForToken = async () => {
   try {
-    const currentToken = await getToken(messaging, {
-      vapidKey: "eAHKfgMz4JTOnKE0DT6rIofnuqVpCh3XQw11SyZrbLs", // Replace with your actual VAPID key
+    const registration = await navigator.serviceWorker.ready; // ✅ wait for registration
+
+    const currentToken = await getToken(getMessaging(), {
+      vapidKey: "eAHKfgMz4JTOnKE0DT6rIofnuqVpCh3XQw11SyZrbLs",
+      serviceWorkerRegistration: registration, // ✅ pass it explicitly
     });
 
     if (currentToken) {
       console.log("✅ FCM Token:", currentToken);
-      // OPTIONAL: send token to backend to save for this user/device
+      return currentToken;
     } else {
-      console.warn("❗ No registration token available. User permission might be required.");
+      console.warn("❗ No token available. Permission may be required.");
     }
   } catch (err) {
     console.error("❌ An error occurred while retrieving token:", err);
