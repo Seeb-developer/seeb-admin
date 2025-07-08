@@ -1,8 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { getDatabase } from "firebase/database";
+import { getDatabase } from "firebase/database"; // Optional if you use Realtime DB
 import { getFirestore } from "firebase/firestore";
 
+// 🔐 Your Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDEaP0WI39iJNeLeCGKXhW6ctJ5iGLvT7o",
   authDomain: "seeb-partner.firebaseapp.com",
@@ -10,36 +11,43 @@ const firebaseConfig = {
   storageBucket: "seeb-partner.firebasestorage.app",
   messagingSenderId: "835008801894",
   appId: "1:835008801894:web:9bdb1f1492901aa32391a7",
-  measurementId: "G-Y811F2XMSS"
+  measurementId: "G-Y811F2XMSS",
 };
 
+// 🔄 Initialize Firebase App
 const app = initializeApp(firebaseConfig);
+
+// 📦 Export Firestore and optionally Realtime DB
 const db = getFirestore(app);
+const rtdb = getDatabase(app); // Optional — only if needed
+export { db, rtdb };
 
-export { db };
-
-// Initialize Firebase Cloud Messaging and get a reference to the service
+// 🔔 Setup Messaging
 const messaging = getMessaging(app);
-// Add the public key generated from the console here.
+
+// 🔑 Request FCM Token
 export const requestForToken = async () => {
   try {
     const currentToken = await getToken(messaging, {
-      vapidKey: "eAHKfgMz4JTOnKE0DT6rIofnuqVpCh3XQw11SyZrbLs",
+      vapidKey: "eAHKfgMz4JTOnKE0DT6rIofnuqVpCh3XQw11SyZrbLs", // Replace with your actual VAPID key
     });
+
     if (currentToken) {
-      console.log("current token for client: ", currentToken);
+      console.log("✅ FCM Token:", currentToken);
+      // OPTIONAL: send token to backend to save for this user/device
     } else {
-      // Show permission request UI
-      console.log("No registration token available. Request permission to generate one.");
+      console.warn("❗ No registration token available. User permission might be required.");
     }
   } catch (err) {
-    console.log("An error occurred while retrieving token. ", err);
+    console.error("❌ An error occurred while retrieving token:", err);
   }
 };
+
+// 📥 Listen for foreground messages
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {
-      console.log("payload", payload);
+      console.log("📩 Foreground FCM Payload:", payload);
       resolve(payload);
     });
   });

@@ -145,12 +145,9 @@ import UpdateBlogCTA from "layouts/blog/UpdateBlogCTA";
 import SavedFloorPlans from "layouts/seeb/savedFloorplans/floorplanList";
 import SavedFloorPlansDetails from "layouts/seeb/savedFloorplans/floorplanDetail";
 import FloorplanSummary from "layouts/seeb/savedFloorplans/floorplanSummary";
-
-
-
-const onClose = (e) => { };
-
-
+import AssignWorker from "layouts/seeb/booking/AssignWorker";
+import WorkerDetail from "layouts/seeb/booking/WorkerDetail";
+import { requestForToken } from "./firebaseConfig";
 
 export default function App() {
   const [controller, dispatch] = useSoftUIController();
@@ -168,6 +165,11 @@ export default function App() {
   const [alert, setAlert] = useState(false);
 
   // getToken(setTokenFound);
+
+useEffect(() => {
+  requestForToken();
+}, []);
+
 
   onMessageListener()
     .then((payload) => {
@@ -622,6 +624,8 @@ export default function App() {
                   <Route path="/services/create" element={<AddService />} />
                   <Route path="/bookings" element={<ListBookings />} />
                   <Route path="/booking-details" element={<BookingDetails />} />
+                  <Route path="/assign-worker" element={<AssignWorker />} />
+                  <Route path="/worker/:id" element={<WorkerDetail />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/cart-details" element={<UserCartDetails />} />
                   <Route path="/saved-floorplans" element={<SavedFloorPlans />} />
