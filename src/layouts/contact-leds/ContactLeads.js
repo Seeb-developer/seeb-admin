@@ -16,7 +16,7 @@ import { Link, createSearchParams, useNavigate } from "react-router-dom";
 import { DatePicker, Modal, Input, Button } from "antd";
 import Loader from "layouts/loader/Loader";
 import NontAuthorized401 from "NontAuthorized401";
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { utils, writeFile } from "xlsx";
 import { toast, Toaster } from "react-hot-toast";
 import Pagination from "components/pagination";
 import AddLeadForm from "layouts/interior-leads/component/AddLeadForm";
@@ -58,6 +58,12 @@ function ContactLeads() {
       clearTimeout(timer);
       timer = setTimeout(() => func(...args), delay);
     };
+  };
+
+  const exportToExcel = () => {
+    const table = document.getElementById("table-to-export");
+    const workbook = utils.table_to_book(table, { sheet: "tablexls" });
+    writeFile(workbook, "Contacts_Leads_Sheet.xlsx");
   };
 
   const handleDateRangeChange = (dates) => {
@@ -295,15 +301,12 @@ function ContactLeads() {
                   <div className="flex items-center gap-4">
                     {/* Export Button */}
                     <button
-                      className="bg-green-500 hover:bg-green-700 text-white font-bold px-4 rounded"
+                      onClick={exportToExcel}
+                      className="bg-green-500 hover:bg-green-700 text-white font-bold px-4 py-2 rounded"
                     >
-                      <ReactHTMLTableToExcel
-                        id="test-table-xls-button"
-                        table="table-to-export"
-                        filename="Contacts_Leads_Sheet"
-                        sheet="tablexls"
-                      />
+                      Export to Excel
                     </button>
+
 
                   </div>
                   {/* Pagination */}
@@ -370,8 +373,8 @@ function ContactLeads() {
                         <td className="px-6 py-4 ">{el.email_id}</td>
                         <td className="px-6 py-4 ">{el.contact_number}</td>
                         <td className="px-6 py-4" style={{ wordWrap: 'break-word', maxWidth: '200px' }}>
-                          {el.message.split(" ").slice(0, 10).join(" ")}
-                          {el.message.split(" ").length > 10 && (
+                          {el.message?.split(" ").slice(0, 10).join(" ")}
+                          {el.message?.split(" ").length > 10 && (
                             <button
                               className="text-blue-500 underline ml-2"
                               onClick={() => handleViewClick(el.message)}
