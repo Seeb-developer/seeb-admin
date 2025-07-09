@@ -6,12 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 function Notification() {
   const [notification, setNotification] = useState({ title: "", body: "" });
 
-  useEffect(() => {
-    // Request permission and token
-    // requestForToken()
-    //   .then(() => console.log("✅ Token found"))
-    //   .catch(() => console.log("🚫 Token not found"));
-
+  useEffect(() => {    
     // Listen for messages
     onMessageListener()
       .then((payload) => {
@@ -32,14 +27,8 @@ function Notification() {
       console.error("❌ Failed to receive message:", err);
     });
 
-    // return () => {
-    //   if (typeof unsubscribe === "function") {
-    //     unsubscribe();
-    //   }
-    // };
   }, []);
     
-
   //  useEffect(() => {
   //   toast.info("🎉 Welcome! Dummy notification working.", {
   //     autoClose: 3000,
