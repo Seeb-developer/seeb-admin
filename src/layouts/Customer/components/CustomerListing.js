@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import Loader from "layouts/loader/Loader";
-import ReactHTMLTableToExcel from "react-html-table-to-excel";
 
 const CustomerListing = (props) => {
   let Navigate = useNavigate();
@@ -54,7 +53,7 @@ const CustomerListing = (props) => {
               </button>
             </div>
           </div> */}
-          <div className="relative mt-2 overflow-x-auto shadow-md sm:rounded-lg mt-4">
+          <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-4">
             <table
               id="table-to-export"
               className="w-full text-sm text-left text-gray-500 dark:text-gray-400"

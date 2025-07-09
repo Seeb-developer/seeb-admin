@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Spin } from 'antd';
@@ -11,6 +11,7 @@ import AddExpensesModal from './AddExpensesModal';
 
 const BookingDetails = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const bookingId = location.state?.booking_id;
     const [bookingData, setBookingData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -72,8 +73,17 @@ const BookingDetails = () => {
                 </div>
             ) : (
                 <div className="border-solid border-2 black-indigo-600 mt-6 p-6 bg-white shadow-lg rounded-lg">
-                    <div className="px-8 mt-5 text-lg font-semibold">Booking Details</div>
-
+                    <div className='flex items-center justify-between'>
+                        <h2 className="px-8 mt-5 text-lg font-semibold">Booking Details</h2>
+                        <button
+                            onClick={() => navigate('/assign-worker', {
+                                state: { booking: bookingData }
+                            })}
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-1 rounded"
+                        >
+                            Assign Worker
+                        </button>
+                    </div>
                     {/* Booking Info Section */}
                     <div className="px-8 mt-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -146,7 +156,7 @@ const BookingDetails = () => {
 
                                                                 return total.toFixed(2);
                                                             })()}
-                                                        </td>
+                                                        </td>                                                      
                                                     </tr>
 
                                                     {/* Addon Header */}
