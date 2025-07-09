@@ -171,18 +171,18 @@ export default function App() {
   }, []);
 
 
-  useEffect(() => {
-    onMessageListener()
-      .then((payload) => {
-        setNotification({
-          title: payload.notification.title,
-          body: payload.notification.body,
-        });
-        setModalVisible(true);
-        console.log("📩 Notification received:", payload);
-      })
-      .catch((err) => console.log("failed: ", err));
-  }, []);
+  // useEffect(() => {
+  //   onMessageListener()
+  //     .then((payload) => {
+  //       setNotification({
+  //         title: payload.notification.title,
+  //         body: payload.notification.body,
+  //       });
+  //       // setModalVisible(true);
+  //       console.log("📩 Notification received:", payload);
+  //     })
+  //     .catch((err) => console.log("failed: ", err));
+  // }, []);
 
   // Cache for the rtl
   useMemo(() => {

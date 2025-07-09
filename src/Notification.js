@@ -13,6 +13,7 @@ function Notification() {
       const title = payload?.notification?.title;
       const body = payload?.notification?.body;
       setNotification({ title, body });
+      console.log("Notification page:", payload, title, body );
 
       toast.info(
         <>
