@@ -770,6 +770,8 @@ export default function App() {
             <Route path="/authentication/sign-up" element={<SignUp />} />
           </Routes>
 
+          <Notification />
+
           {/* Push Notification */}
           {/* <Modal
             open={modalVisible}
