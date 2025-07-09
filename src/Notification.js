@@ -8,14 +8,15 @@ function Notification() {
 
   useEffect(() => {
     // Request permission and token
-    requestForToken()
-      .then(() => console.log("✅ Token found"))
-      .catch(() => console.log("🚫 Token not found"));
+    // requestForToken()
+    //   .then(() => console.log("✅ Token found"))
+    //   .catch(() => console.log("🚫 Token not found"));
 
     // Listen for messages
-    const unsubscribe = onMessageListener((payload) => {
-      const title = payload?.notification?.title || "Notification";
-      const body = payload?.notification?.body || "";
+    onMessageListener()
+      .then((payload) => {
+      const title = payload?.notification?.title;
+      const body = payload?.notification?.body;
       setNotification({ title, body });
 
       toast.info(
@@ -27,14 +28,24 @@ function Notification() {
           autoClose: 4000,
         }
       );
+    }).catch((err) => {
+      console.error("❌ Failed to receive message:", err);
     });
 
-    return () => {
-      if (typeof unsubscribe === "function") {
-        unsubscribe();
-      }
-    };
+    // return () => {
+    //   if (typeof unsubscribe === "function") {
+    //     unsubscribe();
+    //   }
+    // };
   }, []);
+    
+
+  //  useEffect(() => {
+  //   toast.info("🎉 Welcome! Dummy notification working.", {
+  //     autoClose: 3000,
+  //     position: "bottom-right",
+  //   });
+  // }, []);
 
   return (
     <div>
