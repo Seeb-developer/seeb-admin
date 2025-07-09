@@ -7,6 +7,9 @@ import { Routes, Route, Navigate, useLocation, useParams } from "react-router-do
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Icon from "@mui/material/Icon";
+import { IconButton } from "@mui/material";
+import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // Arrange Free React components
@@ -162,24 +165,24 @@ export default function App() {
   const [notification, setNotification] = useState({ title: "", body: "" });
   const [isTokenFound, setTokenFound] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [alert, setAlert] = useState(false);
 
-  // getToken(setTokenFound);
-
-useEffect(() => {
-  requestForToken();
-}, []);
+  useEffect(() => {
+    requestForToken();
+  }, []);
 
 
-  onMessageListener()
-    .then((payload) => {
-      // setShow(true);
-      setModalVisible(true);
-      // setAlert(true);
-      setNotification({ title: payload.notification.title, body: payload.notification.body });
-      console.log(payload);
-    })
-    .catch((err) => console.log("failed: ", err));
+  useEffect(() => {
+    onMessageListener()
+      .then((payload) => {
+        setNotification({
+          title: payload.notification.title,
+          body: payload.notification.body,
+        });
+        setModalVisible(true);
+        console.log("📩 Notification received:", payload);
+      })
+      .catch((err) => console.log("failed: ", err));
+  }, []);
 
   // Cache for the rtl
   useMemo(() => {
@@ -198,7 +201,7 @@ useEffect(() => {
       method: "GET",
       redirect: "follow",
     };
-    
+
 
     fetch(
       process.env.REACT_APP_HAPS_MAIN_BASE_URL +
@@ -766,49 +769,46 @@ useEffect(() => {
             )}
             <Route path="/authentication/sign-up" element={<SignUp />} />
           </Routes>
-          {/* <Notification /> */}
-          {/* <Space
-            direction="vertical"
-            style={{
-              width: "100%",
-            }}
-          >
-            <Alert
-              message="Warning Text Warning Text Warning TextW arning Text Warning Text Warning TextWarning Text"
-              type="warning"
-              closable
-              open={alert}
-              onCancel={() => setAlert(false)}
-            />
-          </Space> */}
-          <Modal
-            title="Notification"
+
+          {/* Push Notification */}
+          {/* <Modal
             open={modalVisible}
             onCancel={() => setModalVisible(false)}
             footer={null}
-            maskStyle={{ backgroundColor: "transparent" }}
+            closable={false}
+            mask={false}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              right: 16,
+              padding: 0,
+              zIndex: 1800,
+            }}
           >
-            <h3>{notification.title}</h3>
-            <p>{notification.body}</p>
-            <div className="flex justify-center gap-4 mt-2">
-              <button
-                className="bg-green-700 text-white p-1 text-sm py-1 rounded-md px-2"
-                onClick={() => {
-                  setModalVisible(false);
-                }}
+            <div className="flex gap-3 items-start">
+              <NotificationsNoneRoundedIcon
+                className="text-blue-600"
+                fontSize="medium"
+                style={{ marginTop: 4 }}
+              />
+
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-gray-800">
+                  {notification.title}
+                </h3>
+                <p className="text-sm text-gray-600">{notification.body}</p>
+              </div>
+
+              <IconButton
+                size="small"
+                onClick={() => setModalVisible(false)}
+                className="mt-1"
               >
-                Ok
-              </button>
-              <button
-                className="bg-red-600 text-white p-1 text-sm py-1 rounded-md px-4"
-                onClick={() => {
-                  setModalVisible(false);
-                }}
-              >
-                Cancel
-              </button>
+                <CloseRoundedIcon fontSize="small" />
+              </IconButton>
             </div>
-          </Modal>
+          </Modal> */}
+
         </ThemeProvider>
       )}
     </>
