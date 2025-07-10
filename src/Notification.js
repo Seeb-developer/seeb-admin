@@ -35,7 +35,7 @@ function Notification() {
   //     autoClose: 3000,
   //     position: "bottom-right",
   //   });
-  // }, []);
+  // });
 
   return (
     <div>

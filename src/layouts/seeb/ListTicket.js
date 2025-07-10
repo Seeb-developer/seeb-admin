@@ -177,7 +177,7 @@ const ListTicket = () => {
                                                 <tr className="bg-white border-b hover:bg-gray-50" key={ticket.id}>
                                                     <td className="py-4 px-4">{index + 1}</td>
                                                     <td className="py-4 px-4 text-blue-600 hover:underline cursor-pointer"
-                                                        onClick={() => navigate("/ticket-details", { state: { ticket} })}>
+                                                        onClick={() => navigate("/ticket/ticket-details", { state: { ticket} })}>
                                                         {ticket.ticket_uid}
                                                     </td>
                                                     <td className="py-4 px-4">{ticket.user_name}</td>

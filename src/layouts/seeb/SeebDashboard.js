@@ -138,7 +138,7 @@ const SeebDashboard = () => {
                   {
                     label: "Projects",
                     color: "info",
-                    data: [dashboardData.completedProjects, dashboardData.inProgressProjects],
+                    data: [dashboardData?.completedProjects, dashboardData?.inProgressProjects],
                   },
                 ],
               }}
