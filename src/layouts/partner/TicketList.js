@@ -9,7 +9,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Pagination from "components/pagination";
 import { useNavigate } from "react-router-dom";
 
-const ListTicket = () => {
+const PartnerTicketList = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
 
     const [tickets, setTickets] = useState([]);
@@ -49,12 +49,13 @@ const ListTicket = () => {
 
             const result = await response.json();
             setLoader(false);
-           if (result.status === 200) {
-                const filtered = result.data.filter(ticket => ticket.user_type === "customer");
+            if (result.status === 200) {
+                const filtered = result.data.filter(ticket => ticket.user_type === "partner");
                 setTickets(filtered);
                 setTotalRecords(filtered.length); // update count based on filtered
                 setTotalPages(Math.ceil(filtered.length / recordsPerPage));
             }
+
         } catch (error) {
             setLoader(false);
             console.error("Error fetching tickets:", error);
@@ -91,7 +92,9 @@ const ListTicket = () => {
         setRecordsPerPage(newLimit);
         setCurrentPage(1); // Reset to first page on limit change
     };
-    const navigate = useNavigate()
+
+    const navigate = useNavigate();
+
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -161,7 +164,7 @@ const ListTicket = () => {
                     ) : (
                         <div className="border-solid border-2 black-indigo-600 mt-6 p-6 rounded-lg shadow-lg bg-white">
                             <div className="overflow-x-auto relative mt-6">
-                                 <table className="w-full text-sm text-left text-gray-500">
+                                <table className="w-full text-sm text-left text-gray-500">
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                         <tr>
                                             <th className="py-3 px-4 w-[5%]">Sr. No</th>
@@ -184,7 +187,7 @@ const ListTicket = () => {
                                                 >
                                                     <td className="py-4 px-4">{index + 1}</td>
                                                     <td className="py-4 px-4 text-blue-600 hover:underline cursor-pointer"
-                                                        onClick={() => navigate("/ticket/ticket-details", { state: { ticket } })}>
+                                                        onClick={() => navigate("/partner-ticket-details", { state: { ticket } })}>
                                                         {ticket.ticket_uid}
                                                     </td>
                                                     <td className="py-4 px-4">{ticket.user_name}</td>
@@ -227,4 +230,4 @@ const ListTicket = () => {
     );
 };
 
-export default ListTicket
+export default PartnerTicketList;

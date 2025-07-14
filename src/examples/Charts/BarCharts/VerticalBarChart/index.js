@@ -41,7 +41,6 @@ ChartJS.register(
 );
 
 function VerticalBarChart({ title, description, height, chart }) {
-  console.log("chart", chart.datasets);
   const chartDatasets = chart.datasets
     ? chart.datasets.map((dataset) => ({
         ...dataset,

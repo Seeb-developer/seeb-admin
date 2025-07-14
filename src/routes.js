@@ -111,6 +111,7 @@ import Styles from "layouts/seeb/Styles";
 import FaqsCategory from "layouts/seeb/faq/FaqsCategory";
 import Faqs from "layouts/seeb/faq/Faqs";
 import SavedFloorPlans from "layouts/seeb/savedFloorplans/floorplanList";
+import PartnerTicketList from "layouts/partner/TicketList";
 
 
 const routes = [
@@ -1149,7 +1150,19 @@ const routes = [
         component_name: "ListPartner",
         noCollapse: true,
         component: <ListPartner />,
-      }
+      },
+      {
+
+        type: "collapse",
+        name: "Ticket",
+        key: "team",
+        // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
+        icon: <FaUsers size="12px" />,  // Team Icon
+        route: "/partner-ticket-list",
+        component_name: "PartnerTicketList",
+        noCollapse: true,
+        component: <PartnerTicketList />,
+      },
     ]
   }
 ];

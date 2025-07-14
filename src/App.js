@@ -151,6 +151,10 @@ import FloorplanSummary from "layouts/seeb/savedFloorplans/floorplanSummary";
 import AssignWorker from "layouts/seeb/booking/AssignWorker";
 import WorkerDetail from "layouts/seeb/booking/WorkerDetail";
 import { requestForToken } from "./firebaseConfig";
+import PartnerTicketList from "layouts/partner/TicketList";
+import PartnerTicketDetails from "layouts/partner/TicketDetail";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { auth } from "firebaseConfig"; // Import the auth object from firebaseConfig
 
 export default function App() {
   const [controller, dispatch] = useSoftUIController();
@@ -165,6 +169,8 @@ export default function App() {
   const [notification, setNotification] = useState({ title: "", body: "" });
   const [isTokenFound, setTokenFound] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+const user_id = localStorage.getItem("id");
+
 
   useEffect(() => {
     requestForToken();
@@ -210,13 +216,49 @@ export default function App() {
       .then((response) => response.json())
       .then((result) => {
         setAccessKeys(result.data);
-        let rou = routes.filter((o1) => result.data.some((o2) => o1.accessKey === o2));
+        let rou = routes.filter((o1) => result.data.some((o2) => o1.accessKey === o2));        
         setNewRoutes(rou);
         setLoading(false);
       })
       .catch((error) => console.log("error", error));
     setLoading(false);
   }, [pathname]);
+
+
+  useEffect(() => {
+    const email = `admin_${user_id}@seeb.in`;
+    const password = "seeb@chat123";
+
+    const authenticate = async () => {
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        console.log("✅ Firebase user registered");
+      } catch (err) {
+        if (err.code === "auth/email-already-in-use") {
+          try {
+            await signInWithEmailAndPassword(auth, email, password);
+            console.log("✅ Firebase user logged in",);
+          } catch (loginErr) {
+            console.error("❌ Firebase login failed:", loginErr.code, loginErr.message);
+            return;
+          }
+        } else {
+          console.error("❌ Firebase registration failed:", err.code, err.message);
+          return;
+        }
+      }
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          console.log("✅ Firebase UID:", user.uid);
+          localStorage.setItem("firebase_uid", user.uid);
+          // navigate("/dashboard");
+        }
+      });
+    };
+
+    authenticate();
+  }, [user_id]);
 
   // Open sidenav when mouse enter on mini sidenav
   const handleOnMouseEnter = () => {
@@ -705,6 +747,8 @@ export default function App() {
                   <Route path="/list-partner" element={<ListPartner />} />
                   <Route path="/add-partner" element={<AddPartner />} />
                   <Route path="/partner-details" element={<PartnerVerification />} />
+                  <Route path="/partner-ticket-list" element={<PartnerTicketList />} />
+                  <Route path="/partner-ticket-details" element={<PartnerTicketDetails />} />
                 </>
               )}
             {accessKeys &&

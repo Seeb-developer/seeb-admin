@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { getDatabase } from "firebase/database"; // Optional if you use Realtime DB
+import { getDatabase } from "firebase/database"; // Optional, only if you use Realtime DB
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // 🔐 Your Firebase configuration
@@ -17,10 +18,13 @@ const firebaseConfig = {
 // 🔄 Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// 📦 Export Firestore and optionally Realtime DB
+// 🔐 Initialize Services
 const db = getFirestore(app);
-const rtdb = getDatabase(app); // Optional — only if needed
-export { db, rtdb };
+const rtdb = getDatabase(app); // Optional
+const auth = getAuth(app);
+
+// 📦 Export services
+export { app, db, rtdb, auth };
 
 // 🔔 Setup Messaging
 const messaging = getMessaging(app);
