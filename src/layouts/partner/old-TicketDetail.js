@@ -5,10 +5,9 @@ import { Menu, MenuItem } from "@mui/material";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { listenToMessages, sendMessage } from "./firebaseChat";
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "firebaseConfig";
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc } from 'firebase/firestore';
 import { onAuthStateChanged } from "firebase/auth";
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import axios from "axios";
@@ -28,11 +27,7 @@ const TicketDetails = () => {
     const [ticketStatus, setTicketStatus] = useState("");
     const id = localStorage.getItem('id')
     const bottomRef = useRef(null);
-    const typingTimeoutRef = useRef(null);
-    const isTypingRef = useRef(false);
-    const [adminTyping, setAdminTyping] = useState(false);
 
-    const ticketUID = ticketData?.ticket_uid || ticketData?.id;
 
     useEffect(() => {
         fetchTicketDetails();
@@ -54,7 +49,7 @@ const TicketDetails = () => {
                 return;
             }
 
-
+            const ticketUID = ticketData?.ticket_uid || ticketData?.id;
             if (!ticketUID) return;
             const ticketRef = doc(db, "tickets", ticketUID);
             const messagesRef = collection(ticketRef, "messages");
@@ -90,52 +85,6 @@ const TicketDetails = () => {
             }
         };
     }, [ticketData]);
-
-    const updateTypingStatus = async (isTyping) => {
-
-
-        try {
-            const typingRef = doc(db, 'tickets', ticketUID, 'typing_status', 'admin');
-            await setDoc(typingRef, {
-                typing: isTyping,
-                updated_at: serverTimestamp(),
-            });
-            console.log('✅ Typing status updated');
-        } catch (err) {
-            console.error('🔥 Failed to update typing status:', err);
-        }
-    };
-
-
-
-
-    useEffect(() => {
-        if (!ticketUID) return;
-        const db = getFirestore();
-        const typingRef = doc(db, 'tickets', ticketUID, 'typing_status', 'partner');
-
-        const unsubscribe = onSnapshot(typingRef, (docSnap) => {
-            if (docSnap.exists()) {
-                setAdminTyping(docSnap.data().typing);
-            }
-        });
-
-        return unsubscribe;
-    }, [ticketUID]);
-
-
-
-
-    const displayMessages = adminTyping
-        ? [...(messages || []), {
-            id: 'typing',
-            sender_type: 'partner',
-            message: 'typing...',
-            timestamp: new Date(),
-            is_typing: true,
-        }]
-        : messages || [];
-
 
     const formatMessages = (messages) => {
         return messages.map((msg) => {
@@ -211,6 +160,14 @@ const TicketDetails = () => {
             setImagePreviewUrl(previewUrl);
         }
     };
+
+    // const handleSendMessage = async (optionalMsg) => {
+    //     const messageToSend = optionalMsg ?? newMessage.trim();
+    //     if (!messageToSend) return;
+
+    //     await sendMessage(ticketId, messageToSend);
+    //     setNewMessage(""); // Clear input only if it's from the input box
+    // };
 
     const fetchTicketDetails = async () => {
         try {
@@ -293,27 +250,19 @@ const TicketDetails = () => {
                         </div>
                     </div>
                     <div className="border p-4 rounded-lg h-[70vh] overflow-y-auto bg-gray-100">
-                        {displayMessages.map((msg, index) => {
+                        {messages.map((msg, index) => {
                             const isLast = index === messages.length - 1;
                             return (
                                 <div key={index} ref={isLast ? bottomRef : null} className={`flex ${msg.sender_type === "admin" ? "justify-end" : "justify-start"} mb-2`}>
                                     <div className={`p-3 rounded-lg text-white max-w-xs ${msg.sender_type === "admin" ? "bg-blue-500" : "bg-gray-600"}`}>
                                         <p className="text-sm font-semibold">{msg.created_by}</p>
-                                        {msg.is_typing ? (
-                                            <p className="italic animate-pulse">Typing...</p>
-                                        ) : (
-                                            <>
-                                                {msg.image && (
-                                                    <img
-                                                        src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + msg.image}
-                                                        alt="Message Attachment"
-                                                        className="rounded-lg object-contain w-[200px] mt-1"
-                                                    />
-                                                )}
-                                                <p>{msg.message}</p>
-                                                <p className="text-xs text-gray-300 mt-1">{msg.formattedTime}</p>
-                                            </>
+                                        {msg.image && (
+                                            <img src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + msg.image} alt="Message Attachment" className="rounded-lg object-contain w-[200px]" />
                                         )}
+                                        <p>{msg.message}</p>
+                                        <p className="text-xs text-gray-300 mt-1">
+                                            {msg.formattedTime}
+                                        </p>
                                     </div>
                                 </div>
                             )
@@ -356,26 +305,7 @@ const TicketDetails = () => {
                             className="border p-3 flex-1 rounded text-lg"
                             placeholder="Type your message..."
                             value={newMessage}
-                            onChange={(e) => {
-                                setNewMessage(e.target.value)
-                                let text = e.target.value;
-                                if (!isTypingRef.current && text.length > 0) {
-                                    updateTypingStatus(true);
-                                    isTypingRef.current = true;
-                                }
-
-                                // Clear previous timeout
-                                if (typingTimeoutRef.current) {
-                                    clearTimeout(typingTimeoutRef.current);
-                                }
-
-                                // Stop typing after 2s of inactivity
-                                typingTimeoutRef.current = setTimeout(() => {
-                                    updateTypingStatus(false);
-                                    isTypingRef.current = false;
-                                }, 2000);
-                            }}
-
+                            onChange={(e) => setNewMessage(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") handleSendMessage();
                             }}

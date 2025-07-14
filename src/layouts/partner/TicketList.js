@@ -10,6 +10,7 @@ import Pagination from "components/pagination";
 import { useNavigate } from "react-router-dom";
 
 const PartnerTicketList = () => {
+    const navigate = useNavigate();
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
 
     const [tickets, setTickets] = useState([]);
@@ -93,7 +94,25 @@ const PartnerTicketList = () => {
         setCurrentPage(1); // Reset to first page on limit change
     };
 
-    const navigate = useNavigate();
+    const handleTicketClick = async (ticket) => {
+        try {
+            await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/mark-as-read`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ticket_id: ticket.id,
+                    viewer_type: "admin",
+                }),
+            });
+
+        } catch (err) {
+            console.error("❌ Failed to mark ticket as read:", err);
+        }
+
+        // Navigate after marking as read
+        navigate("/ticket-details", { state: { ticket } });
+    };
+
 
     return (
         <DashboardLayout>
@@ -187,7 +206,7 @@ const PartnerTicketList = () => {
                                                 >
                                                     <td className="py-4 px-4">{index + 1}</td>
                                                     <td className="py-4 px-4 text-blue-600 hover:underline cursor-pointer"
-                                                        onClick={() => navigate("/partner-ticket-details", { state: { ticket } })}>
+                                                        onClick={() => handleTicketClick(ticket)}>
                                                         {ticket.ticket_uid}
                                                     </td>
                                                     <td className="py-4 px-4">{ticket.user_name}</td>

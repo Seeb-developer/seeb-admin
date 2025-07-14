@@ -10,6 +10,7 @@ import Pagination from "components/pagination";
 import { useNavigate } from "react-router-dom";
 
 const ListTicket = () => {
+    const navigate = useNavigate();
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
 
     const [tickets, setTickets] = useState([]);
@@ -49,7 +50,7 @@ const ListTicket = () => {
 
             const result = await response.json();
             setLoader(false);
-           if (result.status === 200) {
+            if (result.status === 200) {
                 const filtered = result.data.filter(ticket => ticket.user_type === "customer");
                 setTickets(filtered);
                 setTotalRecords(filtered.length); // update count based on filtered
@@ -91,7 +92,26 @@ const ListTicket = () => {
         setRecordsPerPage(newLimit);
         setCurrentPage(1); // Reset to first page on limit change
     };
-    const navigate = useNavigate()
+
+    const handleTicketClick = async (ticket) => {
+        try {
+            await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/mark-as-read`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ticket_id: ticket.id,
+                    viewer_type: "admin",
+                }),
+            });
+
+        } catch (err) {
+            console.error("❌ Failed to mark ticket as read:", err);
+        }
+
+        // Navigate after marking as read
+        navigate("/ticket-details", { state: { ticket } });
+    };
+
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -161,7 +181,7 @@ const ListTicket = () => {
                     ) : (
                         <div className="border-solid border-2 black-indigo-600 mt-6 p-6 rounded-lg shadow-lg bg-white">
                             <div className="overflow-x-auto relative mt-6">
-                                 <table className="w-full text-sm text-left text-gray-500">
+                                <table className="w-full text-sm text-left text-gray-500">
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                         <tr>
                                             <th className="py-3 px-4 w-[5%]">Sr. No</th>
@@ -184,7 +204,7 @@ const ListTicket = () => {
                                                 >
                                                     <td className="py-4 px-4">{index + 1}</td>
                                                     <td className="py-4 px-4 text-blue-600 hover:underline cursor-pointer"
-                                                        onClick={() => navigate("/ticket/ticket-details", { state: { ticket } })}>
+                                                        onClick={() => handleTicketClick(ticket)}>
                                                         {ticket.ticket_uid}
                                                     </td>
                                                     <td className="py-4 px-4">{ticket.user_name}</td>

@@ -152,7 +152,6 @@ import AssignWorker from "layouts/seeb/booking/AssignWorker";
 import WorkerDetail from "layouts/seeb/booking/WorkerDetail";
 import { requestForToken } from "./firebaseConfig";
 import PartnerTicketList from "layouts/partner/TicketList";
-import PartnerTicketDetails from "layouts/partner/TicketDetail";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "firebaseConfig"; // Import the auth object from firebaseConfig
 
@@ -638,7 +637,7 @@ const user_id = localStorage.getItem("id");
               ) && (
                 <>
                   <Route path="/ticket" element={<ListTicket />} />
-                  <Route path="/ticket/ticket-details" element={<TicketDetails />} />
+                  <Route path="/ticket-details" element={<TicketDetails />} />
                 </>
               )}
 
@@ -748,7 +747,6 @@ const user_id = localStorage.getItem("id");
                   <Route path="/add-partner" element={<AddPartner />} />
                   <Route path="/partner-details" element={<PartnerVerification />} />
                   <Route path="/partner-ticket-list" element={<PartnerTicketList />} />
-                  <Route path="/partner-ticket-details" element={<PartnerTicketDetails />} />
                 </>
               )}
             {accessKeys &&
