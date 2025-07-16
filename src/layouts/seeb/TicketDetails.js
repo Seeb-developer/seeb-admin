@@ -75,7 +75,7 @@ const TicketDetails = () => {
                         };
                     });
 
-                    console.log("📥 Messages fetched from Firestore:", firebaseMessages);
+                    // console.log("📥 Messages fetched from Firestore:", firebaseMessages);
                     setMessages(firebaseMessages);
                 },
                 (error) => {
@@ -92,21 +92,17 @@ const TicketDetails = () => {
     }, [ticketData]);
 
     const updateTypingStatus = async (isTyping) => {
-
-
         try {
             const typingRef = doc(db, 'tickets', ticketUID, 'typing_status', 'admin');
             await setDoc(typingRef, {
                 typing: isTyping,
                 updated_at: serverTimestamp(),
             });
-            console.log('✅ Typing status updated');
+            // console.log('✅ Typing status updated');
         } catch (err) {
             console.error('🔥 Failed to update typing status:', err);
         }
     };
-
-
 
 
     useEffect(() => {
@@ -122,8 +118,6 @@ const TicketDetails = () => {
 
         return unsubscribe;
     }, [ticketUID]);
-
-
 
 
     const displayMessages = adminTyping

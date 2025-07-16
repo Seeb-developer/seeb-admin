@@ -82,7 +82,7 @@ const ListBlogSection = () => {
               <th className="px-4 py-2">Image</th>
               <th className="px-4 py-2">Description</th>
               <th className="px-4 py-2">CTA Button Text</th>
-              <th className="px-4 py-2">CTA Button link</th>
+              {/* <th className="px-4 py-2">CTA Button link</th> */}
               <th className="px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
@@ -120,7 +120,7 @@ const ListBlogSection = () => {
                   </td>
                   <td className="px-4 py-2">{item.description.slice(0, 100)}...</td>
                   <td className="px-4 py-2">{item.cta_text}</td>
-                  <td className="px-4 py-2">{item.section_link}</td>
+                  {/* <td className="px-4 py-2">{item.section_link}</td> */}
                   <td className="px-4 py-2 text-center flex gap-3 justify-center">
                     <FaPen className="text-green-600 cursor-pointer" onClick={() => {
                       if (item.cta_text) {
