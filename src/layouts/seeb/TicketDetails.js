@@ -177,12 +177,20 @@ const TicketDetails = () => {
                 is_read_by_user: false,
             };
 
+            const PayloadData = {
+                message: newMessage,
+                file: imageUrl,
+                ticket_id: ticketData.id,
+                sender_id: id || null,
+                sender_type: 'admin',
+            };
+
             // Send to backend
-            // await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/add-message`, {
-            //     method: "POST",
-            //     headers: { "Content-Type": "application/json" },
-            //     body: JSON.stringify(body),
-            // });
+            await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/add-message`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(PayloadData),
+            });
 
             // Send to Firestore
             await addDoc(collection(db, "tickets", ticket?.ticket_uid, "messages"), messageData);
