@@ -95,9 +95,9 @@ const AddBlogCTA = () => {
 
                 <form className="space-y-10" onSubmit={handleSubmit}>
                     {/* Optional Form Inputs (Uncomment when needed) */}
-                    {/* 
+                    
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <input
+      {/* <input
         type="text"
         placeholder="Title"
         required
@@ -119,7 +119,7 @@ const AddBlogCTA = () => {
         className="text-sm border rounded px-4 py-2 col-span-2 resize-none"
         value={blogData.description}
         onChange={e => setBlogData({ ...blogData, description: e.target.value })}
-      />
+      /> */}
       <input
         type="text"
         placeholder="CTA Button Text"
@@ -128,7 +128,7 @@ const AddBlogCTA = () => {
         onChange={e => setBlogData({ ...blogData, cta_text: e.target.value })}
       />
     </div>
-    */}
+   
 
                     {/* Banner Upload */}
                     <div>
