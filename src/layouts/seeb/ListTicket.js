@@ -57,8 +57,9 @@ const ListTicket = () => {
             // console.log("tickets",filtered)
 
                 setTickets(result.data);
-                setTotalRecords(result.data.length); // update count based on filtered
-                setTotalPages(Math.ceil(result.data.length / recordsPerPage));
+                setTotalRecords(result.pagination.total); // update count based on filtered
+                // setTotalPages(Math.ceil(result.data.length / recordsPerPage));
+                setTotalPages(result.pagination.last_page)
             }
         } catch (error) {
             setLoader(false);

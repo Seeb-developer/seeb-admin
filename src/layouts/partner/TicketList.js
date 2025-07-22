@@ -54,8 +54,9 @@ const PartnerTicketList = () => {
             if (result.status === 200) {
                 // const filtered = result.data.filter(ticket => ticket.user_type === "partner");
                 setTickets(result.data);
-                setTotalRecords(result.data.length); // update count based on filtered
-                setTotalPages(Math.ceil(result.data.length / recordsPerPage));
+                setTotalRecords(result.pagination.total); // update count based on filtered
+                setTotalPages(result.pagination.last_page);
+                // setTotalPages(Math.ceil(result.data.length / recordsPerPage));
             }
 
         } catch (error) {
