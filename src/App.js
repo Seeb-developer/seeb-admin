@@ -190,7 +190,6 @@ const user_id = localStorage.getItem("id");
 
   // Cache for the rtl
   useMemo(() => {
-    // console.log(localStorage.getItem('id'));
     const cacheRtl = createCache({
       key: "rtl",
       stylisPlugins: [rtlPlugin],
@@ -249,8 +248,8 @@ const user_id = localStorage.getItem("id");
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          console.log("✅ Firebase UID:", user.uid);
-          localStorage.setItem("firebase_uid", user.uid);
+          // console.log("✅ Firebase UID:", user.uid);
+          // localStorage.setItem("firebase_uid", user.uid);
           // navigate("/dashboard");
         }
       });
@@ -396,7 +395,7 @@ const user_id = localStorage.getItem("id");
             {layout === "vr" && <Configurator />}
             <Routes>
               {getRoutes(newRoutes)}
-              <Route path="*" element={<Navigate to="/dashboard" />} />
+              <Route path="*" element={<Navigate to="/seeb-dashboard" />} />
             </Routes>
           </ThemeProvider>
         </CacheProvider>
@@ -804,7 +803,7 @@ const user_id = localStorage.getItem("id");
 
             <Route path="/403-non-authorized" element={<NontAuthorized401 />} />
             {localStorage.getItem("Token") ? (
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<SeebDashboard />} />
             ) : (
               <Route path="/" element={<SignIn />} />
             )}

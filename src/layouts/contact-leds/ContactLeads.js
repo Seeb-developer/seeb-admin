@@ -44,61 +44,18 @@ function ContactLeads() {
   const [remarkModalVisible, setRemarkModalVisible] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
   const [newRemark, setNewRemark] = useState("");
-  const handleViewClick = (message) => {
-    setFullMessage(message);
-    setModalVisible(true);
-  };
-
   const [lead, setLead] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const debounce = (func, delay) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => func(...args), delay);
-    };
-  };
+  useEffect(() => {
+    listLeads()
+  }, [])
 
-  const exportToExcel = () => {
-    const table = document.getElementById("table-to-export");
-    const workbook = utils.table_to_book(table, { sheet: "tablexls" });
-    writeFile(workbook, "Contacts_Leads_Sheet.xlsx");
-  };
+  // Effect to trigger API when search changes
+  useEffect(() => {
+    listLeads(1, recordsPerPage, dateRange[0], dateRange[1], debouncedSearch); // Reset to page 1 on search
+  }, [debouncedSearch]);
 
-  const handleDateRangeChange = (dates) => {
-    if (dates) {
-      setDateRange(dates);
-
-      if (dates[0] && dates[1]) {
-        const startDate = dates[0].toISOString().split('T')[0]; // Format to YYYY-MM-DD
-        const endDate = dates[1].toISOString().split('T')[0];   // Format to YYYY-MM-DD
-
-        // Call API with updated date range and pagination
-        listLeads(currentPage, recordsPerPage, startDate, endDate);
-      }
-    } else {
-      listLeads(currentPage, recordsPerPage, null, null);
-    }
-  };
-  const handlePageChange = (number) => {
-    listLeads(number, recordsPerPage, dateRange[0], dateRange[1]);
-    setCurrentPage(number);
-
-    // Call API with updated page number and date range
-  };
-
-
-  // Handle records per page changes
-  const handleRecordsPerPageChange = (value) => {
-    listLeads(1, value, dateRange[0], dateRange[1]);
-    setRecordsPerPage(value);
-    setCurrentPage(1); // Reset to first page when records per page change
-
-    // Call API with updated records per page and date range
-  };
-
-  // list leads
   const listLeads = async (page = 1, limit = recordsPerPage, startDate = dateRange[0], endDate = dateRange[1], query = debouncedSearch) => {
     // setLoading(true);
 
@@ -138,24 +95,61 @@ function ContactLeads() {
       .catch(error => console.log('error', error));
   }
 
+  const handleViewClick = (message) => {
+    setFullMessage(message);
+    setModalVisible(true);
+  };
 
+  const debounce = (func, delay) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => func(...args), delay);
+    };
+  };
 
-  useEffect(() => {
-    listLeads()
-  }, [])
+  const exportToExcel = () => {
+    const table = document.getElementById("table-to-export");
+    const workbook = utils.table_to_book(table, { sheet: "tablexls" });
+    writeFile(workbook, "Contacts_Leads_Sheet.xlsx");
+  };
 
+  const handleDateRangeChange = (dates) => {
+    if (dates) {
+      setDateRange(dates);
 
+      if (dates[0] && dates[1]) {
+        const startDate = dates[0].toISOString().split('T')[0]; // Format to YYYY-MM-DD
+        const endDate = dates[1].toISOString().split('T')[0];   // Format to YYYY-MM-DD
+
+        // Call API with updated date range and pagination
+        listLeads(currentPage, recordsPerPage, startDate, endDate);
+      }
+    } else {
+      listLeads(currentPage, recordsPerPage, null, null);
+    }
+  };
+
+  const handlePageChange = (number) => {
+    listLeads(number, recordsPerPage, dateRange[0], dateRange[1]);
+    setCurrentPage(number);
+
+    // Call API with updated page number and date range
+  };
+
+  // Handle records per page changes
+  const handleRecordsPerPageChange = (value) => {
+    listLeads(1, value, dateRange[0], dateRange[1]);
+    setRecordsPerPage(value);
+    setCurrentPage(1); // Reset to first page when records per page change
+
+    // Call API with updated records per page and date range
+  };
 
   const handleSearchChange = useCallback(
     debounce((value) => setDebouncedSearch(value), 500),
     []
   );
-
-  // Effect to trigger API when search changes
-  useEffect(() => {
-    listLeads(1, recordsPerPage, dateRange[0], dateRange[1], debouncedSearch); // Reset to page 1 on search
-  }, [debouncedSearch]);
-
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -238,6 +232,7 @@ function ContactLeads() {
         console.error("Error updating remark:", error);
       });
   };
+  
   const formatToIST = (timestamp) => {
     return new Date(timestamp).toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
@@ -343,7 +338,7 @@ function ContactLeads() {
                       <th scope="col" className="px-6 py-3">
                         City
                       </th>
-                       <th scope="col" className="px-6 py-3">
+                      <th scope="col" className="px-6 py-3">
                         Space For
                       </th>
                       <th scope="col" className="px-6 py-3">

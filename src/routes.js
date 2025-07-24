@@ -70,6 +70,37 @@ import {
   FaUser,
   FaUsers,
 } from "react-icons/fa";
+
+import {
+  FaCalendarCheck,   
+  FaShoppingCart,     
+  FaSave,              
+  FaCogs,              
+  FaCouch,            
+  FaTags,             
+  FaShapes,            
+  FaLightbulb,         
+  FaFolderOpen,       
+  FaQuestionCircle ,
+  FaListUl,
+  FaImage,
+  FaStarHalfAlt,      
+  FaUserShield,   
+  FaUserCog, 
+  FaUserPlus,                    
+  FaEdit,             
+  FaWallet,   
+  FaUserTie,
+  FaHistory,          
+  FaVideo,            
+  FaBoxOpen,          
+  FaCubes,
+  FaBuilding,         
+  FaUserCircle,
+  FaBookOpen,         
+  FaBoxes               
+} from 'react-icons/fa';
+
 import { AiFillShop, AiOutlineExclamation, AiTwotoneShop } from "react-icons/ai";
 import { BiCategoryAlt, BiSolidOffer } from "react-icons/bi";
 import GetNotification from "layouts/notification/GetNotification";
@@ -115,17 +146,17 @@ import PartnerTicketList from "layouts/partner/TicketList";
 
 
 const routes = [
-  {
-    type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
-    accessKey: "36c596f0cb5516dc4dd83d4656f755b246e5f7ae1a1d758e71d584a216ff7340",
-    route: "/dashboard",
-    icon: <FaTv size="17px" />,
-    component_name: "Dashboard",
-    component: <Dashboard />,
-    noCollapse: true,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Dashboard",
+  //   key: "dashboard",
+  //   accessKey: "36c596f0cb5516dc4dd83d4656f755b246e5f7ae1a1d758e71d584a216ff7340",
+  //   route: "/dashboard",
+  //   icon: <FaTachometerAlt  size="17px" />,
+  //   component_name: "Dashboard",
+  //   component: <Dashboard />,
+  //   noCollapse: true,
+  // },
   {
     type: "collapse",
     name: "Billing",
@@ -142,14 +173,14 @@ const routes = [
     title: "Seeb Dashboard",
     key: "seeb-dashboard",
     accessKey: "36c596f0cb5516dc4dd83d4656f755b246e5f7ae1a1d758e71d584a216ff7340",
-    icon: <FaTachometerAlt size="12px" />, // Dashboard icon
+    icon: <FaTachometerAlt size=" 16px" />, // Dashboard icon
     children: [
       {
         type: "collapse",
         name: "Dashboard",
         key: "seeb-dashboard",
         route: "/seeb-dashboard",
-        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        icon: <FaTachometerAlt size="20px" />,  
         component_name: "Seeb Dashboard",
 
         component: <SeebDashboard />,
@@ -161,7 +192,7 @@ const routes = [
         name: "Bookings",
         key: "bookings",
         route: "/bookings",
-        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        icon: <FaCalendarCheck size="16px" />,  
         component_name: "bookings",
         component: <ListBookings />,
         noCollapse: true,
@@ -172,7 +203,7 @@ const routes = [
         name: "Cart",
         key: "cart",
         route: "/cart",
-        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        icon: <FaShoppingCart size="16px" />,  
         component_name: "cart",
         component: <CartPage />,
         noCollapse: true,
@@ -183,7 +214,7 @@ const routes = [
         name: "Saved Floorplans",
         key: "saved-floorplans",
         route: "/saved-floorplans",
-        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        icon: <FaSave size="16px" />,  
         component_name: "saved-floorplans",
         component: <SavedFloorPlans />,
         noCollapse: true,
@@ -194,7 +225,7 @@ const routes = [
         name: "Services",
         key: "services",
         route: "/services",
-        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        icon: <FaCogs size="16px" />,  
         component_name: "services",
         component: <ListServices />,
         noCollapse: true,
@@ -205,7 +236,7 @@ const routes = [
         name: "Rooms",
         key: "rooms",
         route: "/rooms",
-        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        icon: <FaCouch size="16px" />,  
         component_name: "rooms",
         component: <ListRooms />,
         noCollapse: true,
@@ -216,7 +247,7 @@ const routes = [
         name: "Services Type",
         key: "services-type",
         route: "/services-type",
-        icon: <FaFileInvoice size="12px" />, // Receipt icon
+        icon: <FaTags size="16px" />,  
         component_name: "Services Type",
         component: <ListServicesType />,
         noCollapse: true,
@@ -227,7 +258,7 @@ const routes = [
         name: "Styles",
         key: "styles",
         route: "/styles",
-        icon: <FaFileInvoice size="12px" />, // Receipt icon
+        icon: <FaShapes size="16px" />,  
         component_name: "Styles",
         component: <Styles />,
         noCollapse: true,
@@ -238,7 +269,7 @@ const routes = [
         name: "Prompts",
         key: "prompts",
         route: "/prompts",
-        icon: <FaFileInvoice size="12px" />, // Receipt icon
+        icon: <FaLightbulb size="16px" />,  
         component_name: "Prompts",
         component: <ListPrompts />,
         noCollapse: true,
@@ -249,7 +280,7 @@ const routes = [
         name: "FAQs Category",
         key: "faqs-category",
         route: "/faqs-category",
-        icon: <FaFileInvoice size="12px" />, // Receipt icon
+        icon: <FaFolderOpen size="16px" />,  
         component_name: "FAQs Category",
         component: <FaqsCategory />,
         noCollapse: true,
@@ -260,7 +291,7 @@ const routes = [
         name: "FAQs",
         key: "faqs",
         route: "/faqs",
-        icon: <FaFileInvoice size="12px" />, // Receipt icon
+        icon: <FaQuestionCircle  size="16px" />,  
         component_name: "FAQs",
         component: <Faqs />,
         noCollapse: true,
@@ -282,7 +313,7 @@ const routes = [
   //       name: "Product Dashboard",
   //       key: "product-dashboard",
   //       route: "/product-dashboard",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "ProductDashboard",
   //       component: <ProductDashboard />,
   //       noCollapse: true,
@@ -292,7 +323,7 @@ const routes = [
   //       name: "Add Product",
   //       key: "product",
   //       route: "/product",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "Product",
   //       component: <Product />,
   //       noCollapse: true,
@@ -302,7 +333,7 @@ const routes = [
   //       name: "Product List",
   //       key: "product-list",
   //       route: "/product-list",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "ProductList",
   //       component: <ProductList />,
   //       noCollapse: true,
@@ -322,7 +353,7 @@ const routes = [
         name: "Create Coupon",
         key: "promo-code",
         route: "/promo-code",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaPlusSquare size=" 16px" />,
         component_name: "PromoCode",
         component: <PromoCode />,
         noCollapse: true,
@@ -332,7 +363,7 @@ const routes = [
         name: "Coupon List",
         key: "coupon-list",
         route: "/coupon-list",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaListUl size=" 16px" />,
         component_name: "CouponList",
         component: <CouponList />,
         noCollapse: true,
@@ -342,7 +373,7 @@ const routes = [
       //   name: "Discount",
       //   key: "discount",
       //   route: "/discount",
-      //   icon: <FaCircleNotch size="12px" />,
+      //   icon: <FaCircleNotch size=" 16px" />,
       //   component_name: "Discount",
       //   component: <Discount />,
       //   noCollapse: true,
@@ -352,7 +383,7 @@ const routes = [
         name: "Offers",
         key: "offer",
         route: "/offer",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaTags size=" 16px" />,
         component_name: "Offer",
         component: <Offer />,
         noCollapse: true,
@@ -362,7 +393,7 @@ const routes = [
         name: "Offers List",
         key: "offer-list",
         route: "/list-offer",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaListUl size=" 16px" />,
         component_name: "OfferList",
         component: <OfferList />,
         noCollapse: true,
@@ -382,7 +413,7 @@ const routes = [
   //       name: "Add Category",
   //       key: "add-category",
   //       route: "/add-category",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "AddCategory",
   //       component: <AddCategory />,
   //       noCollapse: true,
@@ -392,7 +423,7 @@ const routes = [
   //       name: "List Category",
   //       key: "list-category",
   //       route: "/list-category",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "ListCategory",
   //       component: <ListCategory />,
   //       noCollapse: true,
@@ -402,7 +433,7 @@ const routes = [
   //       name: "Sub Category",
   //       key: "sub-category",
   //       route: "/sub-category",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "SubCategory",
   //       component: <SubCategory />,
   //       noCollapse: true,
@@ -412,7 +443,7 @@ const routes = [
   //       name: "List Sub Category",
   //       key: "lis-sub-category",
   //       route: "/list-sub-category",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "ListSubCategory",
   //       component: <ListSubCategory />,
   //       noCollapse: true,
@@ -432,7 +463,7 @@ const routes = [
         name: "Banner Image",
         key: "main-banner-image",
         route: "/banner-image",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaImage size=" 16px" />,
         component_name: "MainBannerImages",
         component: <MainBannerImages />,
         noCollapse: true,
@@ -452,7 +483,7 @@ const routes = [
   //       name: "Offers",
   //       key: "offer",
   //       route: "/offer",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "Offer",
   //       component: <Offer />,
   //       noCollapse: true,
@@ -462,7 +493,7 @@ const routes = [
   //       name: "Offers List",
   //       key: "offer-list",
   //       route: "/list-offer",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "OfferList",
   //       component: <OfferList />,
   //       noCollapse: true,
@@ -475,14 +506,14 @@ const routes = [
     title: "Customer",
     key: "customer-pages",
     accessKey: "d0145f5223d409e0a8e891fccbe821babc0be79872284f02b8b9597e62d81824",
-    icon: <FaUsers size="12px" />,
+    icon: <FaUsers size=" 16px" />,
     children: [
       {
         type: "collapse",
         name: "Customer List",
         key: "customer-list",
         route: "/customer-list",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaUsers size=" 16px" />,
         component_name: "CustomerList",
         component: <CustomerList />,
         noCollapse: true,
@@ -492,7 +523,7 @@ const routes = [
         name: "Review List",
         key: "review-list",
         route: "/review-list",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaStarHalfAlt size=" 16px" />,
         component_name: "ReviewList",
         component: <ReviewList />,
         noCollapse: true,
@@ -505,14 +536,14 @@ const routes = [
   //   title: "Orders",
   //   key: "order-pages",
   //   accessKey: "8e213582f50fe730ad9fc6ac69b3e28b71b26f0113ae1c358c3ffc4bb96acca5",
-  //   icon: <FaList size="12px" />,
+  //   icon: <FaList size=" 16px" />,
   //   children: [
   //     {
   //       type: "collapse",
   //       name: "Order List",
   //       key: "order-list",
   //       route: "/order-list",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "OrderList",
   //       component: <OrderList />,
   //       noCollapse: true,
@@ -522,7 +553,7 @@ const routes = [
   //     //   name: "Dashboard",
   //     //   key: "order-dashboard",
   //     //   route: "/order-dashboard",
-  //     //   icon: <CreditCard size="12px" />,
+  //     //   icon: <CreditCard size=" 16px" />,
   //     //   component_name: "OrderDashboard",
   //     //   component: <OrderDashboard />,
   //     //   noCollapse: true,
@@ -535,14 +566,14 @@ const routes = [
   //   title: "Vendors",
   //   key: "vendors-pages",
   //   accessKey: "a14bc83bb7c780880386323d892b836df8802ae94f98ec127165e6a5739e3333",
-  //   icon: <AiFillShop size="12px" />,
+  //   icon: <AiFillShop size=" 16px" />,
   //   children: [
   //     {
   //       type: "collapse",
   //       name: "Add Vendors",
   //       key: "add-vendors",
   //       route: "/add-vendors",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "AddVendors",
   //       component: <AddVendors />,
   //       noCollapse: true,
@@ -552,7 +583,7 @@ const routes = [
   //       name: "List Vendors",
   //       key: "list-vendors",
   //       route: "/list-vendors",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "VendorList",
   //       component: <VendorList />,
   //       noCollapse: true,
@@ -562,7 +593,7 @@ const routes = [
   //     //   name: "Vendors",
   //     //   key: "vendor-add",
   //     //   route: "/vendor-add",
-  //     //   icon: <CreditCard size="12px" />,
+  //     //   icon: <CreditCard size=" 16px" />,
   //     //   component_name: "VendorAdd",
   //     //   component: <VendorAdd />,
   //     //   noCollapse: true,
@@ -575,14 +606,14 @@ const routes = [
     title: "Leads",
     key: "leads-page",
     accessKey: "6b0c41c07e9953fe59e773eedb07f82e0ead50142403621167af66d33465fe28",
-    icon: <FaPhoneAlt size="12px" />,
+    icon: <FaPhoneAlt size=" 16px" />,
     children: [
       {
         type: "collapse",
         name: "Contact Leads",
         key: "contact-leads",
         route: "/contact-leads",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaPhoneAlt size=" 16px" />,
         component_name: "ContactLeads",
         component: <ContactLeads />,
         noCollapse: true,
@@ -592,7 +623,7 @@ const routes = [
       //   name: "Interior Leads",
       //   key: "interior-leads",
       //   route: "/interior-leads",
-      //   icon: <FaCircleNotch size="12px" />,
+      //   icon: <FaCircleNotch size=" 16px" />,
       //   component_name: "InteriorLeads",
       //   component: <InteriorLeads />,
       //   noCollapse: true,
@@ -605,14 +636,14 @@ const routes = [
   //   title: "Privilages",
   //   key: "Privilage-page",
   //   accessKey: "85a41e2eb300c96513867d238faabd7f1c438bca9fb7edafc09b7286700da02c",
-  //   icon: <FaUser size="12px" />,
+  //   icon: <FaUser size=" 16px" />,
   //   children: [
   //     {
   //       type: "collapse",
   //       name: "Create Role",
   //       key: "create-role",
   //       route: "/create-role",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "CreateRole",
   //       component: <CreateRole />,
   //       noCollapse: true,
@@ -622,7 +653,7 @@ const routes = [
   //       name: "Update Role",
   //       key: "update-role",
   //       route: "/update-role",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "UpdateRole",
   //       component: <UpdateRole />,
   //       noCollapse: true,
@@ -635,14 +666,14 @@ const routes = [
     title: "Admin",
     key: "admin-page",
     accessKey: "21c895af98e472d757bdbad206d58ff3f45355c0a83af9e56d160d837e76e839",
-    icon: <FaKey size="12px" />,
+    icon: <FaKey size=" 16px" />,
     children: [
       {
         type: "collapse",
         name: "Admin Registration",
         key: "admin-registration",
         route: "/admin-registration",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaUserShield size=" 16px" />,
         component_name: "AdminRegistration",
         component: <AdminRegistration />,
         noCollapse: true,
@@ -652,7 +683,7 @@ const routes = [
         name: "Admin List",
         key: "admin-list",
         route: "/admin-list",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaUserCog size=" 16px" />,
         component_name: "AdminList",
         component: <AdminList />,
         noCollapse: true,
@@ -662,7 +693,7 @@ const routes = [
         name: "Create Role",
         key: "create-role",
         route: "/create-role",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaUserPlus size=" 16px" />,
         component_name: "CreateRole",
         component: <CreateRole />,
         noCollapse: true,
@@ -672,7 +703,7 @@ const routes = [
         name: "Update Role",
         key: "update-role",
         route: "/update-role",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaEdit size=" 16px" />,
         component_name: "UpdateRole",
         component: <UpdateRole />,
         noCollapse: true,
@@ -685,14 +716,14 @@ const routes = [
   //   title: "Campaign",
   //   key: "campaign",
   //   accessKey: "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0",
-  //   icon: <BsFillCalendarEventFill size="12px" />,
+  //   icon: <BsFillCalendarEventFill size=" 16px" />,
   //   children: [
   //     {
   //       type: "collapse",
   //       name: "Independance Campaign",
   //       key: "independance-campaign",
   //       route: "/independance-campaign",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "IndependanceCampaign",
   //       component: <IndependanceCampaign />,
   //       noCollapse: true,
@@ -705,14 +736,14 @@ const routes = [
     title: "Notifications",
     key: "notifications",
     accessKey: "ba63b41f4bf1ad592249a77dc88da7443ebd69c950cdf2b0c002c5efa85640c1",
-    icon: <FaBell size="12px" />,
+    icon: <FaBell size=" 16px" />,
     children: [
       {
         type: "collapse",
         name: "Create Notification",
         key: "create-notification",
         route: "/create-notification",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaCircleNotch size=" 16px" />,
         component_name: "CreateNotification",
         component: <CreateNotification />,
         noCollapse: true,
@@ -722,7 +753,7 @@ const routes = [
         name: "Get Notification",
         key: "get notification",
         route: "/get-notification",
-        icon: <FaCircleNotch size="12px" />,
+        icon: <FaCircleNotch size=" 16px" />,
         component_name: "GetNotification",
         component: <GetNotification />,
         noCollapse: true,
@@ -734,14 +765,14 @@ const routes = [
   //   title: "complain",
   //   key: "complain",
   //   accessKey: "7fa921d1fddcc31bc4361475e3a89781f22d9f10dc08d609332f87eff985c21b",
-  //   icon: <AiOutlineExclamation size="12px" />,
+  //   icon: <AiOutlineExclamation size=" 16px" />,
   //   children: [
   //     {
   //       type: "collapse",
   //       name: "complains",
   //       key: "main-complain-image",
   //       route: "/complain",
-  //       icon: <FaCircleNotch size="12px" />,
+  //       icon: <FaCircleNotch size=" 16px" />,
   //       component_name: "complain",
   //       component: <Complain />,
   //       noCollapse: true,
@@ -753,14 +784,14 @@ const routes = [
   //   title: "Transactions",
   //   key: "Transactions",
   //   accessKey: "7fa921d1fddcc31bc4361475e3a89781f22d9f10dc08d609332f87eff985c21b",
-  //   icon: <CreditCard size="12px" />,
+  //   icon: <CreditCard size=" 16px" />,
   //   children: [
   //     {
   //       type: "collapse",
   //       name: "transactions",
   //       key: "main-transactions",
   //       route: "/transactions",
-  //       icon: <CreditCard size="12px" />,
+  //       icon: <CreditCard size=" 16px" />,
   //       component_name: "transactions",
   //       component: <Transactions />,
   //       noCollapse: true,
@@ -773,14 +804,14 @@ const routes = [
     title: "Office Account",
     key: "Quotation",
     accessKey: "733a3225a334aa67d15a5a8efc9238a46d93805b1a9b14c1236214d7ad2e3220",
-    icon: <FaTachometerAlt size="12px" />, // Dashboard icon
+    icon: <FaTachometerAlt size=" 16px" />, // Dashboard icon
     children: [
       // {
       //   type: "collapse",
       //   name: "Quotations",
       //   key: "listquotation",
       //   route: "/listquotation",
-      //   icon: <FaFileInvoice size="12px" />, // Receipt icon
+      //   icon: <FaFileInvoice size=" 16px" />,  
       //   component_name: "Listquotation",
       //   component: <ListQuotation />,
       //   noCollapse: true,
@@ -791,7 +822,7 @@ const routes = [
       //   name: "Add New Quotation",
       //   key: "customerquotation",
       //   route: "/customerquotation",
-      //   icon: <FaPlusSquare size="12px" />, // Add Box icon
+      //   icon: <FaPlusSquare size=" 16px" />,  
       //   component_name: "quotation",
       //   component: <CustomerQuotation />,
       //   noCollapse: true,
@@ -802,7 +833,7 @@ const routes = [
       //   name: "Balance Sheet",
       //   key: "balance-sheet",
       //   route: "/balance-sheet",
-      //   icon: <FaBalanceScale size="12px" />, // Assessment icon
+      //   icon: <FaBalanceScale size=" 16px" />, // Assessment icon
       //   component_name: "balance-sheet",
       //   component: <BalanceSheet />,
       //   noCollapse: true,
@@ -813,7 +844,7 @@ const routes = [
         name: "Office Expense",
         key: "office-expense",
         route: "/office-expense",
-        icon: <FaMoneyBillAlt size="12px" />, // Attach Money icon
+        icon: <FaMoneyBillAlt size=" 16px" />, // Attach Money icon
         component_name: "office-expense",
         component: <OfficeExpense />,
         noCollapse: true,
@@ -824,7 +855,7 @@ const routes = [
       //   name: "Master Category",
       //   key: "mastercategory",
       //   route: "/mastercategory",
-      //   icon: <FaThLarge size="12px" />, // Category icon
+      //   icon: <FaThLarge size=" 16px" />, // Category icon
       //   component_name: "mastercategory",
       //   component: <ListMasterCategory />,
       //   noCollapse: true,
@@ -837,14 +868,14 @@ const routes = [
     title: "Account",
     key: "Account",
     accessKey: "617977b944da12c4428169cf3a16d7b3a6e2a0f2c0c397585e40e6016a401e3a",
-    icon: <FaTachometerAlt size="12px" />, // Dashboard icon
+    icon: <FaBuilding size=" 16px" />, // Dashboard icon
     children: [
       {
         type: "collapse",
         name: "Office Expense",
         key: "office-expense",
         route: "/office-expense",
-        icon: <FaMoneyBillAlt size="12px" />, // Attach Money icon
+        icon: <FaWallet size=" 16px" />, // Attach Money icon
         component_name: "office-expense",
         component: <OfficeExpense />,
         noCollapse: true,
@@ -855,7 +886,7 @@ const routes = [
         name: "Employee",
         key: "listStaff",
         accessKey: "617977b944da12c4428169cf3a16d7b3a6e2a0f2c0c397585e40e6016a401e3a",
-        icon: <FaUsers size="12px" />,  // Team Icon
+        icon: <FaUserTie size=" 16px" />,  // Team Icon
         route: "/listStaff",
         component_name: "listStaff",
         noCollapse: true,
@@ -868,14 +899,14 @@ const routes = [
   //   title: "Interior Dashboard",
   //   key: "Quotation",
   //   accessKey: "cbe8ff27e5d5d13fcc3069b741f7f98df1240f35180298326061533791fdf79b",
-  //   icon: <FaTachometerAlt size="12px" />, // Dashboard icon
+  //   icon: <FaTachometerAlt size=" 16px" />, // Dashboard icon
   //   children: [
   //     {
   //       type: "collapse",
   //       name: "Quotations",
   //       key: "listquotation",
   //       route: "/listquotation",
-  //       icon: <FaFileInvoice size="12px" />, // Receipt icon
+  //       icon: <FaFileInvoice size=" 16px" />,  
   //       component_name: "Listquotation",
   //       component: <ListQuotation />,
   //       noCollapse: true,
@@ -886,7 +917,7 @@ const routes = [
   //       name: "Add New Quotation",
   //       key: "customerquotation",
   //       route: "/customerquotation",
-  //       icon: <FaPlusSquare size="12px" />, // Add Box icon
+  //       icon: <FaPlusSquare size=" 16px" />,  
   //       component_name: "quotation",
   //       component: <CustomerQuotation />,
   //       noCollapse: true,
@@ -897,7 +928,7 @@ const routes = [
   //       name: "Master Category",
   //       key: "mastercategory",
   //       route: "/mastercategory",
-  //       icon: <FaThLarge size="12px" />, // Category icon
+  //       icon: <FaThLarge size=" 16px" />, // Category icon
   //       component_name: "mastercategory",
   //       component: <ListMasterCategory />,
   //       noCollapse: true,
@@ -910,14 +941,14 @@ const routes = [
   //   title: "Product Dashboard",
   //   key: "Quotation",
   //   accessKey: "25f9463b7527052259e3d4cfa754d32fadd818c71fc379e2e6efe0bba9295b66",
-  //   icon: <FaTachometerAlt size="12px" />,  // Dashboard Icon
+  //   icon: <FaTachometerAlt size=" 16px" />,  // Dashboard Icon
   //   children: [
   //     {
   //       type: "collapse",
   //       name: "Quotations",
   //       key: "product-list-quotation",
   //       route: "/product-list-quotation",
-  //       icon: <FaFileInvoice size="12px" />,  // Receipt Icon for Quotations
+  //       icon: <FaFileInvoice size=" 16px" />,    for Quotations
   //       component_name: "Listquotation",
   //       component: <ListQuotation />,
   //       noCollapse: true,
@@ -928,7 +959,7 @@ const routes = [
   //       name: "Add New Quotation",
   //       key: "product-add-quotation",
   //       route: "/product-add-quotation",
-  //       icon: <FaPlusSquare size="12px" />,  // Add Box Icon for adding a new quotation
+  //       icon: <FaPlusSquare size=" 16px" />,    for adding a new quotation
   //       component_name: "quotation",
   //       component: <CustomerQuotation />,
   //       noCollapse: true,
@@ -939,7 +970,7 @@ const routes = [
   //       name: "Balance Sheet",
   //       key: "product-balance-sheet",
   //       route: "/product-balance-sheet",
-  //       icon: <FaBalanceScale size="12px" />,  // Assessment Icon for Balance Sheet
+  //       icon: <FaBalanceScale size=" 16px" />,  // Assessment Icon for Balance Sheet
   //       component_name: "balance-sheet",
   //       component: <BalanceSheet />,
   //       noCollapse: true,
@@ -950,7 +981,7 @@ const routes = [
   //       name: "Office Expense",
   //       key: "product-office-expense",
   //       route: "/product-office-expense",
-  //       icon: <FaMoneyBillAlt size="12px" />,  // Attach Money Icon for Office Expense
+  //       icon: <FaMoneyBillAlt size=" 16px" />,  // Attach Money Icon for Office Expense
   //       component_name: "office-expense",
   //       component: <OfficeExpense />,
   //       noCollapse: true,
@@ -961,7 +992,7 @@ const routes = [
   //       name: "Master Category",
   //       key: "mastercategory",
   //       route: "/mastercategory",
-  //       icon: <FaThLarge size="12px" />,  // Category Icon for Master Category
+  //       icon: <FaThLarge size=" 16px" />,  // Category Icon for Master Category
   //       component_name: "mastercategory",
   //       component: <ListMasterCategory />,
   //       noCollapse: true,
@@ -975,14 +1006,14 @@ const routes = [
     title: "Blog",
     key: "Blog",
     accessKey: "33e26e2aac9ffe7442b91197f2cf4932e95686975370612c1290e3e6e4da02ba",
-    icon: <FaTachometerAlt size="12px" />, // Dashboard icon
+    icon: <FaBlog size=" 16px" />, // Dashboard icon
     children: [
       {
         type: "collapse",
         name: "Blog",
         key: "ListBlog",
         accessKey: "33e26e2aac9ffe7442b91197f2cf4932e95686975370612c1290e3e6e4da02ba",
-        icon: <FaBlog size="12px" />,  // Blog Icon
+        icon: <FaBlog size=" 16px" />,  // Blog Icon
         route: "/ListBlog",
         component: <ListBlog />,
         component_name: "ListBlog",
@@ -995,14 +1026,14 @@ const routes = [
     title: "APi History",
     key: "ApiHistory",
     accessKey: "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0",
-    icon: <FaTachometerAlt size="12px" />, // Dashboard icon
+    icon: <FaHistory size=" 16px" />, // Dashboard icon
     children: [
       {
         type: "collapse",
         name: "Free Api History",
         key: "list-api-history",
         accessKey: "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0",
-        icon: <FaBlog size="12px" />,  // Blog Icon
+        icon: <FaHistory size=" 16px" />,  // Blog Icon
         route: "/list-api-history",
         component: <ListApiHistory />,
         component_name: "ListBlog",
@@ -1013,7 +1044,7 @@ const routes = [
         name: "Open AI History",
         key: "open-ai",
         accessKey: "9cf96edd33553cfbf06542087140e0430be572b4f2ba418bf8e608749dae58d0",
-        icon: <FaBlog size="12px" />,  // Blog Icon
+        icon: <FaHistory size=" 16px" />,  // Blog Icon
         route: "/open-ai",
         component: <AIAPIHistory />,
         component_name: "ListBlog",
@@ -1027,14 +1058,14 @@ const routes = [
     title: "Guide Video & Images",
     key: "Guide",
     accessKey: "24aca47201d0153b25d26ab322e0579082163a20e60688f03048e441f02e5f46",
-    icon: <FaTachometerAlt size="12px" />, // Dashboard icon
+    icon: <FaBookOpen size=" 16px" />, // Dashboard icon
     children: [
       {
         type: "collapse",
         name: "Guide Images",
         key: "guide-images",
         route: "/guide-images",
-        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        icon: <FaImage size=" 16px" />,  
         component_name: "guide-images",
         component: <GuideImages />,
         noCollapse: true,
@@ -1045,7 +1076,7 @@ const routes = [
         name: "Guide Videos",
         key: "guide-videos",
         route: "/guide-videos",
-        icon: <FaPlusSquare size="12px" />, // Add Box icon
+        icon: <FaVideo size=" 16px" />,  
         component_name: "guide-videos",
         component: <GuideVideos />,
         noCollapse: true,
@@ -1058,7 +1089,7 @@ const routes = [
     title: "Ticket",
     key: "ticket",
     accessKey: "cbe8ff27e5d5d13fcc3069b741f7f98df1240f35180298326061533791fdf79b",
-    icon: <FaUsers size="12px" />,  // Team Icon
+    icon: <FaTicketAlt size=" 16px" />,  // Team Icon
     route: "/ticket",
     component_name: "ListTicket",
     noCollapse: true,
@@ -1069,7 +1100,7 @@ const routes = [
         name: "Ticket",
         key: "ticket",
         route: "/ticket",
-        icon: <FaUsers size="12px" />,  // Team Icon
+        icon: <FaTicketAlt size=" 16px" />,  // Team Icon
         component_name: "ListTicket",
         noCollapse: true,
         component: <ListTicket />,
@@ -1081,7 +1112,7 @@ const routes = [
     title: "Assets",
     key: "assets",
     accessKey: "5d1b303766542ff04f8a0768ff96546b1fc65f342fb0a5f7c6145ffe1957deb5",
-    icon: <FaUsers size="12px" />,  // Team Icon
+    icon: <FaBoxes size=" 16px" />,  // Team Icon
     noCollapse: true,
     children: [
       {
@@ -1090,7 +1121,7 @@ const routes = [
         name: "Add Assets",
         key: "add-asset",
         // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
-        icon: <FaUsers size="12px" />,  // Team Icon
+        icon: <FaBoxOpen size=" 16px" />,  // Team Icon
         route: "/add-asset",
         component_name: "AddAsset",
         noCollapse: true,
@@ -1101,7 +1132,7 @@ const routes = [
         name: "List Assets",
         key: "list-asset",
         // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
-        icon: <FaUsers size="12px" />,  // Team Icon
+        icon: <FaBoxOpen size=" 16px" />,  // Team Icon
         route: "/list-asset",
         component_name: "ListAsset",
         noCollapse: true,
@@ -1112,7 +1143,7 @@ const routes = [
         name: "Styles",
         key: "styles",
         // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
-        icon: <FaUsers size="12px" />,  // Team Icon
+        icon: <FaShapes size=" 16px" />,  // Team Icon
         route: "/styles",
         component_name: "Styles",
         noCollapse: true,
@@ -1123,7 +1154,7 @@ const routes = [
         name: "Room Modal & Element",
         key: "room-elements",
         // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
-        icon: <FaUsers size="12px" />,  // Team Icon
+        icon: <FaCubes size=" 16px" />,  // Team Icon
         route: "/room-elements",
         component_name: "RoomElementsManagement",
         noCollapse: true,
@@ -1136,7 +1167,7 @@ const routes = [
     title: "Partner Management",
     key: "team",
     accessKey: "24aca47201d0153b25d26ab322e0579082163a20e60688f03048e441f02e5f46",
-    icon: <FaUsers size="12px" />,  // Team Icon
+    icon: <FaUsers size=" 16px" />,  // Team Icon
     noCollapse: true,
     children: [
       {
@@ -1145,7 +1176,7 @@ const routes = [
         name: "Partner",
         key: "team",
         // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
-        icon: <FaUsers size="12px" />,  // Team Icon
+        icon: <FaUsers size=" 16px" />,  // Team Icon
         route: "/list-partner",
         component_name: "ListPartner",
         noCollapse: true,
@@ -1157,7 +1188,7 @@ const routes = [
         name: "Ticket",
         key: "team",
         // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
-        icon: <FaUsers size="12px" />,  // Team Icon
+        icon: <FaTicketAlt size=" 16px" />,  // Team Icon
         route: "/partner-ticket-list",
         component_name: "PartnerTicketList",
         noCollapse: true,
