@@ -1174,7 +1174,7 @@ const routes = [
 
         type: "collapse",
         name: "Partner",
-        key: "team",
+        key: "list-partner",
         // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
         icon: <FaUsers size=" 16px" />,  // Team Icon
         route: "/list-partner",
@@ -1186,7 +1186,7 @@ const routes = [
 
         type: "collapse",
         name: "Ticket",
-        key: "team",
+        key: "partner-ticket-list",
         // accessKey: "4ca2b25bb41fb4afb8f3b1de2a7f7bdf9902267b08a7342b1729ced7b669d493",
         icon: <FaTicketAlt size=" 16px" />,  // Team Icon
         route: "/partner-ticket-list",

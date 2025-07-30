@@ -365,7 +365,7 @@ const user_id = localStorage.getItem("id");
     <>
       {loading ? (
         <>
-          <div className="relative bg-white h-screen overflow-hidden" />
+          <div className="relative bg-white h-screen overflow-hidden" >
           {loading && (
             <div className="flex justify-center">
               <div className="absolute top-[30%]">
@@ -373,6 +373,7 @@ const user_id = localStorage.getItem("id");
               </div>
             </div>
           )}
+          </div>
         </>
       ) : (
         <CacheProvider value={rtlCache}>
@@ -434,7 +435,6 @@ const user_id = localStorage.getItem("id");
           {layout === "vr" && <Configurator />}
           <Routes>
             {getRoutes(routes)}
-            {/* {console.log("asdf", newRoutes)} */}
             <Route path="*" element={<Forbidden403 />} />
             <Route path="/dashboard" element={<Navigate to="/dashboard" />} />
             {/* <Route path={el.route} element={el.component} /> */}

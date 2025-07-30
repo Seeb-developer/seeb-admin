@@ -8,6 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import PaymentRequestModal from './PaymentRequestModal';
 import AddPaymentModal from './AddPaymentModal';
 import AddExpensesModal from './AddExpensesModal';
+import axios from 'axios';
 
 const BookingDetails = () => {
     const location = useLocation();
@@ -15,7 +16,7 @@ const BookingDetails = () => {
     const bookingId = location.state?.booking_id;
     const [bookingData, setBookingData] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const [assignedWorkers, setAssignedWorkers] = useState({});
     const [modalType, setModalType] = useState("");
 
     const openModal = (type) => setModalType(type);
@@ -35,9 +36,16 @@ const BookingDetails = () => {
         setLoading(false);
     };
     useEffect(() => {
-
         fetchBookingDetails();
     }, [bookingId]);
+
+    useEffect(() => {
+        bookingData?.services?.forEach(service => {
+            fetchAssignedWorkers(service.id); // or service.service_id based on your real data
+        });
+    }, [bookingData]);
+
+    console.log("AssignedWorkers:", assignedWorkers);
 
     const handleDelete = async (requestId) => {
         if (!window.confirm("Are you sure you want to delete this payment request?")) return;
@@ -59,6 +67,22 @@ const BookingDetails = () => {
             }
         } catch (error) {
             console.error("Error deleting payment request:", error);
+        }
+    };
+
+    const fetchAssignedWorkers = async (serviceId) => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assignment/booking-requests/${serviceId}`);
+            const data = response.data?.data || [];
+
+            const acceptedWorkers = data.filter(worker => worker.status === 'accepted');
+
+            setAssignedWorkers(prev => ({
+                ...prev,
+                [serviceId]: acceptedWorkers
+            }));
+        } catch (error) {
+            console.error(`Error fetching assigned workers for service ${serviceId}:`, error);
         }
     };
 
@@ -156,7 +180,7 @@ const BookingDetails = () => {
 
                                                                 return total.toFixed(2);
                                                             })()}
-                                                        </td>                                                      
+                                                        </td>
                                                     </tr>
 
                                                     {/* Addon Header */}
@@ -189,6 +213,42 @@ const BookingDetails = () => {
                                                         <td className="py-3 px-6" colSpan="4">Total (Service + Addons)</td>
                                                         <td className="py-3 px-6">₹{service.amount}</td>
                                                     </tr>
+
+                                                    {assignedWorkers[service.id]?.length > 0 && (
+                                                        <tr>
+                                                            <td colSpan="6" className="">
+                                                                <div className="bg-blue-50 rounded p-4 mt-2">
+                                                                    <h4 className="text-sm font-semibold text-blue-800 mb-2">
+                                                                        Assigned Workers for {service.service_name}
+                                                                    </h4>
+
+                                                                    <table className="w-full text-sm text-left text-gray-700 border border-blue-200">
+                                                                        <thead className="bg-blue-100 text-xs uppercase">
+                                                                            <tr>
+                                                                                <th className="py-2 px-4">Partner Name</th>
+                                                                                <th className="py-2 px-4">Status</th>
+                                                                                <th className="py-2 px-4">Assigned At</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {assignedWorkers[service.id].map((worker) => (
+                                                                                <tr key={worker.id} className="bg-white border-b">
+                                                                                    <td className="py-2 px-4 font-medium">{worker.partner_name}</td>
+                                                                                    <td className="py-2 px-4">
+                                                                                        <span className={`text-white px-2 py-1 rounded text-xs ${worker.status === 'accepted' ? 'bg-green-600' : 'bg-yellow-500'
+                                                                                            }`}>
+                                                                                            {worker.status}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td className="py-2 px-4">{worker.created_at}</td>
+                                                                                </tr>
+                                                                            ))}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    )}
                                                 </React.Fragment>
                                             );
                                         })
@@ -202,6 +262,43 @@ const BookingDetails = () => {
 
                         </div>
                     </div>
+
+                    {/* {assignedWorkers[service.id]?.length > 0 && (
+                        <tr>
+                            <td colSpan="6" className="py-2 px-6">
+                                <div className="bg-blue-50 rounded p-4 mt-2">
+                                    <h4 className="text-sm font-semibold text-blue-800 mb-2">
+                                        Assigned Workers for {service.service_name}
+                                    </h4>
+
+                                    <table className="w-full text-sm text-left text-gray-700 border border-blue-200">
+                                        <thead className="bg-blue-100 text-xs uppercase">
+                                            <tr>
+                                                <th className="py-2 px-4">Partner Name</th>
+                                                <th className="py-2 px-4">Status</th>
+                                                <th className="py-2 px-4">Assigned At</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {assignedWorkers[service.id].map((worker) => (
+                                                <tr key={worker.id} className="bg-white border-b">
+                                                    <td className="py-2 px-4 font-medium">{worker.partner_name}</td>
+                                                    <td className="py-2 px-4">
+                                                        <span className={`text-white px-2 py-1 rounded text-xs ${worker.status === 'accepted' ? 'bg-green-600' : 'bg-yellow-500'
+                                                            }`}>
+                                                            {worker.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-2 px-4">{worker.created_at}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    )} */}
+
 
                     {/* Payments Table */}
                     <div className="px-8 mt-8">
