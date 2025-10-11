@@ -3,12 +3,15 @@ import { createSearchParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import Loader from "layouts/loader/Loader";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import { AiOutlineDelete } from "react-icons/ai";
+import { toast, Toaster } from "react-hot-toast"; // Add this import
 
 const CustomerListing = (props) => {
   let Navigate = useNavigate();
   const {
     customer,
     loading,
+    getAllCustomer,
   } = props;
 
   CustomerListing.propTypes = {
@@ -22,6 +25,7 @@ const CustomerListing = (props) => {
       })
     ).isRequired,
     loading: PropTypes.bool.isRequired,
+    getAllCustomer: PropTypes.func.isRequired,
   };
 
 
@@ -41,6 +45,7 @@ const CustomerListing = (props) => {
         </>
       ) : (
         <div>
+           <Toaster position="top-center" reverseOrder={false} />
           {/* {console.log(currentPage)} */}
           {/* <div className="flex justify-between mb-4">
             <div>
@@ -117,7 +122,31 @@ const CustomerListing = (props) => {
                       >
                         View
                       </button>
-                      {/* <AiOutlineDelete /> */}
+                      <button
+                        onClick={async () => {
+                          if (window.confirm("Are you sure you want to delete this customer?")) {
+                            try {
+                              const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}customer/delete/${el.id}`, {
+                                method: "DELETE",
+                              });
+                              const result = await response.json();
+                              if (result.Status === 200) {
+                                toast.success("Customer deleted");
+                                getAllCustomer();
+                                // Optionally refresh the list here, e.g. call a prop or reload
+                              } else {
+                                toast.error(result.message || "Failed to delete customer");
+                              }
+                            } catch (error) {
+                              toast.error("Error deleting customer");
+                            }
+                          }
+                        }}
+                        className="text-red-600"
+                        title="Delete"
+                      >
+                        <AiOutlineDelete size={20} />
+                      </button>
                     </td>
                   </tr>
                 ))}

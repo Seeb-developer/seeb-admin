@@ -144,6 +144,7 @@ function CustomerList() {
           <CustomerListing
             customer={customer}
             loading={loading}
+            getAllCustomer={getAllCustomer}
           />
         </div>
 

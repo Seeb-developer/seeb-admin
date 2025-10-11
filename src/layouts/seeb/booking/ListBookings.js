@@ -313,6 +313,31 @@ const ListBookings = () => {
                                                         className="cursor-pointer"
                                                     />
                                                 )}
+                                                {/* {el.status !== "completed" && el.status !== "cancelled" && ( */}
+                                                    <RiDeleteBin6Fill
+                                                        size={24}
+                                                        style={deletstyle}
+                                                        className="cursor-pointer"
+                                                        onClick={async () => {
+                                                            if (window.confirm("Are you sure you want to delete this booking?")) {
+                                                                try {
+                                                                    const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}booking/delete/${el.id}`, {
+                                                                        method: "DELETE",
+                                                                    });
+                                                                    const result = await response.json();
+                                                                    if (result.status === 200) {
+                                                                        toast.success("Booking deleted");
+                                                                        getAllBookings(); // Refresh list
+                                                                    } else {
+                                                                        toast.error(result.message || "Failed to delete booking");
+                                                                    }
+                                                                } catch (error) {
+                                                                    toast.error("Error deleting booking");
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+                                                {/* )} */}
                                             </td>
                                         </tr>
                                     ))
