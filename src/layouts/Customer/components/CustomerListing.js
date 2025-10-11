@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import Loader from "layouts/loader/Loader";
-import ReactHTMLTableToExcel from "react-html-table-to-excel";
+
 import { AiOutlineDelete } from "react-icons/ai";
 import { toast, Toaster } from "react-hot-toast"; // Add this import
 
