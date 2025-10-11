@@ -89,11 +89,23 @@ const ListBlog = () => {
       <DashboardNavbar />
       <Toaster position="top-center" reverseOrder={false} />
       <div className="border-solid border-2 black-indigo-600 mt-6">
-        <div style={{ fontSize: 15 }} className="px-8 mt-5">
-          List of Blogs
+
+        <div className="flex items-center mb-8 mt-8 px-8">
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded mr-4 text-sm"
+          >
+            ← Back
+          </button>
+          <h2 className="text-3xl font-semibold text-gray-800">List of Blogs</h2>
         </div>
+
+        {/* <div style={{ fontSize: 15 }} className="px-8 mt-5">
+          List of Blogs
+        </div> */}
         <form className="flex items-center">
-          <div className="relative w-1/2 m-4">
+          <div className="relative w-1/2 m-2">
             <input
               type="text"
               id="simple-search"
@@ -109,13 +121,13 @@ const ListBlog = () => {
           >
             Add New Blog
           </button>
-          <button
+          {/* <button
             type="button"
             className="p-2.5 ml-2 text-sm font-medium text-white bg-blue-500 rounded-lg"
             onClick={() => navigate("/dashboard")}
           >
             Back
-          </button>
+          </button> */}
         </form>
 
         <div className="flex flex-col">
@@ -129,7 +141,7 @@ const ListBlog = () => {
                       <th className="px-6 text-center py-4">Image</th>
                       <th className="px-6 text-center py-4">Title</th>
                       <th className="px-6 text-center py-4">Description</th>
-                      <th className="px-6 text-center py-4">Status</th> {/* New Status column */}
+                      <th className="px-6 text-center py-4">Status</th>
                       <th className="px-6 text-center py-4">Action</th>
                     </tr>
                   </thead>
@@ -176,20 +188,20 @@ const ListBlog = () => {
                             size={20}
                             onClick={() => navigate(`/updateblog/${blog.id}`)}
                           />
-                          <FaTrash
-                            className="text-red-600 hover:text-red-700"
-                            size={20}
-                            onClick={() => handleBlogDelete(blog.id)}
-                          />
                           <FaPlus
                             className="text-yellow-500 hover:text-yellow-600"
                             size={20}
                             onClick={() => navigate('/blog-sections', { state: { blogId: blog.id } })}
                           />
                           <FaEye
-                            className="text-blue-600 hover:text-blue-700 mr-2"
+                            className="text-blue-600 hover:text-blue-700"
                             size={20}
                             onClick={() => navigate(`/viewblog/${blog.id}`)}
+                          />
+                          <FaTrash
+                            className="text-red-600 hover:text-red-700 mr-2"
+                            size={20}
+                            onClick={() => handleBlogDelete(blog.id)}
                           />
                         </td>
                       </tr>

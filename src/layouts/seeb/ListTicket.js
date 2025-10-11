@@ -10,6 +10,7 @@ import Pagination from "components/pagination";
 import { useNavigate } from "react-router-dom";
 
 const ListTicket = () => {
+    const navigate = useNavigate();
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
 
     const [tickets, setTickets] = useState([]);
@@ -43,16 +44,22 @@ const ListTicket = () => {
                         status: status,
                         limit: recordsPerPage,
                         page: currentPage,
+                        user_type: "customer", 
                     }),
                 }
             );
 
             const result = await response.json();
             setLoader(false);
+
             if (result.status === 200) {
+                // const filtered = result.data.filter(ticket => ticket.user_type === "customer");
+            // console.log("tickets",filtered)
+
                 setTickets(result.data);
-                setTotalRecords(result.pagination.total);
-                setTotalPages(result.pagination.last_page);
+                setTotalRecords(result.pagination.total); // update count based on filtered
+                // setTotalPages(Math.ceil(result.data.length / recordsPerPage));
+                setTotalPages(result.pagination.last_page)
             }
         } catch (error) {
             setLoader(false);
@@ -90,7 +97,26 @@ const ListTicket = () => {
         setRecordsPerPage(newLimit);
         setCurrentPage(1); // Reset to first page on limit change
     };
-    const navigate = useNavigate()
+
+    const handleTicketClick = async (ticket) => {
+        try {
+            await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/mark-as-read`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ticket_id: ticket.id,
+                    viewer_type: "admin",
+                }),
+            });
+
+        } catch (err) {
+            console.error("❌ Failed to mark ticket as read:", err);
+        }
+
+        // Navigate after marking as read
+        navigate("/ticket-details", { state: { ticket } });
+    };
+
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -163,29 +189,49 @@ const ListTicket = () => {
                                 <table className="w-full text-sm text-left text-gray-500">
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                         <tr>
-                                            <th className="py-3 px-4 w-1/6">Sr. No</th>
-                                            <th className="py-3 px-4 w-1/6">Ticket ID</th>
-                                            <th className="py-3 px-4 w-1/6">User Name</th>
-                                            <th className="py-3 px-6 w-1/4">Subject</th>
-                                            <th className="py-3 px-6 w-1/6">Status</th>
-                                            <th className="py-3 px-6 w-1/8">Date</th>
+                                            <th className="py-3 px-4 w-[5%]">Sr. No</th>
+                                            <th className="py-3 px-4 w-[12%]">Ticket ID</th>
+                                            <th className="py-3 px-4 w-[14%]">User Name</th>
+                                            <th className="py-3 px-6 w-[10%]">Priority</th>
+                                            <th className="py-3 px-6 w-[20%]">Subject</th>
+                                            <th className="py-3 px-6 w-[12%]">Category</th>
+                                            <th className="py-3 px-6 w-[12%]">Status</th>
+                                            <th className="py-3 px-6 w-[15%]">Date</th>
                                         </tr>
+
                                     </thead>
                                     <tbody>
                                         {tickets.length > 0 ? (
                                             tickets.map((ticket, index) => (
-                                                <tr className="bg-white border-b hover:bg-gray-50" key={ticket.id}>
+                                                <tr
+                                                    className={`border-b hover:bg-gray-50 ${ticket.admin_unread === "1" ? "bg-white font-bold text-gray-700" : "bg-blue-50"}`}
+                                                    key={ticket.id}
+                                                >
                                                     <td className="py-4 px-4">{index + 1}</td>
                                                     <td className="py-4 px-4 text-blue-600 hover:underline cursor-pointer"
-                                                        onClick={() => navigate("/ticket-details", { state: { ticket} })}>
+                                                        onClick={() => handleTicketClick(ticket)}>
                                                         {ticket.ticket_uid}
                                                     </td>
                                                     <td className="py-4 px-4">{ticket.user_name}</td>
+                                                    <td className="py-4 px-6">
+                                                        <span
+                                                            className={`px-2 py-1 rounded-full text-xs font-medium text-white ${ticket.priority === "high"
+                                                                ? "bg-red-600"
+                                                                : ticket.priority === "medium"
+                                                                    ? "bg-yellow-500"
+                                                                    : "bg-green-600"
+                                                                }`}
+                                                        >
+                                                            {ticket.priority}
+                                                        </span>
+                                                    </td>
                                                     <td className="py-4 px-6">{ticket.subject}</td>
+                                                    <td className="py-4 px-6 capitalize">{ticket.category}</td>
                                                     <td className="py-4 px-6">{ticket.status}</td>
-                                                    <td className="py-4 px-6 flex items-center">
+                                                    <td className="py-4 px-6">
                                                         {ticket.created_at}
                                                     </td>
+
                                                 </tr>
                                             ))
                                         ) : (

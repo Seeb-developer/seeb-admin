@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import { Toaster, toast } from 'react-hot-toast';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const UpdateBlogSection = () => {
   const { id } = useParams();
@@ -22,10 +24,23 @@ const UpdateBlogSection = () => {
     // eslint-disable-next-line
   }, []);
 
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link', 'image'],
+      ['clean'],
+    ],
+  };
+
+  const formats = ['header', 'bold', 'italic', 'underline', 'list', 'bullet', 'link', 'image'];
+
   const fetchSectionData = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/blog-section/${id}`);
       const result = await response.json();
+      console.log("result =>",result.data)
       if (result.status === 200) {
         setBlogData({
           title: result.data.title,
@@ -38,11 +53,11 @@ const UpdateBlogSection = () => {
         try {
           parsedSubSections = result.data.sub_sections
             ? JSON.parse(result.data.sub_sections).map(sub => ({
-                ...sub,
-                images: sub.images
-                  ? (typeof sub.images === 'string' && sub.images !== '' ? [sub.images] : Array.isArray(sub.images) ? sub.images : [])
-                  : [],
-              }))
+              ...sub,
+              images: sub.images
+                ? (typeof sub.images === 'string' && sub.images !== '' ? [sub.images] : Array.isArray(sub.images) ? sub.images : [])
+                : [],
+            }))
             : [{ title: '', description: '', images: [] }];
         } catch {
           // fallback to default
@@ -58,7 +73,7 @@ const UpdateBlogSection = () => {
 
   // Subsection handlers
   const handleSubSectionChange = (e, idx, field, value) => {
-    e.preventDefault();
+    // e.preventDefault();
     const updated = [...subSections];
     updated[idx][field] = value;
     setSubSections(updated);
@@ -213,56 +228,69 @@ const UpdateBlogSection = () => {
     }
   };
 
+  console.log("blogdata",blogData.title)
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <Toaster position="top-center" />
-      <div className="w-full bg-white rounded shadow p-8 mt-8">
-        <div className="flex items-center mb-6">
+      <div className="w-full bg-white rounded-xl shadow-md p-8 mt-8">
+        <div className="flex items-center mb-8">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded mr-4"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded mr-4 text-sm"
           >
             ← Back
           </button>
-          <h2 className="text-2xl font-bold text-gray-800">Update Blog Section</h2>
+          <h2 className="text-3xl font-semibold text-gray-800">Update Blog Section</h2>
         </div>
-        <form className="space-y-6" onSubmit={handleOnSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <form className="space-y-10" onSubmit={handleOnSubmit}>
+          {/* Title + Link */}
+          <div className="grid grid-cols-1 gap-6">
             <input
               type="text"
               placeholder="Title"
               required
-              className="flex-1 text-sm border rounded px-2 py-2"
+              className="text-sm border rounded px-4 py-2"
               value={blogData.title}
               onChange={e => setBlogData({ ...blogData, title: e.target.value })}
             />
-            <input
+            {/* <input
               type="text"
               placeholder="Section Link"
               required
-              className="flex-1 text-sm border rounded px-2 py-2"
+              className="text-sm border rounded px-4 py-2"
               value={blogData.section_link}
               onChange={e => setBlogData({ ...blogData, section_link: e.target.value })}
-            />
-            <textarea
-              placeholder="Description"
-              rows={3}
-              className="border px-4 py-2 text-sm rounded col-span-2"
+            /> */}
+          </div>
+
+          {/* Main Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <ReactQuill
+              theme="snow"
               value={blogData.description}
-              onChange={e => setBlogData({ ...blogData, description: e.target.value })}
+              onChange={value => setBlogData({ ...blogData, description: value })}
+              modules={modules}
+              formats={formats}
+              className="bg-white"
+              placeholder="Write blog content here..."
             />
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4 items-start">
+          {/* Banner Image Upload */}
+          <div className="flex flex-col md:flex-row gap-6">
             <input
               type="file"
               accept="image/*"
               onChange={async e => {
                 const file = e.target.files[0];
                 if (!file) return;
-                // If previous banner image exists on server, delete it
+
+                // Delete previous
                 if (bannerImageUrl) {
                   await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/deleteBlogImage`, {
                     method: 'POST',
@@ -270,51 +298,65 @@ const UpdateBlogSection = () => {
                     body: JSON.stringify({ blog_image: bannerImageUrl }),
                   });
                 }
+
                 setBannerFile(file);
-                setBannerImageUrl(''); // Remove preview until upload
+                setBannerImageUrl('');
               }}
-              className="text-sm border rounded px-4 py-2"
+              className="text-sm border rounded px-4 py-2 w-full md:w-auto"
             />
             {bannerImageUrl && (
-              <div className="relative group">
-                <img
-                  src={`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}${bannerImageUrl}`}
-                  alt="Banner Preview"
-                  className="w-20 h-20 object-cover rounded border"
-                />
-              </div>
+              <img
+                src={`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}${bannerImageUrl}`}
+                alt="Banner Preview"
+                className="w-24 h-24 object-cover rounded border"
+              />
             )}
           </div>
 
-          <div className="border rounded bg-gray-50 p-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-semibold text-gray-700">Subsections</span>
-              <button type="button" onClick={addSubSection} className="bg-green-500 text-white px-3 py-1 rounded">Add +</button>
+          {/* Subsections */}
+          <div className="border rounded bg-gray-50 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-gray-800 text-lg">Subsections</h3>
+              <button
+                type="button"
+                onClick={addSubSection}
+                className="bg-green-600 text-white px-4 py-1 text-sm rounded hover:bg-green-700"
+              >
+                + Add Subsection
+              </button>
             </div>
+
             {subSections.map((sub, idx) => (
-              <div key={idx} className="flex flex-col md:flex-row items-stretch gap-4 border p-4 mb-4 rounded bg-white shadow-sm">
+              <div
+                key={idx}
+                className="bg-white p-4 rounded-md shadow-sm mb-6 space-y-4 border border-gray-200"
+              >
                 <input
                   type="text"
-                  placeholder="Title"
+                  placeholder="Subsection Title"
                   value={sub.title}
                   onChange={e => handleSubSectionChange(e, idx, 'title', e.target.value)}
-                  className="flex-1 text-sm border rounded px-2 py-1"
+                  className="w-full text-sm border rounded px-4 py-2"
                 />
-                <textarea
-                  placeholder="Description"
+
+                <ReactQuill
+                  theme="snow"
                   value={sub.description}
-                  onChange={e => handleSubSectionChange(e, idx, 'description', e.target.value)}
-                  className="flex-1 text-sm border rounded px-2 py-1"
-                  rows="1"
-                  style={{ resize: 'vertical' }}
+                  onChange={value => handleSubSectionChange(null, idx, 'description', value)}
+                  modules={modules}
+                  formats={formats}
+                  className="bg-white"
+                  placeholder="Write subsection content here..."
                 />
+
+                {/* Upload Sub Image */}
                 <input
                   type="file"
                   accept="image/*"
                   onChange={async e => {
                     const file = e.target.files[0];
                     if (!file) return;
-                    // If previous image exists on server, delete it
+
                     const prevImg = sub.images && typeof sub.images[0] === 'string' ? sub.images[0] : null;
                     if (prevImg) {
                       await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/deleteBlogImage`, {
@@ -323,40 +365,66 @@ const UpdateBlogSection = () => {
                         body: JSON.stringify({ blog_image: prevImg }),
                       });
                     }
+
                     const updated = [...subSections];
                     updated[idx].images = [file];
                     setSubSections(updated);
                   }}
-                  className="flex-1 text-sm border rounded px-2 py-1"
+                  className="text-sm border rounded px-4 py-2 w-full"
                 />
 
-                {/* Show preview for new images */}
-                {sub.images && sub.images.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                {/* Image Previews */}
+                {sub.images?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
                     {sub.images.map((img, i) =>
                       typeof img === 'string' ? (
                         <img
                           key={i}
                           src={`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}${img}`}
                           alt="Preview"
-                          className="w-12 h-12 object-cover rounded border"
+                          className="w-16 h-16 object-cover rounded border"
                         />
                       ) : (
                         <div key={i} className="relative group">
-                          <img src={URL.createObjectURL(img)} alt="Preview" className="w-12 h-12 object-cover rounded border" />
-                          <button type="button" className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1 hidden group-hover:block" onClick={() => removeSubImage(idx, i)}>×</button>
+                          <img
+                            src={URL.createObjectURL(img)}
+                            alt="Preview"
+                            className="w-16 h-16 object-cover rounded border"
+                          />
+                          <button
+                            type="button"
+                            className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1 hidden group-hover:block"
+                            onClick={() => removeSubImage(idx, i)}
+                          >
+                            ×
+                          </button>
                         </div>
                       )
                     )}
                   </div>
                 )}
-                <button type="button" onClick={() => removeSubSection(idx)} disabled={subSections.length === 1} className="bg-red-500 text-white px-3 py-1 rounded">Remove</button>
+
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => removeSubSection(idx)}
+                    disabled={subSections.length === 1}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  >
+                    Remove Subsection
+                  </button>
+                </div>
               </div>
             ))}
           </div>
 
+          {/* Submit Button */}
           <div className="flex justify-end">
-            <button type="submit" className="bg-green-600 text-white px-8 py-2 rounded text-lg" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded text-base"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? 'Updating...' : 'Update Section'}
             </button>
           </div>

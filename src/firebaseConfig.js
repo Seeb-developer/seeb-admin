@@ -1,59 +1,60 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { getDatabase } from "firebase/database";
+import { getDatabase } from "firebase/database"; // Optional, only if you use Realtime DB
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-// TODO: Replace the following with your app's Firebase project configuration
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDQWhiMJaE9d06keQ4ybm3NX1zlcvSoAY8",
-//   authDomain: "dorfee-admin.firebaseapp.com",
-//   projectId: "dorfee-admin",
-//   storageBucket: "dorfee-admin.appspot.com",
-//   messagingSenderId: "55118931471",
-//   appId: "1:55118931471:web:a3fe11cbdc22307b27257a",
-//   measurementId: "G-S7V9QY12KL",
-// };
 
+// 🔐 Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCsL9U_oh9LlD3GxyRIaI--MrSsDj0smi0",
-  authDomain: "seeb-e3cea.firebaseapp.com",
-  databaseURL: "https://seeb-e3cea-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "seeb-e3cea",
-  storageBucket: "seeb-e3cea.firebasestorage.app",
-  messagingSenderId: "700320378270",
-  appId: "1:700320378270:web:e4d5a0fce9687ea0ce7a8f",
-  measurementId: "G-B1X3YNCE4L"
+  apiKey: "AIzaSyDEaP0WI39iJNeLeCGKXhW6ctJ5iGLvT7o",
+  authDomain: "seeb-partner.firebaseapp.com",
+  projectId: "seeb-partner",
+  storageBucket: "seeb-partner.firebasestorage.app",
+  messagingSenderId: "835008801894",
+  appId: "1:835008801894:web:9bdb1f1492901aa32391a7",
+  measurementId: "G-Y811F2XMSS",
 };
 
+// 🔄 Initialize Firebase App
 const app = initializeApp(firebaseConfig);
+
+// 🔐 Initialize Services
 const db = getFirestore(app);
+const rtdb = getDatabase(app); // Optional
+const auth = getAuth(app);
 
-export { db };
+// 📦 Export services
+export { app, db, rtdb, auth };
 
-// Initialize Firebase Cloud Messaging and get a reference to the service
+// 🔔 Setup Messaging
 const messaging = getMessaging(app);
-// Add the public key generated from the console here.
-export const requestForToken = () => {
-  return getToken(messaging, {
-    vapidKey:
-      "BLfvjp_ONVGofOddLbdxHm9LiJhGunkbjXw-AL-m1Yv6-qbJhsxa6faSSfC8ZfL9yYlPACvPWAiNVUJHfa_NueM",
-  })
-    .then((currentToken) => {
-      if (currentToken) {
-        console.log("current token for client: ", currentToken);
-        // Perform any other neccessary action with the token
-      } else {
-        // Show permission request UI
-        console.log("No registration token available. Request permission to generate one.");
-      }
-    })
-    .catch((err) => {
-      console.log("An error occurred while retrieving token. ", err);
+
+// 🔑 Request FCM Token
+export const requestForToken = async () => {
+  try {
+    const registration = await navigator.serviceWorker.ready; // ✅ wait for registration
+
+    const currentToken = await getToken(getMessaging(), {
+      vapidKey: "BAP4Ja73AJGZ9gax3vydaIUzXxB2HFCRUWrZzhBDtxXLeMjdHp3MRcAzMXGC2Y_xSEOLmgUQSZBssSIcPUg5d6w",
+      serviceWorkerRegistration: registration, // ✅ pass it explicitly
     });
+
+    if (currentToken) {
+      console.log("✅ FCM Token:", currentToken);
+      return currentToken;
+    } else {
+      console.warn("❗ No token available. Permission may be required.");
+    }
+  } catch (err) {
+    console.error("❌ An error occurred while retrieving token:", err);
+  }
 };
+
+// 📥 Listen for foreground messages
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {
-      console.log("payload", payload);
+      console.log("📩 Foreground FCM Payload:", payload);
       resolve(payload);
     });
   });

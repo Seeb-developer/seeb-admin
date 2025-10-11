@@ -16,7 +16,7 @@ import { Link, createSearchParams, useNavigate } from "react-router-dom";
 import { DatePicker, Modal, Input, Button } from "antd";
 import Loader from "layouts/loader/Loader";
 import NontAuthorized401 from "NontAuthorized401";
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { utils, writeFile } from "xlsx";
 import { toast, Toaster } from "react-hot-toast";
 import Pagination from "components/pagination";
 import AddLeadForm from "layouts/interior-leads/component/AddLeadForm";
@@ -44,55 +44,18 @@ function ContactLeads() {
   const [remarkModalVisible, setRemarkModalVisible] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
   const [newRemark, setNewRemark] = useState("");
-  const handleViewClick = (message) => {
-    setFullMessage(message);
-    setModalVisible(true);
-  };
-
   const [lead, setLead] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const debounce = (func, delay) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => func(...args), delay);
-    };
-  };
+  useEffect(() => {
+    listLeads()
+  }, [])
 
-  const handleDateRangeChange = (dates) => {
-    if (dates) {
-      setDateRange(dates);
+  // Effect to trigger API when search changes
+  useEffect(() => {
+    listLeads(1, recordsPerPage, dateRange[0], dateRange[1], debouncedSearch); // Reset to page 1 on search
+  }, [debouncedSearch]);
 
-      if (dates[0] && dates[1]) {
-        const startDate = dates[0].toISOString().split('T')[0]; // Format to YYYY-MM-DD
-        const endDate = dates[1].toISOString().split('T')[0];   // Format to YYYY-MM-DD
-
-        // Call API with updated date range and pagination
-        listLeads(currentPage, recordsPerPage, startDate, endDate);
-      }
-    } else {
-      listLeads(currentPage, recordsPerPage, null, null);
-    }
-  };
-  const handlePageChange = (number) => {
-    listLeads(number, recordsPerPage, dateRange[0], dateRange[1]);
-    setCurrentPage(number);
-
-    // Call API with updated page number and date range
-  };
-
-
-  // Handle records per page changes
-  const handleRecordsPerPageChange = (value) => {
-    listLeads(1, value, dateRange[0], dateRange[1]);
-    setRecordsPerPage(value);
-    setCurrentPage(1); // Reset to first page when records per page change
-
-    // Call API with updated records per page and date range
-  };
-
-  // list leads
   const listLeads = async (page = 1, limit = recordsPerPage, startDate = dateRange[0], endDate = dateRange[1], query = debouncedSearch) => {
     // setLoading(true);
 
@@ -120,7 +83,7 @@ function ContactLeads() {
     await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "customer/getAllContactUs", requestOptions)
       .then(response => response.json())
       .then(result => {
-        console.log(result)
+        // console.log(result)
         if (result.status === 200) {
           setLead(result.data)
           setCurrentPage(result.pagination.current_page);
@@ -132,24 +95,61 @@ function ContactLeads() {
       .catch(error => console.log('error', error));
   }
 
+  const handleViewClick = (message) => {
+    setFullMessage(message);
+    setModalVisible(true);
+  };
 
+  const debounce = (func, delay) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => func(...args), delay);
+    };
+  };
 
-  useEffect(() => {
-    listLeads()
-  }, [])
+  const exportToExcel = () => {
+    const table = document.getElementById("table-to-export");
+    const workbook = utils.table_to_book(table, { sheet: "tablexls" });
+    writeFile(workbook, "Contacts_Leads_Sheet.xlsx");
+  };
 
+  const handleDateRangeChange = (dates) => {
+    if (dates) {
+      setDateRange(dates);
 
+      if (dates[0] && dates[1]) {
+        const startDate = dates[0].toISOString().split('T')[0]; // Format to YYYY-MM-DD
+        const endDate = dates[1].toISOString().split('T')[0];   // Format to YYYY-MM-DD
+
+        // Call API with updated date range and pagination
+        listLeads(currentPage, recordsPerPage, startDate, endDate);
+      }
+    } else {
+      listLeads(currentPage, recordsPerPage, null, null);
+    }
+  };
+
+  const handlePageChange = (number) => {
+    listLeads(number, recordsPerPage, dateRange[0], dateRange[1]);
+    setCurrentPage(number);
+
+    // Call API with updated page number and date range
+  };
+
+  // Handle records per page changes
+  const handleRecordsPerPageChange = (value) => {
+    listLeads(1, value, dateRange[0], dateRange[1]);
+    setRecordsPerPage(value);
+    setCurrentPage(1); // Reset to first page when records per page change
+
+    // Call API with updated records per page and date range
+  };
 
   const handleSearchChange = useCallback(
     debounce((value) => setDebouncedSearch(value), 500),
     []
   );
-
-  // Effect to trigger API when search changes
-  useEffect(() => {
-    listLeads(1, recordsPerPage, dateRange[0], dateRange[1], debouncedSearch); // Reset to page 1 on search
-  }, [debouncedSearch]);
-
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -232,6 +232,7 @@ function ContactLeads() {
         console.error("Error updating remark:", error);
       });
   };
+  
   const formatToIST = (timestamp) => {
     return new Date(timestamp).toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
@@ -295,15 +296,12 @@ function ContactLeads() {
                   <div className="flex items-center gap-4">
                     {/* Export Button */}
                     <button
-                      className="bg-green-500 hover:bg-green-700 text-white font-bold px-4 rounded"
+                      onClick={exportToExcel}
+                      className="bg-green-500 hover:bg-green-700 text-white font-bold px-4 py-2 rounded"
                     >
-                      <ReactHTMLTableToExcel
-                        id="test-table-xls-button"
-                        table="table-to-export"
-                        filename="Contacts_Leads_Sheet"
-                        sheet="tablexls"
-                      />
+                      Export to Excel
                     </button>
+
 
                   </div>
                   {/* Pagination */}
@@ -338,7 +336,10 @@ function ContactLeads() {
                         Phone No.
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        Message
+                        City
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Space For
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Date / Time
@@ -369,9 +370,9 @@ function ContactLeads() {
                         </td>
                         <td className="px-6 py-4 ">{el.email_id}</td>
                         <td className="px-6 py-4 ">{el.contact_number}</td>
-                        <td className="px-6 py-4" style={{ wordWrap: 'break-word', maxWidth: '200px' }}>
-                          {el.message.split(" ").slice(0, 10).join(" ")}
-                          {el.message.split(" ").length > 10 && (
+                        {/* <td className="px-6 py-4" style={{ wordWrap: 'break-word', maxWidth: '200px' }}>
+                          {el.message?.split(" ").slice(0, 10).join(" ")}
+                          {el.message?.split(" ").length > 10 && (
                             <button
                               className="text-blue-500 underline ml-2"
                               onClick={() => handleViewClick(el.message)}
@@ -380,7 +381,9 @@ function ContactLeads() {
                             </button>
                           )}
 
-                        </td>
+                        </td> */}
+                        <td className="px-6 py-4 ">{el.city}</td>
+                        <td className="px-6 py-4 ">{el.space_type}</td>
                         <td className="px-6 py-4 ">{el.created_at}</td>
                         <td className="px-6 py-4 flex gap-2">
                           <button

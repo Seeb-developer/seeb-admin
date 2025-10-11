@@ -1,5 +1,3 @@
-
-
 import { useMemo } from "react";
 
 // porp-types is a library for typechecking of props
@@ -20,6 +18,27 @@ import configs from "examples/Charts/BarCharts/VerticalBarChart/configs";
 
 // Arrange Free React base styles
 import colors from "assets/theme/base/colors";
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  BarController,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  BarController,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function VerticalBarChart({ title, description, height, chart }) {
   const chartDatasets = chart.datasets
@@ -48,7 +67,12 @@ function VerticalBarChart({ title, description, height, chart }) {
             </SoftBox>
           )}
           <SoftBox mb={2}>
-            <SoftTypography component="div" variant="button" fontWeight="regular" color="text">
+            <SoftTypography
+              component="div"
+              variant="button"
+              fontWeight="regular"
+              color="text"
+            >
               {description}
             </SoftTypography>
           </SoftBox>

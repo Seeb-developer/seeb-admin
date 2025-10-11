@@ -81,8 +81,8 @@ const ListBlogSection = () => {
               <th className="px-4 py-2">Title</th>
               <th className="px-4 py-2">Image</th>
               <th className="px-4 py-2">Description</th>
-              <th className="px-4 py-2">CTA Button Text</th>
-              <th className="px-4 py-2">CTA Button link</th>
+              {/* <th className="px-4 py-2">CTA Button Text</th> */}
+              {/* <th className="px-4 py-2">CTA Button link</th> */}
               <th className="px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
@@ -99,7 +99,7 @@ const ListBlogSection = () => {
                 <tr key={item.id} className="border-b">
                   <td className="px-4 py-2">{index + 1}</td>
                   <td className="px-4 py-2">
-                    {item.title}
+                    {item.title||item.cta_text}
                     {/* Show subsection titles below the main title */}
                     {subSections.length > 0 && (
                       <div className="mt-1 text-xs text-gray-500">
@@ -119,8 +119,8 @@ const ListBlogSection = () => {
                     <img src={`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}${item.banner_image}`} alt="" className="w-16 h-16 object-cover" />
                   </td>
                   <td className="px-4 py-2">{item.description.slice(0, 100)}...</td>
-                  <td className="px-4 py-2">{item.cta_text}</td>
-                  <td className="px-4 py-2">{item.section_link}</td>
+                  {/* <td className="px-4 py-2">{item.cta_text}</td> */}
+                  {/* <td className="px-4 py-2">{item.section_link}</td> */}
                   <td className="px-4 py-2 text-center flex gap-3 justify-center">
                     <FaPen className="text-green-600 cursor-pointer" onClick={() => {
                       if (item.cta_text) {

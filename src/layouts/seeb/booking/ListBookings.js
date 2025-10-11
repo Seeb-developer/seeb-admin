@@ -82,8 +82,6 @@ const ListBookings = () => {
         }
     };
 
-
-
     // Handle search change
     const handleSearchChange = (e) => {
         const value = e.target.value;

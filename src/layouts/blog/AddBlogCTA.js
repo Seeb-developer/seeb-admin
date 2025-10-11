@@ -51,7 +51,7 @@ const AddBlogCTA = () => {
             blog_id: blogId,
             title: blogData.title,
             description: blogData.description,
-            section_link: blogData.section_link,
+            section_link: "NA",
             cta_text: blogData.cta_text, // include CTA here
             banner_image: bannerImageUrl,
             sub_sections: JSON.stringify([]),
@@ -81,42 +81,99 @@ const AddBlogCTA = () => {
         <DashboardLayout>
             <DashboardNavbar />
             <Toaster position="top-center" />
-            <div className="w-full bg-white rounded shadow p-8 mt-8">
-                <div className="flex items-center mb-6">
+            <div className="w-full bg-white rounded-xl shadow-md p-8 mt-8">
+                <div className="flex items-center mb-8">
                     <button
                         type="button"
                         onClick={() => navigate(-1)}
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded mr-4"
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1 rounded mr-4"
                     >
                         ← Back
                     </button>
-                    <h2 className="text-2xl font-bold text-gray-800">Add Blog Section</h2>
+                    <h2 className="text-3xl font-semibold text-gray-800">Add Blog CTA</h2>
                 </div>
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <input type="text" placeholder="Title" required className="flex-1 text-sm border rounded px-2 py-2" value={blogData.title} onChange={e => setBlogData({ ...blogData, title: e.target.value })} />
-                        <input type="text" placeholder="Section Link" required className="flex-1 text-sm border rounded px-2 py-2" value={blogData.section_link} onChange={e => setBlogData({ ...blogData, section_link: e.target.value })} />
-                        <textarea placeholder="Description" rows={3} className="border px-4 py-2 text-sm rounded col-span-2" value={blogData.description} onChange={e => setBlogData({ ...blogData, description: e.target.value })} />
-                        <input type="text" placeholder="CTA Button Text" className="border px-4 py-2 text-sm rounded col-span-2" value={blogData.cta_text} onChange={e => setBlogData({ ...blogData, cta_text: e.target.value })} />
+
+                <form className="space-y-10" onSubmit={handleSubmit}>
+                    {/* Optional Form Inputs (Uncomment when needed) */}
+                    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* <input
+        type="text"
+        placeholder="Title"
+        required
+        className="text-sm border rounded px-4 py-2"
+        value={blogData.title}
+        onChange={e => setBlogData({ ...blogData, title: e.target.value })}
+      />
+      <input
+        type="text"
+        placeholder="Section Link"
+        required
+        className="text-sm border rounded px-4 py-2"
+        value={blogData.section_link}
+        onChange={e => setBlogData({ ...blogData, section_link: e.target.value })}
+      />
+      <textarea
+        placeholder="Description"
+        rows={3}
+        className="text-sm border rounded px-4 py-2 col-span-2 resize-none"
+        value={blogData.description}
+        onChange={e => setBlogData({ ...blogData, description: e.target.value })}
+      /> */}
+      <input
+        type="text"
+        placeholder="CTA Button Text"
+        className="text-sm border rounded px-4 py-2 col-span-2"
+        value={blogData.cta_text}
+        onChange={e => setBlogData({ ...blogData, cta_text: e.target.value })}
+      />
+    </div>
+   
+
+                    {/* Banner Upload */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Upload CTA Image</label>
+                        <div className="flex flex-col md:flex-row items-start gap-6">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setBannerFile(e.target.files[0])}
+                                className="text-sm border rounded px-4 py-2 w-full md:w-auto cursor-pointer bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-100 hover:file:bg-gray-200"
+                            />
+
+                            {bannerFile && (
+                                <div className="relative group">
+                                    <img
+                                        src={URL.createObjectURL(bannerFile)}
+                                        alt="Preview"
+                                        className="w-24 h-24 object-cover rounded-lg border shadow-sm"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setBannerFile(null)}
+                                        className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-2 py-1 hover:bg-red-700"
+                                        title="Remove"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-4 items-start">
-                        <input type="file" accept="image/*" onChange={(e) => setBannerFile(e.target.files[0])} className="text-sm border rounded px-4 py-2" />
-                        {bannerFile && (
-                            <div className="relative group">
-                                <img src={URL.createObjectURL(bannerFile)} alt="Banner Preview" className="w-20 h-20 object-cover rounded border" />
-                                <button type="button" className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1 hidden group-hover:block" onClick={() => setBannerFile(null)}>×</button>
-                            </div>
-                        )}
-                    </div>
-
+                    {/* Submit Button */}
                     <div className="flex justify-end">
-                        <button type="submit" className="bg-green-600 text-white px-8 py-2 rounded text-lg" disabled={isSubmitting}>
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="bg-green-600 hover:bg-green-700 text-white text-base px-6 py-2 rounded-md shadow-sm transition"
+                        >
                             {isSubmitting ? 'Submitting...' : 'Submit'}
                         </button>
                     </div>
                 </form>
             </div>
+
         </DashboardLayout>
     );
 };

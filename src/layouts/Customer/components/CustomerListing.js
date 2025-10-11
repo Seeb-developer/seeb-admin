@@ -59,7 +59,7 @@ const CustomerListing = (props) => {
               </button>
             </div>
           </div> */}
-          <div className="relative mt-2 overflow-x-auto shadow-md sm:rounded-lg mt-4">
+          <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-4">
             <table
               id="table-to-export"
               className="w-full text-sm text-left text-gray-500 dark:text-gray-400"
