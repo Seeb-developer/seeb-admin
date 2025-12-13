@@ -45,6 +45,36 @@ const AddPartner = () => {
     };
 
     // Validate the Form
+    // const validateForm = () => {
+    //     const newErrors = {};
+    //     const regex = {
+    //         mobile: /^[0-9]{10}$/,
+    //         aadhaar: /^[0-9]{12}$/,
+    //         pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+    //     };
+
+    //     // Required Fields Check
+    //     for (let field in staffData) {
+    //         if (field !== 'aadhaar_front' && field !== 'aadhaar_back' && field !== 'pan_file' && field !== 'address_proof' && field !== 'photo' && !staffData[field]) {
+    //             newErrors[field] = `${field} is required`;
+    //         }
+    //     }
+
+    //     // Specific Field Validations
+    //     if (staffData.mobile && !regex.mobile.test(staffData.mobile)) {
+    //         newErrors.mobile = 'Mobile number must be 10 digits';
+    //     }
+    //     if (staffData.aadhaar_no && !regex.aadhaar.test(staffData.aadhaar_no)) {
+    //         newErrors.aadhaar_no = 'Aadhaar number must be 12 digits';
+    //     }
+    //     if (staffData.pan_no && !regex.pan.test(staffData.pan_no)) {
+    //         newErrors.pan_no = 'Invalid PAN number format';
+    //     }
+
+    //     setErrors(newErrors);
+    //     return Object.keys(newErrors).length === 0;
+    // };
+
     const validateForm = () => {
         const newErrors = {};
         const regex = {
@@ -53,20 +83,24 @@ const AddPartner = () => {
             pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
         };
 
-        // Required Fields Check
-        for (let field in staffData) {
-            if (field !== 'aadhaar_front' && field !== 'aadhaar_back' && field !== 'pan_file' && field !== 'address_proof' && field !== 'photo' && !staffData[field]) {
-                newErrors[field] = `${field} is required`;
-            }
-        }
+        // ✅ Only these fields are required
+        const requiredFields = ['name', 'mobile', 'work'];
 
-        // Specific Field Validations
+        requiredFields.forEach((field) => {
+            if (!staffData[field]) {
+                newErrors[field] = `${field.replace('_', ' ')} is required`;
+            }
+        });
+
+        // ✅ Validate only if value exists
         if (staffData.mobile && !regex.mobile.test(staffData.mobile)) {
             newErrors.mobile = 'Mobile number must be 10 digits';
         }
+
         if (staffData.aadhaar_no && !regex.aadhaar.test(staffData.aadhaar_no)) {
             newErrors.aadhaar_no = 'Aadhaar number must be 12 digits';
         }
+
         if (staffData.pan_no && !regex.pan.test(staffData.pan_no)) {
             newErrors.pan_no = 'Invalid PAN number format';
         }
@@ -74,6 +108,7 @@ const AddPartner = () => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
 
     // Handle Form Submission
     const handleSubmit = async (e) => {
@@ -94,7 +129,7 @@ const AddPartner = () => {
 
             const result = await response.json();
 
-            if (result.status === 201) {
+            if (result.status === 200 || result.status === 'success') {
                 toast.success('Partner added successfully');
                 navigate('/partner-list'); // Redirect to partner list after successful form submission
             } else {
@@ -116,7 +151,10 @@ const AddPartner = () => {
                     {/* Name and Mobile */}
                     <div className="flex mt-6">
                         <div className="w-full px-4">
-                            <label className="text-gray-700 text-xs font-bold mb-2">Full Name</label>
+                            <label className="text-gray-700 text-xs font-bold mb-2">
+                                Full Name <span className="text-red-500">*</span>
+                            </label>
+
                             <input
                                 type="text"
                                 name="name"
@@ -129,7 +167,9 @@ const AddPartner = () => {
                         </div>
 
                         <div className="w-full px-4">
-                            <label className="text-gray-700 text-xs font-bold mb-2">Phone No.</label>
+                            <label className="text-gray-700 text-xs font-bold mb-2">
+                                Phone No. <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 name="mobile"
@@ -186,7 +226,9 @@ const AddPartner = () => {
                         </div>
 
                         <div className="w-full px-4">
-                            <label className="text-gray-700 text-xs font-bold mb-2">Work</label>
+                            <label className="text-gray-700 text-xs font-bold mb-2">
+                                Work <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 name="work"
