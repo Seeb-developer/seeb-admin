@@ -126,9 +126,9 @@ const PartnerVerification = () => {
                         <p><strong>Name:</strong> {partner.name}</p>
                         <p><strong>Mobile:</strong> {partner.mobile}</p>
                         <p><strong>DOB:</strong> {partner.dob} ({calculateAge(partner.dob)} years)</p>
-                        <p><strong>Work:</strong> {partner.work}</p>
-                        <p><strong>Labour Count:</strong> {partner.labour_count}</p>
-                        <p><strong>Area:</strong> {partner.area}</p>
+                        <p><strong>Work:</strong> {partner.profession}</p>
+                        <p><strong>Labour Count:</strong> {partner.team_size}</p>
+                        <p><strong>Area:</strong> {partner.service_areas}</p>
                         <p><strong>Service Areas:</strong> {partner.service_areas}</p>
                         <p><strong>Aadhaar No:</strong> {partner.aadhaar_no}</p>
                         <p><strong>PAN No:</strong> {partner.pan_no}</p>
@@ -149,7 +149,7 @@ const PartnerVerification = () => {
                         <p><strong>IFSC Code:</strong> {bank_details.ifsc_code}</p>
                         <p><strong>Branch:</strong> {bank_details.bank_branch}</p>
                     </div>
-                    {bank_details.bank_document && (
+                    {/* {bank_details.bank_document && ( */}
                         <div className="border rounded-xl p-5 shadow-sm bg-white w-1/3 mt-5">
                             {/* Header: Title + Status */}
                             <div className="flex justify-between items-center mb-4">
@@ -215,7 +215,7 @@ const PartnerVerification = () => {
                                 </div>
                             )}
                         </div>
-                    )}
+                    {/* )} */}
                 </div>
 
                 {/* Document Section */}

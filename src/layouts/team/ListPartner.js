@@ -174,9 +174,9 @@ const ListPartner = () => {
                     </span>
                   </td>
 
-                  <td className="px-4 py-3">{item.work}</td>
-                  <td className="px-4 py-3">{item.area}</td>
-                  <td className="px-4 py-3">{item.labour_count}</td>
+                  <td className="px-4 py-3">{item.profession}</td>
+                  <td className="px-4 py-3">{item.service_areas}</td>
+                  <td className="px-4 py-3">{item.team_size}</td>
                   <td className="px-4 py-3">{calculateAge(item.dob)}</td>
 
                   <td className="px-4 py-3">
