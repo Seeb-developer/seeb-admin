@@ -1,4 +1,5 @@
 import React from "react";
+import { apiCall } from "utils/apiClient";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -33,39 +34,29 @@ function AddVendors() {
     e.preventDefault();
     setLoading(true);
 
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Cookie", "ci_session=9d1aaubqaqsgicacrka5l9o95oodfqn1");
-
-    var raw = JSON.stringify({
-      name: name,
-      description: description,
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "brand/createBrand", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Vendor Added Successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-          navigate('/list-vendors');
-        }
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
+    try {
+      const result = await apiCall({
+        endpoint: "brand/createBrand",
+        method: "POST",
+        data: {
+          name: name,
+          description: description,
+        },
       });
+      console.log(result);
+      if (result.status === 200) {
+        setLoading(false);
+        toast.success("Vendor Added Successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+        Navigate('/list-vendors');
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

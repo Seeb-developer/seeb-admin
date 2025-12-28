@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Spin, DatePicker } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -7,6 +7,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Pagination from "components/pagination";
 import { FaSortDown, FaSortUp } from "react-icons/fa";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
 
@@ -35,10 +36,7 @@ const CartPage = () => {
     }, [searchTerm]);
 
     // Fetch data with filters
-    const fetchCartData = async () => {
-        setCartData([]);
-        setTotalRecords(0);
-        setTotalPages(0);
+    const fetchCartData = useCallback(async () => {
         setLoading(true);
         try {
             const body = {
@@ -52,13 +50,11 @@ const CartPage = () => {
                 sort_dir: sortOrder || undefined,
             };
 
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}seeb-cart`, {
+            const result = await apiCall({
+                endpoint: "seeb-cart",
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
+                data: body,
             });
-
-            const result = await response.json();
 
             if (result.status === 200) {
                 setCartData(result.data || []);
@@ -67,13 +63,14 @@ const CartPage = () => {
             }
         } catch (error) {
             console.error("Error fetching cart data:", error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
-    };
+    }, [currentPage, recordsPerPage, debouncedSearchTerm, dateRange, quickFilter, sortField, sortOrder]);
 
     useEffect(() => {
         fetchCartData();
-    }, [debouncedSearchTerm, dateRange, quickFilter, currentPage, recordsPerPage, sortField, sortOrder]);
+    }, [fetchCartData]);
 
     const clearFilters = () => {
         setSearchTerm("");
@@ -99,12 +96,12 @@ const CartPage = () => {
             <DashboardNavbar />
             <Toaster position="top-center" reverseOrder={false} />
 
-            {loading ? (
-                <div className="flex justify-center items-center h-[75vh] w-full">
-                    <Spin indicator={antIcon} />
-                </div>
-            ) : (
-                <div className="border-solid border-2 black-indigo-600 mt-6">
+            <div className="border-solid border-2 black-indigo-600 mt-6 relative">
+                {loading && (
+                    <div className="absolute inset-0 flex justify-center items-center bg-white/60 z-10">
+                        <Spin indicator={antIcon} />
+                    </div>
+                )}
                     <div className="px-8 mt-5 text-lg font-semibold">Cart Summary</div>
 
                     {/* Filters */}
@@ -229,8 +226,7 @@ const CartPage = () => {
                             count={cartData.length}
                         />
                     </div>
-                </div>
-            )}
+            </div>
         </DashboardLayout>
     );
 };

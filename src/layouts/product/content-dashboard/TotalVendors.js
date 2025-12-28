@@ -15,6 +15,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import React, { useState, useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 
@@ -28,14 +29,7 @@ function TotalVendors() {
   // list categories
   const getAllOffer = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Offers/getAllOffers", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: "Offers/getAllOffers", method: "GET" })
       .then((result) => {
         console.log(result);
         setListProduct(result.data);
@@ -47,14 +41,7 @@ function TotalVendors() {
   };
   const getAllVender = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "vendor/getAllvendors", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: "vendor/getAllvendors", method: "GET" })
       .then((result) => {
         console.log(result);
         setListVender(result.vendor_data);

@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { apiCall } from "utils/apiClient";
 
 const Filterorder = (props) => {
   const { children, totalCount, setSelectedCategory } = props;
@@ -20,16 +21,7 @@ const Filterorder = (props) => {
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliancesWithOrderCount",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliancesWithOrderCount", method: "GET" });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);

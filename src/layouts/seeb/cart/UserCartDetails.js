@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
 
@@ -13,23 +14,26 @@ const UserCartDetails = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchUserCartItems = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}seeb-cart/getCart/${user.user_id}`);
-                const result = await response.json();
-                if (result.status === 200) {
-                    setCartItems(result.data);
-                }
-            } catch (error) {
-                console.error("Error fetching user cart details:", error);
+    const fetchUserCartItems = useCallback(async () => {
+        setLoading(true);
+        try {
+            const result = await apiCall({
+                endpoint: `seeb-cart/getCart/${user.user_id}`,
+                method: "GET",
+            });
+            if (result && result.status === 200) {
+                setCartItems(result.data || []);
             }
+        } catch (error) {
+            console.error("Error fetching user cart details:", error);
+        } finally {
             setLoading(false);
-        };
+        }
+    }, [user.user_id]);
 
+    useEffect(() => {
         fetchUserCartItems();
-    }, [user]);
+    }, [fetchUserCartItems]);
 
     return (
         <DashboardLayout>

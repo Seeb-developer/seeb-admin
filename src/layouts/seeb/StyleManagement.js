@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 const API_BASE_URL = process.env.REACT_APP_HAPS_MAIN_BASE_URL + "styles";
 
@@ -33,8 +34,10 @@ const StyleManagement = () => {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch(CATEGORY_API);
-            const res = await response.json();
+            const res = await apiCall({
+                endpoint: "styles/category",
+                method: "GET"
+            });
             if (res.status === 200) {
                 setCategories(res.data);
             } else {
@@ -48,8 +51,10 @@ const StyleManagement = () => {
 
     const fetchStyles = async () => {
         try {
-            const response = await fetch(API_BASE_URL);
-            const res = await response.json();
+            const res = await apiCall({
+                endpoint: "styles",
+                method: "GET"
+            });
             if (res.status === 200) {
                 setStyles(res.data);
             } else {
@@ -72,15 +77,14 @@ const StyleManagement = () => {
         if (styleImage) formData.append("image", styleImage);
 
         try {
-            const url = editingId ? `${API_BASE_URL}/update/${editingId}` : API_BASE_URL;
-            const method = editingId ? "POST" : "POST"; // use PUT if supported
-            const response = await fetch(url, {
-                method,
-                body: formData,
+            const endpoint = editingId ? `styles/update/${editingId}` : "styles";
+            const result = await apiCall({
+                endpoint,
+                method: "POST",
+                data: formData
             });
 
-            const result = await response.json();
-            if (response.ok) {
+            if (result.status === 200 || result.status === 201) {
                 toast.success(result.message || "Style saved successfully");
                 fetchStyles();
                 setStyleName("");
@@ -120,9 +124,11 @@ const StyleManagement = () => {
     const handleDeleteStyle = async (id) => {
         if (!window.confirm("Are you sure you want to delete this style?")) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
-            const result = await response.json();
-            if (response.ok) {
+            const result = await apiCall({
+                endpoint: `styles/${id}`,
+                method: "DELETE"
+            });
+            if (result.status === 200) {
                 toast.success(result.message);
                 fetchStyles();
             } else {
@@ -147,16 +153,14 @@ const StyleManagement = () => {
         if (catImage) formData.append("image", catImage);
 
         try {
-            const response = await fetch(
-                editingCatId ? `${CATEGORY_API}/update/${editingCatId}` : `${CATEGORY_API}/create`,
-                {
-                    method: editingCatId ? "POST" : "POST",
-                    body: formData,
-                }
-            );
+            const endpoint = editingCatId ? `styles/category/update/${editingCatId}` : "styles/category/create";
+            const result = await apiCall({
+                endpoint,
+                method: "POST",
+                data: formData
+            });
 
-            const result = await response.json();
-            if (response.ok) {
+            if (result.status === 200 || result.status === 201) {
                 toast.success(result.message || "Saved successfully");
                 fetchCategories();
                 resetCategoryForm();
@@ -186,9 +190,11 @@ const StyleManagement = () => {
     const handleDeleteCategory = async (id) => {
         if (!window.confirm("Are you sure to delete this category?")) return;
         try {
-            const response = await fetch(`${CATEGORY_API}/${id}`, { method: "DELETE" });
-            const result = await response.json();
-            if (response.ok) {
+            const result = await apiCall({
+                endpoint: `styles/category/${id}`,
+                method: "DELETE"
+            });
+            if (result.status === 200) {
                 toast.success("Deleted successfully");
                 fetchCategories();
             } else {

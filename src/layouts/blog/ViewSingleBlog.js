@@ -4,6 +4,7 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 const ViewSingleBlog = () => {
   const { id } = useParams(); // Extract blog ID from URL params
@@ -14,8 +15,7 @@ const ViewSingleBlog = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/single-blog/${id}`);
-        const result = await response.json();
+        const result = await apiCall({ endpoint: `blog/single-blog/${id}`, method: 'GET' });
         if (result.status === 200) {
           setBlog(result.data);
         } else {

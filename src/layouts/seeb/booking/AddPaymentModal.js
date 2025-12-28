@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 const AddPaymentModal = ({ onClose, bookingId, userId, onSubmit }) => {
     const [amount, setAmount] = useState("");
@@ -29,22 +30,18 @@ const AddPaymentModal = ({ onClose, bookingId, userId, onSubmit }) => {
         };
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}booking/payment/manual`, {
+            const result = await apiCall({
+                endpoint: "booking/payment/manual",
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
+                data: payload,
             });
 
-            const result = await response.json();
-
-            if (response.ok) {
+            if (result && (result.status === 200 || result.success === true)) {
                 toast.success("Payment added successfully!");
                 onClose();
                 onSubmit();
             } else {
-                setError(result.message || "Failed to add payment.");
+                setError(result?.message || "Failed to add payment.");
             }
         } catch (err) {
             setError("Something went wrong. Please try again.");

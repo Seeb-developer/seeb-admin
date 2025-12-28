@@ -16,6 +16,7 @@ import { Empty, message } from "antd";
 import "react-toastify/dist/ReactToastify.css";
 
 import React, { useState, useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 import { Button, Modal, Spin } from "antd";
@@ -103,14 +104,7 @@ function TotalDesigner(getDetails) {
   // list categories
   const getAllOffer = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Offers/getAllOffers", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: "Offers/getAllOffers", method: "GET" })
       .then((result) => {
         setListProduct(result.data);
         if (result.status === 200) {
@@ -122,14 +116,7 @@ function TotalDesigner(getDetails) {
 
   const getAllDesingner = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Designer/GetAll", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: "Designer/GetAll", method: "GET" })
       .then((result) => {
         if (result.status === 200) {
           setDesignerList(result.data);
@@ -141,17 +128,7 @@ function TotalDesigner(getDetails) {
 
   const getAllDeletedDesingner = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Designer/GetDeletedDesigner",
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "Designer/GetDeletedDesigner", method: "GET" })
       .then((result) => {
         setDesignerDeletedList(result.Data);
         if (result.Status === 200) {
@@ -164,13 +141,7 @@ function TotalDesigner(getDetails) {
   const handledesingnerDelete = async (id) => {
     setLoading(true);
     console.log("id", id);
-    var requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Designer/Delete/" + id, requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: `Designer/Delete/${id}`, method: "DELETE" })
       .then((result) => {
         if (result.Status === 200) {
           getAllDesingner();
@@ -183,28 +154,17 @@ function TotalDesigner(getDetails) {
 
   const [UpdateIndex, setUpdateIndex] = useState(false);
   const adddesigner = () => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
+    const data = {
       employee_id: ID,
-      name: name,
+      name,
       pan_number: pancard,
       adhaar_number: adharnumber,
       agreement: aggrementimg,
       pan_card: pancardimg,
       adhaar_card: adharimg,
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
     };
 
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Designer/Create", requestOptions)
-      .then((response) => response.json())
+    apiCall({ endpoint: "Designer/Create", method: "POST", data })
       .then((result) => {
         if (result.Status === 201) {
           getAllDesingner();
@@ -223,10 +183,7 @@ function TotalDesigner(getDetails) {
   };
 
   const updatedesingner = (userid) => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
+    const data = {
       id: userid,
       employee_id: UpdateFormData.employee_id,
       name: UpdateFormData.name,
@@ -235,17 +192,9 @@ function TotalDesigner(getDetails) {
       agreement: "PathOfFile",
       pan_card: "PathOfFile",
       adhaar_card: "PathOfFile",
-    });
-
-    var requestOptions = {
-      method: "PUT",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
     };
 
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Designer/Update", requestOptions)
-      .then((response) => response.json())
+    apiCall({ endpoint: "Designer/Update", method: "PUT", data })
       .then((result) => {
         if (result.Status === 200) {
           setEditDesignerModalOpen(false);
@@ -256,17 +205,7 @@ function TotalDesigner(getDetails) {
   };
   const getAllDesignerByCategory = async () => {
     setLoading(true);
-   
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `Designer/GetProductsByDesignerId//${DesignerId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: `Designer/GetProductsByDesignerId//${DesignerId}`, method: "GET" })
       .then((result) => {
         if (result.Status === 200) {
           setDesignerListbyCategory(result.Data);
@@ -296,14 +235,7 @@ function TotalDesigner(getDetails) {
       id == 1 ? ImgPaths.adhaar_card : id == 2 ? ImgPaths.agreement : ImgPaths.pan_card
     );
 
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-
-    fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}Designer/createDesignerImage`, requestOptions)
-      .then((response) => response.json())
+    apiCall({ endpoint: "Designer/createDesignerImage", method: "POST", data: formdata })
       .then((result) => {
         if (result.status === 200) {
           setUploadLoader(false);

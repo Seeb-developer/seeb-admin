@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 const Styles = () => {
     const [styles, setStyles] = useState([]);
@@ -27,38 +28,46 @@ const Styles = () => {
         e.preventDefault();
         if (!newStyle.trim()) return toast.error("Style name is required");
 
-        const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}styles`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: newStyle }),
-        });
+        try {
+            const result = await apiCall({
+                endpoint: "styles",
+                method: "POST",
+                data: { name: newStyle },
+            });
 
-        const result = await res.json();
-        if (result.status === 201) {
-            toast.success("Style added");
-            setNewStyle("");
-            fetchStyles();
-        } else {
+            if (result.status === 201) {
+                toast.success("Style added");
+                setNewStyle("");
+                fetchStyles();
+            } else {
+                toast.error("Failed to add style");
+            }
+        } catch (error) {
             toast.error("Failed to add style");
+            console.error("Error:", error);
         }
     };
 
     const updateStyle = async (id) => {
         if (!editingName.trim()) return toast.error("Style name is required");
 
-        const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}styles/update/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: editingName }),
-        });
+        try {
+            const result = await apiCall({
+                endpoint: `styles/update/${id}`,
+                method: "PUT",
+                data: { name: editingName },
+            });
 
-        const result = await res.json();
-        if (result.status === 200) {
-            toast.success("Style updated");
-            setEditingId(null);
-            fetchStyles();
-        } else {
+            if (result.status === 200) {
+                toast.success("Style updated");
+                setEditingId(null);
+                fetchStyles();
+            } else {
+                toast.error("Failed to update style");
+            }
+        } catch (error) {
             toast.error("Failed to update style");
+            console.error("Error:", error);
         }
     };
 

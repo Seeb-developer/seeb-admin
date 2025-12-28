@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import { Toaster, toast } from 'react-hot-toast';
+import { apiCall } from 'utils/apiClient';
 
 const AddBlogCTA = () => {
     const location = useLocation();
@@ -27,11 +28,7 @@ const AddBlogCTA = () => {
             const formData = new FormData();
             formData.append('blog_image', bannerFile);
             try {
-                const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/createBlogImage`, {
-                    method: 'POST',
-                    body: formData,
-                });
-                const result = await response.json();
+                const result = await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData });
                 if (result.status === 200) {
                     bannerImageUrl = result.data?.blog_image;
                 } else {
@@ -58,17 +55,13 @@ const AddBlogCTA = () => {
         };
 
         try {
-            const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/blog-section`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const result = await res.json();
+            const result = await apiCall({ endpoint: 'blog/blog-section', method: 'POST', data: payload });
             if (result.status === 201) {
                 toast.success('Section added');
                 setBlogData({ title: '', description: '', section_link: '', cta_text: '' });
                 setBannerFile(null);
-                setSubSections([{ title: '', description: '', images: [] }]);
+            } else {
+                toast.error('Failed to add section');
             }
         } catch {
             toast.error('Failed to add section');

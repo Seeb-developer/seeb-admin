@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiCall } from 'utils/apiClient';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -29,21 +30,17 @@ const AIAPIHistory = () => {
 
     const fetchData = async () => {
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "ai-api-history/all", {
+            const result = await apiCall({
+                endpoint: "ai-api-history/all",
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
+                data: {
                     search: searchQuery,
                     startDate: startDate,
                     endDate: endDate,
                     page: currentPage,
                     perPage: recordsPerPage
-                }),
+                }
             });
-
-            const result = await response.json();
             if (result.data) {
                 setData(result.data);
                 setTotalRecords(result?.pagination?.totalRecords);

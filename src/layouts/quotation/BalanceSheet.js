@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiCall } from 'utils/apiClient';
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -50,15 +51,11 @@ const BalanceSheet = () => {
         }
 
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `transactions/getAll`, {
+            const result = await apiCall({
+                endpoint: 'transactions/getAll',
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', // Specify the content type as JSON
-                },
-                body: JSON.stringify(requestBody), // Send data in the body as JSON
+                data: requestBody,
             });
-
-            const result = await response.json();
 
             // Update states with the fetched data
             setExpenseData(result.data);

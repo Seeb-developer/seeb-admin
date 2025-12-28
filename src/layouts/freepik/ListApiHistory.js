@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiCall } from 'utils/apiClient';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster } from 'react-hot-toast';
@@ -31,26 +32,21 @@ const ListApiHistory = () => {
 
     const fetchData = async () => {
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "freepik-api/all", {
+            const result = await apiCall({
+                endpoint: "freepik-api/all",
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
+                data: {
                     search: searchQuery,
                     startDate: startDate,
                     endDate: endDate,
                     page: currentPage,
                     perPage: recordsPerPage
-                }),
+                }
             });
-
-            const result = await response.json();
             if (result.data) {
                 setData(result.data);
                 setTotalRecords(result?.pagination?.totalRecords);
-                setCurrentPage(result?.pagination?.currentPage)
-                
+                setCurrentPage(result?.pagination?.currentPage);
             }
         } catch (error) {
             console.error("Error fetching API history:", error);

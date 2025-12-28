@@ -3,6 +3,7 @@ import Loader from "layouts/loader/Loader";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import React, { useState, useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -21,17 +22,7 @@ function RawProduct(props) {
   // list raw product total count
   const getAllList = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: 'GET',
-      redirect: 'follow'
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `dashboard/products-statics?status=0`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "dashboard/products-statics", method: "GET", params: { status: 0 } })
       .then((result) => {
         console.log(result);
         setListProduct(result.data);

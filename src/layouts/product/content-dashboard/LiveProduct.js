@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import { apiCall } from "utils/apiClient";
 
 function LiveProduct(props) {
 const {handleClickLivedProduct} = props;
@@ -21,17 +22,7 @@ LiveProduct.propTypes = {
   // list raw product total count
   const getAllList = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: 'GET',
-      redirect: 'follow'
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `dashboard/products-statics?status=5`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "dashboard/products-statics", method: "GET", params: { status: 5 } })
       .then((result) => {
         console.log(result);
         setListProduct(result.data);

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Divider, Skeleton, Steps, Button, theme, message, Modal } from "antd";
 import { ToastContainer, toast } from "react-toastify";
+import { apiCall } from "utils/apiClient";
 
 const OrderTracking = () => {
   let { slug } = useParams();
@@ -20,27 +21,18 @@ const OrderTracking = () => {
 
   const getAllOrderDetails = async () => {
     setSkeletonLoad(true);
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/getOrder/${searchParam.get("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        if (result.status === 200) {
-          setOrderDetails(result);
-          setOrderTimeline(result?.order?.timeline);
-          setCurrent(result.order.status);
-          setCustomerInvoiceLink(result.order.invoice_path);
-          setSkeletonLoad(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `product/getOrder/${searchParam.get("id")}`, method: "GET" });
+      if (result.status === 200) {
+        setOrderDetails(result);
+        setOrderTimeline(result?.order?.timeline);
+        setCurrent(result.order.status);
+        setCustomerInvoiceLink(result.order.invoice_path);
+        setSkeletonLoad(false);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {
@@ -93,59 +85,43 @@ const OrderTracking = () => {
 
   // Update order status
 
-  const updateOrderStatus = () => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      order_id: OrderDetails.order.id,
-      status: parseInt(current) + 1,
-      remark: "",
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/update-order-status`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        if (result.status == 200) {
-          setOrderTimeline(result.timeline);
-          setCurrent(current + 1);
-          getAllOrderDetails();
-        }
-      })
-      .catch((error) => console.log("error", error));
+  const updateOrderStatus = async () => {
+    try {
+      const result = await apiCall({
+        endpoint: "admin/update-order-status",
+        method: "POST",
+        data: {
+          order_id: OrderDetails.order.id,
+          status: parseInt(current) + 1,
+          remark: "",
+        },
+      });
+      if (result.status == 200) {
+        setOrderTimeline(result.timeline);
+        setCurrent(current + 1);
+        getAllOrderDetails();
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
   };
-  const cancelOrderStatus = () => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      order_id: OrderDetails.order.id,
-      remark: "cancelled",
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "customer/cancel-order", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        if (result.status === 200) {
-          toast.success(`${result.msg}`);
-          getAllOrderDetails();       
-        }
-      })
-      .catch((error) => console.log("error", error));
+  const cancelOrderStatus = async () => {
+    try {
+      const result = await apiCall({
+        endpoint: "customer/cancel-order",
+        method: "POST",
+        data: {
+          order_id: OrderDetails.order.id,
+          remark: "cancelled",
+        },
+      });
+      if (result.status === 200) {
+        toast.success(`${result.msg}`);
+        getAllOrderDetails();
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const handleYesClick = () => {

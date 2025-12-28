@@ -8,6 +8,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
 import { Toaster, toast } from 'react-hot-toast';
 import ConfirmModal from 'components/modal/ConfirmModal';
+import { apiCall } from 'utils/apiClient';
 
 const ListRooms = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
@@ -30,22 +31,21 @@ const ListRooms = () => {
         setShowDeleteModal(true);
     };
 
-    // Fetch all rooms
     const getAllRooms = async () => {
         setLoader(true);
-        const requestOptions = { method: 'GET', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "rooms", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                setLoader(false);
-                if (result.status === 200)
-                    setRoomData(result.data);
-                setFilteredRooms(result.data);
-            })
-            .catch(error => {
-                setLoader(false);
-                console.error('Error fetching rooms:', error);
+        try {
+            const result = await apiCall({
+                endpoint: "rooms",
+                method: 'GET',
             });
+            setLoader(false);
+            if (result.status === 200)
+                setRoomData(result.data);
+            setFilteredRooms(result.data);
+        } catch (error) {
+            setLoader(false);
+            console.error('Error fetching rooms:', error);
+        }
     };
 
     // Handle search change
@@ -63,55 +63,50 @@ const ListRooms = () => {
         }
     };
 
-    // Handle deleting room
     const handleRoomDelete = async () => {
-        const requestOptions = { method: 'DELETE', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/rooms/delete/${selectedRoomId}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 200) {
-                    getAllRooms();
-                    toast.success("Room Deleted Successfully");
-                }
-            })
-            .catch(error => console.log('Error deleting room:', error))
-            .finally(() => {
-                setShowDeleteModal(false);
-                setSelectedServiceId(null);
+        try {
+            const result = await apiCall({
+                endpoint: `/rooms/delete/${selectedRoomId}`,
+                method: 'DELETE',
             });
+            if (result.status === 200) {
+                getAllRooms();
+                toast.success("Room Deleted Successfully");
+            }
+        } catch (error) {
+            console.log('Error deleting room:', error);
+        }
+        setShowDeleteModal(false);
+        setSelectedRoomId(null);
     };
 
-    // Handle room form submission (Add/Edit)
     const handleRoomSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate that an image preview exists if the room form includes image requirements
         if (!roomFormData.imagePreview) {
             toast.error("Image is required.");
-            return; // Stop the form submission if there's no image preview
+            return;
         }
 
-        // Create the JSON object for submission
         const data = {
             name: roomFormData.name,
-            image: roomFormData.imagePreview, // This is the image path, not an image object
+            image: roomFormData.imagePreview,
             type: roomFormData.type
         };
 
-        const url = editMode
-            ? `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}rooms/update/${roomIdToEdit}`
-            : `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}rooms/create`;
+        const endpoint = editMode
+            ? `rooms/update/${roomIdToEdit}`
+            : `rooms/create`;
 
         const method = editMode ? 'PUT' : 'POST';
 
         try {
             setLoader(true);
-            const response = await fetch(url, {
+            const result = await apiCall({
+                endpoint: endpoint,
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data), // Send data as JSON
+                data: data,
             });
-            const result = await response.json();
 
             if (result.status === (editMode ? 200 : 201)) {
                 getAllRooms();
@@ -153,7 +148,6 @@ const ListRooms = () => {
         }
     };
 
-    // Handle image upload
     const handleImageUpload = async () => {
         if (!roomFormData.image) {
             toast.error("Please select an image to upload.");
@@ -164,11 +158,11 @@ const ListRooms = () => {
         formData.append('image', roomFormData.image);
 
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'services-type/upload-image', {
+            const result = await apiCall({
+                endpoint: 'services-type/upload-image',
                 method: 'POST',
-                body: formData,
+                data: formData,
             });
-            const result = await response.json();
             if (result.status === 200) {
                 setRoomFormData({
                     ...roomFormData,
@@ -184,15 +178,13 @@ const ListRooms = () => {
         }
     };
 
-    // Handle image deletion
     const handleImageDelete = async () => {
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'services/delete-image', {
+            const result = await apiCall({
+                endpoint: 'services/delete-image',
                 method: 'POST',
-                body: JSON.stringify({ image_path: roomFormData.imagePreview }),
-                headers: { 'Content-Type': 'application/json' },
+                data: { image_path: roomFormData.imagePreview },
             });
-            const result = await response.json();
             if (result.status === 200) {
                 setRoomFormData({ ...roomFormData, imagePreview: null, image: null });
                 toast.success("Image deleted successfully!");

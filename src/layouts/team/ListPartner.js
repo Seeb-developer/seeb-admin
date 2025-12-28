@@ -5,6 +5,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { FaPen } from 'react-icons/fa';
 import { Toaster, toast } from 'react-hot-toast';
 import Pagination from 'components/pagination';
+import { apiCall } from 'utils/apiClient';
 
 const ListPartner = () => {
   const navigate = useNavigate();
@@ -32,16 +33,16 @@ const ListPartner = () => {
     };
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}partner/list`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+      const res = await apiCall({
+        endpoint: "partner/list",
+        method: "POST",
+        data: body,
       });
-      const result = await response.json();
-      if (result.status === 200) {
-        setData(result.data || []);
-        setTotalRecords(result.pagination?.total_records || 0);
-        setTotalPages(result.pagination?.total_pages || 0);
+
+      if (res.status === 200) {
+        setData(res.data || []);
+        setTotalRecords(res.pagination?.total_records || 0);
+        setTotalPages(res.pagination?.total_pages || 0);
       }
     } catch (error) {
       console.log('error', error);
@@ -58,11 +59,11 @@ const ListPartner = () => {
 
   const HandlePartnerDelete = async (id) => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}partner/delete/${id}`, {
-        method: 'DELETE'
+      const res = await apiCall({
+        endpoint: `partner/delete/${id}`,
+        method: 'DELETE',
       });
-      const result = await res.json();
-      if (result.status === true) {
+      if (res.status === true) {
         toast.success("Partner deleted successfully");
         ApiFetch();
       }

@@ -5,6 +5,7 @@ import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import { Toaster, toast } from 'react-hot-toast';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { apiCall } from 'utils/apiClient';
 
 const UpdateBlogSection = () => {
   const { id } = useParams();
@@ -38,9 +39,8 @@ const UpdateBlogSection = () => {
 
   const fetchSectionData = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/blog-section/${id}`);
-      const result = await response.json();
-      console.log("result =>",result.data)
+      const result = await apiCall({ endpoint: `blog/blog-section/${id}`, method: 'GET' });
+      console.log("result =>", result.data);
       if (result.status === 200) {
         setBlogData({
           title: result.data.title,
@@ -48,7 +48,6 @@ const UpdateBlogSection = () => {
           section_link: result.data.section_link,
         });
         setBannerImageUrl(result.data.banner_image || '');
-        // Parse sub_sections and handle images as string or array
         let parsedSubSections = [{ title: '', description: '', images: [] }];
         try {
           parsedSubSections = result.data.sub_sections
@@ -60,7 +59,6 @@ const UpdateBlogSection = () => {
             }))
             : [{ title: '', description: '', images: [] }];
         } catch {
-          // fallback to default
         }
         setSubSections(parsedSubSections.length ? parsedSubSections : [{ title: '', description: '', images: [] }]);
       } else {
@@ -113,11 +111,7 @@ const UpdateBlogSection = () => {
     formData.append('blog_image', bannerFile);
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/createBlogImage`, {
-        method: 'POST',
-        body: formData,
-      });
-      const result = await response.json();
+      const result = await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData });
       if (result.status === 200) {
         setBannerImageUrl(result.data.blog_image);
         toast.success('Banner uploaded successfully');
@@ -142,11 +136,7 @@ const UpdateBlogSection = () => {
       const formData = new FormData();
       formData.append('blog_image', bannerFile);
       try {
-        const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/createBlogImage`, {
-          method: 'POST',
-          body: formData,
-        });
-        const result = await response.json();
+        const result = await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData });
         if (result.status === 200) {
           bannerImageUrlToSend = result.data.blog_image;
         } else {
@@ -172,13 +162,8 @@ const UpdateBlogSection = () => {
       if (images.length > 0 && images[0] instanceof File) {
         images.forEach((img) => formData.append('blog_image', img));
         try {
-          const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/createBlogImage`, {
-            method: 'POST',
-            body: formData,
-          });
-          const result = await response.json();
+          const result = await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData });
           if (result.status === 200) {
-            // If backend returns a single image string, wrap in array
             uploadedImages = result.data?.blog_image
               ? [result.data.blog_image]
               : result.data?.images || [];
@@ -209,12 +194,7 @@ const UpdateBlogSection = () => {
     };
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/blog-section/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const result = await response.json();
+      const result = await apiCall({ endpoint: `blog/blog-section/${id}`, method: 'PUT', data: payload });
       if (result.status === 200) {
         toast.success('Section updated successfully');
         fetchSectionData();
@@ -292,11 +272,7 @@ const UpdateBlogSection = () => {
 
                 // Delete previous
                 if (bannerImageUrl) {
-                  await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/deleteBlogImage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ blog_image: bannerImageUrl }),
-                  });
+                  await apiCall({ endpoint: 'blog/deleteBlogImage', method: 'POST', data: { blog_image: bannerImageUrl } });
                 }
 
                 setBannerFile(file);
@@ -359,11 +335,7 @@ const UpdateBlogSection = () => {
 
                     const prevImg = sub.images && typeof sub.images[0] === 'string' ? sub.images[0] : null;
                     if (prevImg) {
-                      await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/deleteBlogImage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ blog_image: prevImg }),
-                      });
+                      await apiCall({ endpoint: 'blog/deleteBlogImage', method: 'POST', data: { blog_image: prevImg } });
                     }
 
                     const updated = [...subSections];

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
+import { apiCall } from 'utils/apiClient'
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -64,8 +65,19 @@ const ListQuotation = () => {
         redirect: "follow",
       };
 
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}quotation/getAll`, requestOptions);
-      const result = await response.json();
+      const result = await apiCall({
+        endpoint: 'quotation/getAll',
+        method: 'POST',
+        data: {
+          type,
+          admin_id: id,
+          page,
+          per_page: perPage,
+          start_date: startDate,
+          end_date: endDate,
+          search,
+        },
+      });
 
       setQuotationData(result.data);
       setTotalRecords(result.pagination.total_records || 0);
@@ -91,15 +103,19 @@ const ListQuotation = () => {
       redirect: "follow",
     };
 
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `quotation/changeStatus/${id}`, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        if (result.status === 200) {
-          toast.success("Quotation convert to sale successfully")
-          getAllQuotations()
-        }
-      })
-      .catch((error) => console.error("Error fetching quotation:", error));
+    try {
+      const result = await apiCall({
+        endpoint: `quotation/changeStatus/${id}`,
+        method: 'POST',
+        data: { status: status },
+      });
+      if (result.status === 200) {
+        toast.success("Quotation convert to sale successfully")
+        getAllQuotations()
+      }
+    } catch (error) {
+      console.error("Error fetching quotation:", error);
+    }
   };
 
   const handleDateRangeChange = (dates) => {

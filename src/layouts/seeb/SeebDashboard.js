@@ -7,6 +7,7 @@ import SoftBox from "components/SoftBox";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import SoftTypography from "components/SoftTypography";
+import { apiCall } from "utils/apiClient";
 
 const SeebDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -23,10 +24,15 @@ const SeebDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}dashboard/overview`);
-      const result = await response.json();
-      if (result.status === true) {
-        setDashboardData(result.data);
+      // const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}dashboard/overview`);
+      // const result = await response.json();
+      const res = await apiCall({
+        endpoint: "dashboard/overview",
+        method: "GET"
+      })
+      console.log("dashboard overview",res)
+      if (res.status === true) {
+        setDashboardData(res.data);
       }
     } catch (error) {
       console.error("Dashboard data fetch error", error);
@@ -35,10 +41,11 @@ const SeebDashboard = () => {
 
   const fetchMonthlySales = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}dashboard/monthly-sales`);
-      const result = await response.json();
-      if (result.status === true) {
-        setMonthlySales({labels: result.labels, values: result.values});
+      const res = await apiCall({ endpoint: "dashboard/monthly-sales", method: "GET" });
+      if (res && res.status === true) {
+        const labels = res?.data?.labels ?? res?.labels ?? [];
+        const values = res?.data?.values ?? res?.values ?? [];
+        setMonthlySales({ labels, values });
       }
     } catch (error) {
       console.error("Monthly sales fetch error", error);
@@ -47,10 +54,11 @@ const SeebDashboard = () => {
 
   const fetchYearlySales = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}dashboard/yearly-sales`);
-      const result = await response.json();
-      if (result.status === true) {
-        setYearlySales({labels: result.labels, values: result.values});
+      const res = await apiCall({ endpoint: "dashboard/yearly-sales", method: "GET" });
+      if (res && res.status === true) {
+        const labels = res?.data?.labels ?? res?.labels ?? [];
+        const values = res?.data?.values ?? res?.values ?? [];
+        setYearlySales({ labels, values });
       }
     } catch (error) {
       console.error("Yearly sales fetch error", error);

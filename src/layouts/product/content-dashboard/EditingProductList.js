@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, createSearchParams } from "react-router-dom";
 import { Empty } from "antd";
 import PropTypes from "prop-types";
+import { apiCall } from "utils/apiClient";
 
 function EditingProductList(props) {
 const {ListingEdit, Titles} = props;
@@ -23,17 +24,11 @@ EditingProductList.propTypes = {
   // list product total count
   const getAllList = async (id) => {
     setLoading(true);
-
-    var requestOptions = {
+    await apiCall({
+      endpoint: "product/getProducts",
       method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/getProducts?home_zone_appliances_id=${ListingEdit}&status=2`,
-      requestOptions
-    )
-      .then((response) => response.json())
+      params: { home_zone_appliances_id: ListingEdit, status: 2 },
+    })
       .then((result) => {
         console.log(result);
         setListProductCategory(result.data.products);

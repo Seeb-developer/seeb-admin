@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiCall } from "utils/apiClient";
 
 const ProductDiscount = () => {
   const [discount, setDiscount] = useState("");
@@ -21,8 +22,7 @@ const ProductDiscount = () => {
       redirect: "follow",
     };
 
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/applyDiscount", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: "product/applyDiscount", method: "PUT", data: { discounted_percent: discount } })
       .then((result) => {
         // console.log(result);
         if (result.status === 200) {
@@ -41,8 +41,7 @@ const ProductDiscount = () => {
       redirect: "follow",
     };
 
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/getDiscount", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: "product/getDiscount", method: "GET" })
       .then((result) => {
         console.log(result);
         setDiscount(result.discounted_percent);
@@ -70,8 +69,7 @@ const handleIncreasePrice = async () => {
     redirect: "follow",
   };
 
-  await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/increase-price", requestOptions)
-    .then((response) => response.json())
+  await apiCall({ endpoint: "product/increase-price", method: "PUT", data: { increment: increasePrice } })
     .then((result) => {
       // console.log(result);
       if (result.status === 200) {
@@ -90,8 +88,7 @@ const getIncreasedPrice = async () => {
     redirect: "follow",
   };
 
-  await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/get-increment", requestOptions)
-    .then((response) => response.json())
+  await apiCall({ endpoint: "product/get-increment", method: "GET" })
     .then((result) => {
       console.log(result);
       setIncreasePrice(result.increment_percent);

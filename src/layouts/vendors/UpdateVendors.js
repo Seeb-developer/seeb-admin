@@ -1,4 +1,5 @@
 import React from "react";
+import { apiCall } from "utils/apiClient";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -33,29 +34,19 @@ function UpdateVendors() {
   //   get vendor by id
   const [vendorData, setVendorData] = useState(null);
   const getVendorById = async (id) => {
-    var myHeaders = new Headers();
     setLoading(true);
-    myHeaders.append("Cookie", "ci_session=9d1aaubqaqsgicacrka5l9o95oodfqn1");
-
-    var requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `brand/getBrandById/${searchParam.get("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setVendorData(result.Brand);
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
+    try {
+      const result = await apiCall({
+        endpoint: `brand/getBrandById/${searchParam.get("id")}`,
+        method: "GET",
       });
+      console.log(result);
+      setVendorData(result.Brand);
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -71,48 +62,36 @@ function UpdateVendors() {
 
   // update vendor api
   const updateVendor = async () => {
-    var myHeaders = new Headers();
     setLoading(true);
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      name: name,
-      description: description,
-    });
-
-    var requestOptions = {
-      method: "PUT",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `brand/updateBrand/${searchParam.get("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        if (result.success) {
-          setName("");
-          setDescription("");
-          setVendorData([]);
-        }
-        if (result.status === 200) {
-          toast.success("Vendor Updated Successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-          Navigate("/list-vendors");
-        } else {
-          // message.error('Failed to create product');
-        }
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
+    try {
+      const result = await apiCall({
+        endpoint: `brand/updateBrand/${searchParam.get("id")}`,
+        method: "PUT",
+        data: {
+          name: name,
+          description: description,
+        },
       });
+      console.log(result);
+      if (result.success) {
+        setName("");
+        setDescription("");
+        setVendorData([]);
+      }
+      if (result.status === 200) {
+        toast.success("Vendor Updated Successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+        Navigate("/list-vendors");
+      } else {
+        // message.error('Failed to create product');
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

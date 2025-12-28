@@ -17,6 +17,7 @@ import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiCall } from "utils/apiClient";
 
 function AdminList() {
   let Navigate = useNavigate();
@@ -26,22 +27,15 @@ function AdminList() {
   // list categories
   const getAllAdmin = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getAdmin", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setListAdmin(result.data);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: "admin/getAdmin", method: "GET" });
+      setListAdmin(result.data);
+      if (result.status === 200) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {
@@ -54,31 +48,20 @@ function AdminList() {
     setListAdmin(updateAdmin);
   };
   const handleAdminDelete = async (index, id) => {
-    var requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/deleteAdmin/${id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        removeAdmin(index);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Admin deleted successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `admin/deleteAdmin/${id}`, method: "DELETE" });
+      removeAdmin(index);
+      if (result.status === 200) {
+        setLoading(false);
+        toast.success("Admin deleted successfully", { theme: "light", autoClose: "2000" });
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
       setTimeout(() => {
         setLoading(false);
       }, 3000);
+    }
   };
 
   return (

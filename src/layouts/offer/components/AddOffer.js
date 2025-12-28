@@ -1,5 +1,6 @@
 // @mui material components
 import Card from "@mui/material/Card";
+import { apiCall } from "utils/apiClient";
 import { Divider, Modal, Select, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 
@@ -109,25 +110,14 @@ function AddOffer() {
     formdata.append("image_banner", selectedImage);
     formdata.append("device", "1");
 
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Offers/createOffersImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("Image uploaded successfully:", result);
-        setWebBanner(result.data.Offers_image);
-      })
-      .catch((error) => console.log("error", error));
-    setTimeout(() => {
+    try {
+      const result = await apiCall({ endpoint: 'Offers/createOffersImage', method: 'POST', data: formdata });
+      setWebBanner(result?.data?.Offers_image);
+    } catch (error) {
+      console.log("error", error);
+    } finally {
       setLoading(false);
-    }, 3000);
+    }
   };
 
   //
@@ -147,141 +137,75 @@ function AddOffer() {
     formdata.append("image_banner", mobileSelectedImage);
     formdata.append("device", "2");
 
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Offers/createOffersImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("Image uploaded successfully:", result);
-        setMobileBanner(result.data.Offers_image);
-      })
-      .catch((error) => console.log("Error uploading image:", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const result = await apiCall({ endpoint: 'Offers/createOffersImage', method: 'POST', data: formdata });
+      setMobileBanner(result?.data?.Offers_image);
+    } catch (error) {
+      console.log("Error uploading image:", error)
+    } finally {
+      setLoading(false);
+    }
   };
 
   //
   // Delete Image Api
   //
-  const deleteImage = (id) => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      image_banner: webBanner,
-      id: searchParam.get("slug"),
-      device: 1,
-    });
-
-    var requestOptions = {
-      method: "DELETE",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/Offers/deleteOfferImage/${id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setWebBanner(null);
-      })
-      .catch((error) => console.log("error", error));
+  const deleteImage = async (id) => {
+    try {
+      const result = await apiCall({ endpoint: `Offers/deleteOfferImage/${id}` , method: 'DELETE', data: { image_banner: webBanner, device: 1 } });
+      setWebBanner(null);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   //
   // Delete Mobile Image Api
   //
-  const deleteMobileImage = (id) => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      image_banner: mobileBanner,
-      id: searchParam.get("slug"),
-      device: 2,
-    });
-
-    var requestOptions = {
-      method: "DELETE",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/Offers/deleteOfferImage/${id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setMobileBanner(null);
-      })
-      .catch((error) => console.log("error", error));
+  const deleteMobileImage = async (id) => {
+    try {
+      const result = await apiCall({ endpoint: `Offers/deleteOfferImage/${id}`, method: 'DELETE', data: { image_banner: mobileBanner, device: 2 } });
+      setMobileBanner(null);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
-  const handleAddOffer = (e) => {
+  const handleAddOffer = async (e) => {
     e.preventDefault();
     setLoading(true);
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      offer_group: selectedSection === "upper" ? "1" : "2",
-      offer_title: name,
-      offer_link: link,
-      offer_index: indexing,
-      offer_start_date: offerStartDate ? offerStartDate.toISOString() : "",
-      offer_end_date: offerEndDate ? offerEndDate.toISOString() : "",
-      offer_web_path: webBanner,
-      offer_mobile_path: mobileBanner,
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Offers/createOffers", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        if (result.success) {
-          setName("");
-          setLink("");
-          setIndexing("");
-          setMobileSelectedImage("");
-          setSelectedImage("");
-        }
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Offer added successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-          Navigate("/list-offer");
-        } else {
-          // message.error('Failed to create product');
-        }
-      })
-      .catch((error) => console.log("error", error));
-    setTimeout(() => {
+    try {
+      const payload = {
+        offer_group: selectedSection === "upper" ? "1" : "2",
+        offer_title: name,
+        offer_link: link,
+        offer_index: indexing,
+        offer_start_date: offerStartDate ? offerStartDate.toISOString() : "",
+        offer_end_date: offerEndDate ? offerEndDate.toISOString() : "",
+        offer_web_path: webBanner,
+        offer_mobile_path: mobileBanner,
+      };
+      const result = await apiCall({ endpoint: 'Offers/createOffers', method: 'POST', data: payload });
+      if (result.success) {
+        setName("");
+        setLink("");
+        setIndexing("");
+        setMobileSelectedImage("");
+        setSelectedImage("");
+      }
+      if (result.status === 200) {
+        setLoading(false);
+        toast.success("Offer added successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+        Navigate("/list-offer");
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
       setLoading(false);
-    }, 3000);
+    }
   };
 
   return (

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, } from 'react'
+import { apiCall } from 'utils/apiClient';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -24,39 +25,27 @@ const ListStaff = () => {
 
 
   const ApiFetch = async () => {
-
-    var requestOptions = {
-      method: 'GET',
-      redirect: 'follow'
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "staff/getAllStaffs", requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        setData(result.data)
-      })
-
-      .catch(error => console.log('error', error));
+    try {
+      const result = await apiCall({ endpoint: 'staff/getAllStaffs', method: 'GET' });
+      setData(result.data || []);
+    } catch (error) {
+      console.log('error', error);
+    }
   }
   //  }
   useEffect(() => {
     ApiFetch()
   }, [])
-  const HandleUserDelete = (id) => {
-    var requestOptions = {
-      method: 'DELETE',
-      redirect: 'follow'
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `Staff/Delete/${id}`, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        if (result.Status === 200) {
-          ApiFetch()
-          toast.success("Staff Deleted Successfully")
-        }
-      })
-      .catch(error => console.log('error', error));
+  const HandleUserDelete = async (id) => {
+    try {
+      const result = await apiCall({ endpoint: `Staff/Delete/${id}`, method: 'DELETE' });
+      if (result.Status === 200 || result.status === 200) {
+        ApiFetch();
+        toast.success("Staff Deleted Successfully")
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
   }
 
 

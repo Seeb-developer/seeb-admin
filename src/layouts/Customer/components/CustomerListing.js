@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import Loader from "layouts/loader/Loader";
-
 import { AiOutlineDelete } from "react-icons/ai";
-import { toast, Toaster } from "react-hot-toast"; // Add this import
+import { toast, Toaster } from "react-hot-toast";
+import { apiCall } from "utils/apiClient"; // Add this import
 
 const CustomerListing = (props) => {
   let Navigate = useNavigate();
@@ -126,14 +126,10 @@ const CustomerListing = (props) => {
                         onClick={async () => {
                           if (window.confirm("Are you sure you want to delete this customer?")) {
                             try {
-                              const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}customer/delete/${el.id}`, {
-                                method: "DELETE",
-                              });
-                              const result = await response.json();
-                              if (result.Status === 200) {
+                              const result = await apiCall({ endpoint: `customer/delete/${el.id}`, method: "DELETE" });
+                              if (result.Status === 200 || result.status === 200) {
                                 toast.success("Customer deleted");
                                 getAllCustomer();
-                                // Optionally refresh the list here, e.g. call a prop or reload
                               } else {
                                 toast.error(result.message || "Failed to delete customer");
                               }

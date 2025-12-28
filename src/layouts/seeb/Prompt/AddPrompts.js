@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { toast, Toaster } from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 const AddPrompt = () => {
     const [styles, setStyles] = useState([]);
@@ -15,9 +16,11 @@ const AddPrompt = () => {
 
     const fetchStyles = async () => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}styles`);
-            const data = await res.json();
-            setStyles(data?.data || []);
+            const result = await apiCall({
+                endpoint: "styles",
+                method: "GET"
+            });
+            setStyles(result?.data || []);
         } catch (err) {
             toast.error("Failed to load styles");
         }
@@ -52,13 +55,12 @@ const AddPrompt = () => {
         // 🔁 If new style is entered, create it first
         if (form.new_style) {
             try {
-                const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}styles`, {
+                const result = await apiCall({
+                    endpoint: "styles",
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: form.new_style }),
+                    data: { name: form.new_style }
                 });
 
-                const result = await res.json();
                 if (result.status === 201 || result.status === 200) {
                     finalStyleId = result.data.id;
                     toast.success("New style created successfully");
@@ -81,13 +83,13 @@ const AddPrompt = () => {
 
 
         try {
-            const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}prompts`, {
+            const result = await apiCall({
+                endpoint: "prompts",
                 method: "POST",
-                body: formData,
+                data: formData
             });
 
-            const result = await res.json();
-            if (result.status === 201) {
+            if (result && result.status === 201) {
                 toast.success("Prompt added successfully");
                 setForm({
                     prompt: "",

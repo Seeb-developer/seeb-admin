@@ -5,6 +5,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { apiCall } from "utils/apiClient";
 
 const BASE_URL = process.env.REACT_APP_HAPS_MAIN_BASE_URL;
 const antIcon = <LoadingOutlined style={{ fontSize: 50 }} spin />;
@@ -34,8 +35,10 @@ const PartnerVerification = () => {
     const fetchPartner = async () => {
         // setLoading(true);
         try {
-            const res = await fetch(`${BASE_URL}partner/onboarding-data/${id}`);
-            const result = await res.json();
+            const result = await apiCall({
+                endpoint: `partner/onboarding-data/${id}`,
+                method: "GET"
+            });
             setData(result.data);
         } catch {
             toast.error("Error fetching partner data");
@@ -49,17 +52,16 @@ const PartnerVerification = () => {
         }
 
         try {
-            const res = await fetch(`${BASE_URL}partner/verify-bank`, {
+            const result = await apiCall({
+                endpoint: "partner/verify-bank",
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
+                data: {
                     partner_id: id,
                     status,
                     rejection_reason: bankRejectionReason,
                     verified_by: localStorage.getItem("id")
-                })
+                }
             });
-            const result = await res.json();
             if (result.status === 200) {
                 toast.success("Bank verification updated");
                 setShowBankRejection(false);
@@ -77,16 +79,15 @@ const PartnerVerification = () => {
         }
 
         try {
-            const res = await fetch(`${BASE_URL}partner/verify-documents/${docId}`, {
+            const result = await apiCall({
+                endpoint: `partner/verify-documents/${docId}`,
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
+                data: {
                     verified_by: localStorage.getItem("id"),
                     status,
                     rejection_reason: docRejectionReason[docId],
-                }),
+                }
             });
-            const result = await res.json();
             if (result.status === 200) {
                 toast.success("Document verification updated");
                 setActiveDocRejectId(null);

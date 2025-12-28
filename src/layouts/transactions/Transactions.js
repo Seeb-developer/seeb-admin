@@ -17,6 +17,7 @@ import { Modal, Select } from "antd";
 import NontAuthorized401 from "NontAuthorized401";
 import ComplainList from "layouts/complain/components/ComplainList";
 import TransactionList from "./components/TransactionList";
+import { apiCall } from "utils/apiClient";
 
 const { Option } = Select;
 
@@ -45,16 +46,10 @@ function Transactions() {
   const handleCategoryChange = async (event) => {
     setSelectedCategory(event);
     try {
-      const requestOptions = {
-        method: "GET",
-        redirect: "follow",
-      };
-
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/getHomeZoneCateroryByid/${event}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({
+        endpoint: `admin/getHomeZoneCateroryByid/${event}`,
+        method: "GET"
+      });
       setSubCategories(result.data);
     } catch (error) {
       console.log("Error fetching data:", error);
@@ -71,16 +66,10 @@ function Transactions() {
   useEffect(() => {
     const getBrandData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "brand/getAllBrand",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({
+          endpoint: "brand/getAllBrand",
+          method: "GET"
+        });
         setProductBrand(result.Brand);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -109,16 +98,10 @@ function Transactions() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({
+          endpoint: "admin/getHomeZoneAppliances",
+          method: "GET"
+        });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -139,19 +122,12 @@ function Transactions() {
     brand_id
   ) => {
     // setLoading(true);
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
     try {
       [];
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-          `product/getProducts?page=${page}&latest=${latest}&home_zone_appliances_id=${home_zone_appliances_id}&home_zone_category_id=${home_zone_category_id}&brand_id=${brand_id}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({
+        endpoint: `product/getProducts?page=${page}&latest=${latest}&home_zone_appliances_id=${home_zone_appliances_id}&home_zone_category_id=${home_zone_category_id}&brand_id=${brand_id}`,
+        method: "GET"
+      });
       // console.log("Updated data", result.data.products);
       setProducts(result.data.products);
       setPageCount(result.data.page_count);
@@ -179,25 +155,19 @@ function Transactions() {
     }
   };
 
-  const GetAllTransaction = () => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `Transaction/GetAll?searchAll=${search}`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        if (result.Status === 200) {
-          setLoading(false);
-          settransactiondata(result.Data);
-        }
-      })
-      .catch((error) => console.log("error", error));
+  const GetAllTransaction = async () => {
+    try {
+      const result = await apiCall({
+        endpoint: `Transaction/GetAll?searchAll=${search}`,
+        method: "GET"
+      });
+      if (result.Status === 200) {
+        setLoading(false);
+        settransactiondata(result.Data);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {
@@ -214,28 +184,23 @@ function Transactions() {
     setProducts(updatedProducts);
   };
   const handleDeleteProduct = async (index, productId) => {
-    var requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/deleteProduct/${productId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        removeProduct(index);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Product deleted successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({
+        endpoint: `product/deleteProduct/${productId}`,
+        method: "DELETE"
+      });
+      // console.log(result);
+      removeProduct(index);
+      if (result.status === 200) {
+        setLoading(false);
+        toast.success("Product deleted successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
     setTimeout(() => {
       setLoading(false);
     }, 3000);
@@ -245,38 +210,27 @@ function Transactions() {
   // PRODUCT STATUS API
   //
   const onChange = async (product) => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      status: parseInt(product.status) === 1 ? 0 : 1,
-    });
-
-    var requestOptions = {
-      method: "PUT",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/updateProductStatus/${product.id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        if (result.status === "success") {
-          toast.success(
-            `${product.name} ${parseInt(product.status) === 1 ? "Disabled" : "Enabled"}`,
-            {
-              theme: "light",
-              autoClose: 1000,
-            }
-          );
+    try {
+      const result = await apiCall({
+        endpoint: `product/updateProductStatus/${product.id}`,
+        method: "PUT",
+        data: {
+          status: parseInt(product.status) === 1 ? 0 : 1,
         }
-      })
-      .catch((error) => console.log("error", error));
+      });
+      console.log(result);
+      if (result.status === "success") {
+        toast.success(
+          `${product.name} ${parseInt(product.status) === 1 ? "Disabled" : "Enabled"}`,
+          {
+            theme: "light",
+            autoClose: 1000,
+          }
+        );
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
 
     getAllProduct(currentPage, 1, null, null, null);
   };

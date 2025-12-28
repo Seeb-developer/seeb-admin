@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import NontAuthorized401 from "NontAuthorized401";
 import OrderTracking from "./components/OrderTracking";
 import DetailsOfCustomer from "./components/DetailsOfCustomer";
+import { apiCall } from "utils/apiClient";
 
 const { TabPane } = Tabs;
 
@@ -31,22 +32,14 @@ function OrderDetails() {
   const [orderDetails, setOrederDetails] = useState([]);
 
   const getOrderDetails = async () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/getOrder/${searchParam.get("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        setData(result.order);
-        setOrederDetails(result.product);
-        console.log(result);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `product/getOrder/${searchParam.get("id")}`, method: "GET" });
+      setData(result.order);
+      setOrederDetails(result.product);
+      console.log(result);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {

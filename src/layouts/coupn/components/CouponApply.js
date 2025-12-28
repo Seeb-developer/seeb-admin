@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { apiCall } from 'utils/apiClient';
 
 
 
@@ -9,33 +10,17 @@ const CouponApply = () => {
     const [discount, setDiscount] = useState('');
 
     const handleDiscount = async () => {
-        var myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        var raw = JSON.stringify({
-            "discounted_percent": discount
-        });
-
-        var requestOptions = {
-            method: 'PUT',
-            headers: myHeaders,
-            body: raw,
-            redirect: 'follow'
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/applyDiscount", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                // console.log(result);
-                if (result.status === 200) {
-                    toast.success("Discount applied successfully", {
-                        theme: "light",
-                        autoClose: "2000",
-                    });
-                }
-
-            })
-            .catch(error => console.log('error', error));
+        try {
+            const result = await apiCall({ endpoint: "product/applyDiscount", method: "PUT", data: { discounted_percent: discount } });
+            if (result.status === 200) {
+                toast.success("Discount applied successfully", {
+                    theme: "light",
+                    autoClose: "2000",
+                });
+            }
+        } catch (error) {
+            console.log('error', error);
+        }
     }
 
     return (

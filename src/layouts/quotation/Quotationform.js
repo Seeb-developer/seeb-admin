@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react'
+import { apiCall } from 'utils/apiClient'
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useParams } from 'react-router-dom';
@@ -14,20 +15,18 @@ const QuotationForm = () => {
     const pdfRef = useRef();
 
     const getquotationform = async () => {
-        var requestOptions = {
-            method: 'GET',
-            redirect: 'follow'
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `quotation/quotationById/${id}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status == 200) {
-                    setdata(result.data)
-                    setTimelines(result?.data?.timelines)
-                }
-            })
-            .catch(error => console.log('error', error));
+        try {
+            const result = await apiCall({
+                endpoint: `quotation/quotationById/${id}`,
+                method: 'GET',
+            });
+            if (result.status == 200) {
+                setdata(result.data)
+                setTimelines(result?.data?.timelines)
+            }
+        } catch (error) {
+            console.log('error', error);
+        }
     }
     useEffect(() => {
         getquotationform();

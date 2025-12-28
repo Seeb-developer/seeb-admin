@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 const Faqs = () => {
     const [faqs, setFaqs] = useState([]);
@@ -17,21 +18,27 @@ const Faqs = () => {
     });
 
     const fetchFaqs = async () => {
-        const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}faqs`);
-        const data = await res.json();
-        if (data.status === 200) setFaqs(data.data);
+        const data = await apiCall({
+            endpoint: "faqs",
+            method: "GET"
+        });
+        if (data && data.status === 200) setFaqs(data.data);
     };
 
     const fetchCategories = async () => {
-        const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}faqs-category`);
-        const data = await res.json();
-        if (data.status === 200) setCategories(data.data);
+        const data = await apiCall({
+            endpoint: "faqs-category",
+            method: "GET"
+        });
+        if (data && data.status === 200) setCategories(data.data);
     };
 
     const fetchServices = async () => {
-        const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}services`);
-        const data = await res.json();
-        if (data.status === 200) setServices(data.data);
+        const data = await apiCall({
+            endpoint: "services",
+            method: "GET"
+        });
+        if (data && data.status === 200) setServices(data.data);
     };
 
     useEffect(() => {
@@ -47,20 +54,16 @@ const Faqs = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const url = form.id
-            ? `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}faqs/${form.id}`
-            : `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}faqs`;
-
         const method = form.id ? "PUT" : "POST";
+        const endpoint = form.id ? `faqs/${form.id}` : "faqs";
 
-        const res = await fetch(url, {
+        const result = await apiCall({
+            endpoint,
             method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(form),
+            data: form
         });
 
-        const result = await res.json();
-        if (result.status === 200 || result.status === 201) {
+        if (result && (result.status === 200 || result.status === 201)) {
             toast.success(`FAQ ${form.id ? "updated" : "added"} successfully`);
             setForm({ id: null, category_id: "", service_id: "", question: "", answer: "", status: 1 });
             fetchFaqs();

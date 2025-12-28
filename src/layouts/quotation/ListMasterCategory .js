@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiCall } from 'utils/apiClient';
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -28,22 +29,18 @@ const ListMasterCategory = () => {
     // Get all categories
     const getAllCategories = async () => {
         setLoader(true);
-        var requestOptions = {
-            method: 'GET',
-            redirect: 'follow',
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "master/categories", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                setLoader(false);
-                setCategoryData(result.data);
-                setFilteredCategories(result.data);
-            })
-            .catch(error => {
-                setLoader(false);
-                console.error('Error fetching categories:', error);
+        try {
+            const result = await apiCall({
+                endpoint: 'master/categories',
+                method: 'GET',
             });
+            setLoader(false);
+            setCategoryData(result.data);
+            setFilteredCategories(result.data);
+        } catch (error) {
+            setLoader(false);
+            console.error('Error fetching categories:', error);
+        }
     };
 
     // Handle search input change
@@ -64,49 +61,36 @@ const ListMasterCategory = () => {
 
     // Handle category deletion
     const handleCategoryDelete = async (id) => {
-        var requestOptions = {
-            method: 'DELETE',
-            redirect: 'follow',
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `master/categories/${id}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 200) {
-                    getAllCategories();
-                    toast.success("Category Deleted Successfully");
-                }
-            })
-            .catch(error => console.log('Error deleting category:', error));
+        try {
+            const result = await apiCall({
+                endpoint: `master/categories/${id}`,
+                method: 'DELETE',
+            });
+            if (result.status === 200) {
+                getAllCategories();
+                toast.success("Category Deleted Successfully");
+            }
+        } catch (error) {
+            console.log('Error deleting category:', error);
+        }
     };
 
     // Handle adding/updating category
     const handleCategorySubmit = async (e) => {
         e.preventDefault();
 
-        const url = editMode
-            ? `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}master/categories/${categoryIdToEdit}`
-            : process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'master/categories';
-
         const method = editMode ? 'PUT' : 'POST';
-
-        const requestOptions = {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(categoryFormData),
-            redirect: 'follow',
-        };
-
-        setLoader(true); // Set loader to true while submitting the form
-
+        setLoader(true);
         try {
-            const response = await fetch(url, requestOptions);
-            const result = await response.json();
-
+            const result = await apiCall({
+                endpoint: editMode ? `master/categories/${categoryIdToEdit}` : 'master/categories',
+                method,
+                data: categoryFormData,
+            });
             if (result.status === editMode ? 200 : 201) {
-                getAllCategories(); // Fetch updated categories list
+                getAllCategories();
                 toast.success(editMode ? "Category Updated Successfully" : "Category Added Successfully");
-                resetForm(); // Reset the form after adding/updating category
+                resetForm();
             } else {
                 toast.error("Failed to submit category. Please try again.");
             }
@@ -114,7 +98,7 @@ const ListMasterCategory = () => {
             console.error('Error submitting category:', error);
             toast.error("Error while processing request.");
         } finally {
-            setLoader(false); // Set loader to false after submission
+            setLoader(false);
         }
     };
 

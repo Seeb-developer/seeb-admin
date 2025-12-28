@@ -4,6 +4,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import React, { useState, useEffect } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
+import { apiCall } from "utils/apiClient";
 
 const AddAsset = () => {
     const [name, setName] = useState("");
@@ -28,17 +29,15 @@ const AddAsset = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const roomsRes = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/rooms`);
-                const stylesRes = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/styles`);
-                const roomElementsRes = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/room-elements`);
+                const [roomsData, stylesData, roomElementsData] = await Promise.all([
+                    apiCall({ endpoint: "rooms", method: "GET" }),
+                    apiCall({ endpoint: "styles", method: "GET" }),
+                    apiCall({ endpoint: "room-elements", method: "GET" })
+                ]);
 
-                const roomsData = await roomsRes.json();
-                const stylesData = await stylesRes.json();
-                const roomElementsData = await roomElementsRes.json();
-
-                setRooms(roomsData.data || []);
-                setStyles(stylesData.data || []);
-                setRoomElements(roomElementsData.data || []);
+                setRooms(roomsData?.data || []);
+                setStyles(stylesData?.data || []);
+                setRoomElements(roomElementsData?.data || []);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 toast.error("Failed to load data.");
@@ -75,14 +74,9 @@ const AddAsset = () => {
                 const fileFormData = new FormData();
                 fileFormData.append("file", files); // only 1 file now
 
-                const fileUploadResponse = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assets/upload`, {
-                    method: "POST",
-                    body: fileFormData,
-                });
-
-                const fileResult = await fileUploadResponse.json();
-                if (!fileUploadResponse.ok) {
-                    throw new Error(fileResult.message || "File upload failed");
+                const fileResult = await apiCall({ endpoint: "assets/upload", method: "POST", data: fileFormData });
+                if (!fileResult) {
+                    throw new Error(fileResult?.message || "File upload failed");
                 }
 
                 filePath = fileResult.file;
@@ -102,26 +96,17 @@ const AddAsset = () => {
                 style_id: JSON.stringify(selectedStyle),
             };
 
-            const url = id
-                ? `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assets/${id}`
-                : `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assets`;
-
+            const endpoint = id ? `assets/${id}` : `assets`;
             const method = id ? "PUT" : "POST";
 
-            const assetResponse = await fetch(url, {
-                method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(assetData),
-            });
+            const assetResult = await apiCall({ endpoint, method, data: assetData });
 
-            const assetResult = await assetResponse.json();
-
-            if (assetResponse.ok) {
+            if (assetResult && (assetResult.status === (id ? 200 : 201))) {
                 toast.success(id ? "Asset updated successfully!" : "Asset added successfully!");
                 navigate("/list-asset");
                 // Redirect or clear form here
             } else {
-                throw new Error(assetResult.message || "Failed to save asset.");
+                throw new Error(assetResult?.message || "Failed to save asset.");
             }
         } catch (error) {
             console.error("Error:", error);
@@ -136,8 +121,7 @@ const AddAsset = () => {
         const fetchAsset = async () => {
             if (id) {
                 try {
-                    const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assets/${id}`);
-                    const result = await response.json();
+                    const result = await apiCall({ endpoint: `assets/${id}`, method: "GET" });
                     const asset = result;
 
                     setName(asset.title);

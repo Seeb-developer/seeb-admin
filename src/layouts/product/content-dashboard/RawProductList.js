@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PropTypes from "prop-types";
 
 import React, { useState, useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 import { useNavigate, createSearchParams } from "react-router-dom";
 import { Empty } from "antd";
 import { Button, Modal } from "antd";
@@ -35,18 +36,11 @@ function RawProductList(props) {
   // list product total count
   const getAllList = async (id) => {
     setLoading(true);
-
-    var requestOptions = {
+    await apiCall({
+      endpoint: `product/rawProductsList`,
       method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-        `product/rawProductsList?home_zone_appliances_id=${ListingRawProduct}&status=0`,
-      requestOptions
-    )
-      .then((response) => response.json())
+      params: { home_zone_appliances_id: ListingRawProduct, status: 0 },
+    })
       .then((result) => {
         console.log(result);
         setListProductCategory(result.data.products);
@@ -91,13 +85,7 @@ function RawProductList(props) {
   // all designer list modal
 
   const getAllDesigner = () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Designer/GetAll", requestOptions)
-      .then((response) => response.json())
+    apiCall({ endpoint: "Designer/GetAll", method: "GET" })
       .then((result) => {
         console.log(result);
         if (result.status === 200) {
@@ -108,22 +96,8 @@ function RawProductList(props) {
   };
 
   const handleassigned = (id) => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    var raw = JSON.stringify({
-      designer_id: id,
-      product_id: ProductId,
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Designer/AssignProduct", requestOptions)
-      .then((response) => response.json())
+    const data = { designer_id: id, product_id: ProductId };
+    apiCall({ endpoint: "Designer/AssignProduct", method: "POST", data })
       .then((result) => {
         if (result.Status === 201) {
           setGetDesignerModalOpen(false);
@@ -138,16 +112,7 @@ function RawProductList(props) {
   //  get specific designer list
 
   const getspecificdesigner = () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Designer/GetProductsByDesignerId/2",
-      requestOptions
-    )
-      .then((response) => response.json())
+    apiCall({ endpoint: "Designer/GetProductsByDesignerId/2", method: "GET" })
       .then((result) => {
         if (result.Status === 200) {
           setSpecificDesignerData(result.Data);
@@ -156,32 +121,16 @@ function RawProductList(props) {
       .catch((error) => console.log("error", error));
   };
 
-  const assigntoother=(id)=>{
-    const specificUpdateDesigner = ()=>{
-      var myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-      
-      var raw = JSON.stringify({
-        "id": id,
-        "designer_id": "2",
-        "product_id": "109"
-      });
-      
-      var requestOptions = {
-        method: 'PUT',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow'
-      };
-      
-      fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL +"Designer/UpdateAssignProduct", requestOptions)
-        .then(response => response.json())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
-    }
-    setGetDesignerModalOpen(true)
-    setGetSpecificDesignerOpen(false)
-  }
+  const assigntoother = (id) => {
+    const specificUpdateDesigner = () => {
+      const data = { id, designer_id: "2", product_id: "109" };
+      apiCall({ endpoint: "Designer/UpdateAssignProduct", method: "PUT", data })
+        .then((result) => console.log(result))
+        .catch((error) => console.log("error", error));
+    };
+    setGetDesignerModalOpen(true);
+    setGetSpecificDesignerOpen(false);
+  };
   useEffect(() => {
     getAllDesigner();
     getAllList();

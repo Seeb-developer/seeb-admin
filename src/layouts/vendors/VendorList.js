@@ -1,4 +1,5 @@
 import React from "react";
+import { apiCall } from "utils/apiClient";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -36,30 +37,16 @@ function VendorList() {
     setModalVisible(true);
   };
 
-  const getAllVendors = () => {
-    var myHeaders = new Headers();
-    setLoading(true);
-    myHeaders.append("Cookie", "ci_session=9d1aaubqaqsgicacrka5l9o95oodfqn1");
-
-    var requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "brand/getAllBrand", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setVendorList(result.Brand);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+  const getAllVendors = async () => {
+    try {
+      setLoading(true);
+      const result = await apiCall({ endpoint: "brand/getAllBrand", method: "GET" });
+      setVendorList(result.Brand || []);
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -71,33 +58,22 @@ function VendorList() {
     const updateVendors = vendorList.filter((_, i) => i !== index);
     setVendorList(updateVendors);
   };
-  const deleteVendors = (index, id) => {
-    var myHeaders = new Headers();
-    myHeaders.append("Cookie", "ci_session=9d1aaubqaqsgicacrka5l9o95oodfqn1");
-
-    var requestOptions = {
-      method: "DELETE",
-      headers: myHeaders,
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `brand/deleteBrand/${id}`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        removeVendor(index);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Vendor deleted successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-        }
-      })
-      .catch((error) => console.log("error", error));
-    setTimeout(() => {
+  const deleteVendors = async (index, id) => {
+    try {
+      const result = await apiCall({ endpoint: `brand/deleteBrand/${id}`, method: "DELETE" });
+      removeVendor(index);
+      if (result.status === 200) {
+        setLoading(false);
+        toast.success("Vendor deleted successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
       setLoading(false);
-    }, 3000);
+    }
   };
 
   return (

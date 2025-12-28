@@ -16,6 +16,7 @@ import { BsFilter } from "react-icons/bs";
 import { Modal, Select } from "antd";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiCall } from "utils/apiClient";
 // import Footer from "examples/Footer";
 
 const { Option } = Select;
@@ -42,15 +43,7 @@ function OrderList() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
         setCategories(result.data);
         setSelectedCategory(result.data[0].id);
       } catch (error) {
@@ -65,23 +58,18 @@ function OrderList() {
   // Get All order API
   const getAllOrder = async (page, latest, startDate, endDate) => {
     setLoading(true);
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
     try {
-      [];
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-          `product/getAllOrder?page=${page}&latest=${latest}&search=${search}&start_date=${
-            startDate ? startDate : null
-          }&end_date=${endDate ? endDate : null}`,
-        requestOptions
-      );
-
-      const result = await response.json();
-
+      const result = await apiCall({
+        endpoint: "product/getAllOrder",
+        method: "GET",
+        params: {
+          page,
+          latest,
+          search,
+          start_date: startDate ? startDate : null,
+          end_date: endDate ? endDate : null,
+        },
+      });
       if (result.status === 200) {
         setOrder(result.order);
         setPageCount(result.page_count);
@@ -94,25 +82,21 @@ function OrderList() {
   };
   const getOrderData = async (page, latest) => {
     setLoading(true);
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}product/getAllOrderByDate?${page}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        setOrder(result.order);
-        setPageCount(result.page_count);
-        setTotalCount(result.total_order_count);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({
+        endpoint: "product/getAllOrderByDate",
+        method: "GET",
+        params: { page },
+      });
+      setOrder(result.order);
+      setPageCount(result.page_count);
+      setTotalCount(result.total_order_count);
+      if (result.status === 200) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
   };
   const paginate = (pageNumber) => {
     if (pageNumber <= pageCount || pageCount === null) {
@@ -143,16 +127,7 @@ function OrderList() {
   // get brands
   const getBrandData = async () => {
     try {
-      const requestOptions = {
-        method: "GET",
-        redirect: "follow",
-      };
-
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + "brand/getAllBrand",
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({ endpoint: "brand/getAllBrand", method: "GET" });
       setProductBrand(result.Brand);
     } catch (error) {
       console.log("Error fetching data:", error);
@@ -187,26 +162,23 @@ function OrderList() {
   };
   const getDataByFromandToDate = () => {
     setLoading(true);
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    fetch(
-      `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}product/getAllOrderByDate?${currentPage}=&start_date=${CalanderValues.From}&end_date=${CalanderValues.To}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
+    (async () => {
+      try {
+        const result = await apiCall({
+          endpoint: "product/getAllOrderByDate",
+          method: "GET",
+          params: { page: currentPage, start_date: CalanderValues.From, end_date: CalanderValues.To },
+        });
         setOrder(result.order);
         setPageCount(result.page_count);
         setTotalCount(result.total_order_count);
-
         if (result.status === 200) {
           setLoading(false);
         }
-      })
-      .catch((error) => console.log("error", error));
+      } catch (error) {
+        console.log("error", error);
+      }
+    })();
   };
   const HandleChangeToDate = async (value) => {
     if (StartDate) {

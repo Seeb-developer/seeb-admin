@@ -4,6 +4,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
 
@@ -18,10 +19,7 @@ const FloorplanSummary = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const response = await fetch(
-                    `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}floor-plans/${floorplanId}`
-                );
-                const result = await response.json();                
+                const result = await apiCall({ endpoint: `floor-plans/${floorplanId}`, method: "GET" });
                 if (result.status === 200) {
                     setData(result.data);
                 }

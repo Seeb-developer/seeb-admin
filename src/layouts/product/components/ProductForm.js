@@ -9,6 +9,7 @@ import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 const { Option } = Select;
@@ -160,11 +161,7 @@ const ProductForm = () => {
           redirect: "follow",
         };
 
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -183,11 +180,10 @@ const ProductForm = () => {
         redirect: "follow",
       };
 
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/getHomeZoneCateroryByid/${event}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({
+        endpoint: `admin/getHomeZoneCateroryByid/${event}`,
+        method: "GET",
+      });
       setSubCategories(result.data);
     } catch (error) {
       console.log("Error fetching data:", error);
@@ -210,11 +206,7 @@ const ProductForm = () => {
           redirect: "follow",
         };
 
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "brand/getAllBrand",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "brand/getAllBrand", method: "GET" });
         setProductBrand(result.Brand);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -276,14 +268,9 @@ const ProductForm = () => {
       redirect: "follow",
     };
 
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/createProductImage",
-      requestOptions
-    )
-      .then((response) => response.text())
-      // .then(result => console.log('ima',result))
+    await apiCall({ endpoint: "product/createProductImage", method: "POST", data: formdata })
       .then((result) => {
-        appendImage(JSON.parse(result).data);
+        appendImage(result.data);
         // appendImage(result.data);
         if (inputFileRef.current) {
           inputFileRef.current.value = null;
@@ -324,11 +311,7 @@ const ProductForm = () => {
         redirect: "follow",
       };
 
-      await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/deleteProductImage",
-        requestOptions
-      )
-        .then((response) => response.text())
+      await apiCall({ endpoint: "product/deleteProductImage", method: "DELETE", data: JSON.parse(raw) })
         .then((result) => {
           // console.log(result);
           removeItem(index);
@@ -423,11 +406,7 @@ const ProductForm = () => {
           body: formData,
         };
 
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/createProduct",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "product/createProduct", method: "POST", data: formData });
         if (result.success) {
           setSelectedCategory("");
           setSelectedSubCategory("");

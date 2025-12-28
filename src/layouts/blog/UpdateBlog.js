@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 const UpdateBlog = () => {
   const { id } = useParams(); // Get the blog ID from the URL
@@ -24,9 +25,7 @@ const UpdateBlog = () => {
 
   const fetchBlogData = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/single-blog/${id}`);
-      const result = await response.json();
-
+      const result = await apiCall({ endpoint: `blog/single-blog/${id}`, method: "GET" });
       if (result.status === 200) {
         setBlogData({
           title: result.data.title,
@@ -55,16 +54,10 @@ const UpdateBlog = () => {
     };
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/updateBlog/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const result = await response.json();
-
+      const result = await apiCall({ endpoint: `blog/updateBlog/${id}`, method: "PUT", data: payload });
       if (result.status === 200) {
         toast.success("Blog updated successfully");
-        navigate("/ListBlog"); // Navigate back to the blog list
+        navigate("/ListBlog");
       } else {
         toast.error("Failed to update blog");
       }
@@ -86,27 +79,13 @@ const UpdateBlog = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/createBlogImage`, {
-        method: "POST",
-        body: formData,
-      });
-      const result = await response.json();
-
+      const result = await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData });
       if (result.status === 200) {
         if (prevBannerImage) {
-          const requestOptions = {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ blog_image: prevBannerImage }), // Include the file path for deletion
-          };
-
-          await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "blog/deleteBlogImage", requestOptions);
+          await apiCall({ endpoint: 'blog/deleteBlogImage', method: 'POST', data: { blog_image: prevBannerImage } });
         }
-
         setBlogData({ ...blogData, blog_image: result?.data?.blog_image });
-        setPrevBannerImage(result?.data?.blog_image); // Update the tracked image
+        setPrevBannerImage(result?.data?.blog_image);
         toast.success("Banner uploaded successfully");
       }
     } catch (error) {

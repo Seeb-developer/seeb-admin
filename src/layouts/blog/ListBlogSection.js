@@ -4,6 +4,7 @@ import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import { Toaster, toast } from 'react-hot-toast';
 import { FaPen, FaTrash } from 'react-icons/fa';
+import { apiCall } from 'utils/apiClient';
 
 const ListBlogSection = () => {
   const [sections, setSections] = useState([]);
@@ -13,8 +14,7 @@ const ListBlogSection = () => {
 
   const fetchBlogSections = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/single-blog/${blogId}`);
-      const result = await response.json();
+      const result = await apiCall({ endpoint: `blog/single-blog/${blogId}`, method: 'GET' });
       if (result.status === 200) {
         setSections(result.data.blog_sections || []);
       } else {
@@ -27,10 +27,7 @@ const ListBlogSection = () => {
 
   const handleDeleteSection = async (id) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/delete-blog-section/${id}`, {
-        method: 'DELETE',
-      });
-      const result = await response.json();
+      const result = await apiCall({ endpoint: `blog/delete-blog-section/${id}`, method: 'DELETE' });
       if (result.status === 200) {
         toast.success('Section deleted');
         fetchBlogSections();

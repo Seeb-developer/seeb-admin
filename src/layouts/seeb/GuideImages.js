@@ -6,6 +6,7 @@ import { Spin } from 'antd';
 import { Toaster, toast } from 'react-hot-toast';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
+import { apiCall } from 'utils/apiClient';
 
 const GuideImages = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
@@ -29,10 +30,9 @@ const GuideImages = () => {
     const getAllGuideImages = async () => {
         setLoader(true);
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "guide-images");
-            const result = await response.json();
+            const result = await apiCall({ endpoint: "guide-images", method: "GET" });
             setLoader(false);
-            if (result.status === 200) {
+            if (result && result.status === 200) {
                 setGuideImages(result.data);
             }
         } catch (error) {
@@ -57,13 +57,8 @@ const GuideImages = () => {
             uploadFormData.append("image", formData.image);
 
             try {
-                const uploadResponse = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}guide-images/upload-image`, {
-                    method: "POST",
-                    body: uploadFormData,
-                });
-
-                const uploadResult = await uploadResponse.json();
-                if (uploadResult.status === 200) {
+                const uploadResult = await apiCall({ endpoint: "guide-images/upload-image", method: "POST", data: uploadFormData });
+                if (uploadResult && uploadResult.status === 200) {
                     imageUrl = uploadResult.image_url; // Assign uploaded image path
                 } else {
                     toast.error("Image upload failed.");
@@ -83,22 +78,16 @@ const GuideImages = () => {
             room_id: formData.room_id
         };
 
-        const url = editMode
-            ? `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}guide-images/update/${imageIdToEdit}`
-            : `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}guide-images/create`;
+        const endpoint = editMode
+            ? `guide-images/update/${imageIdToEdit}`
+            : `guide-images/create`;
 
         const method = editMode ? "PUT" : "POST";
 
         try {
             setLoader(true);
-            const response = await fetch(url, {
-                method: method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-            });
-
-            const result = await response.json();
-            if (result.status === (editMode ? 200 : 201)) {
+            const result = await apiCall({ endpoint, method, data });
+            if (result && result.status === (editMode ? 200 : 201)) {
                 getAllGuideImages();
                 toast.success(editMode ? "Guide Image Updated Successfully" : "Guide Image Added Successfully");
                 resetForm();
@@ -128,9 +117,8 @@ const GuideImages = () => {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}guide-images/${id}`, { method: 'DELETE' });
-            const result = await response.json();
-            if (result.status === 200) {
+            const result = await apiCall({ endpoint: `guide-images/${id}`, method: 'DELETE' });
+            if (result && result.status === 200) {
                 getAllGuideImages();
                 toast.success("Guide Image Deleted Successfully");
             }
@@ -142,10 +130,9 @@ const GuideImages = () => {
     const getAllRooms = async () => {
         setLoader(true);
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "rooms");
-            const result = await response.json();
+            const result = await apiCall({ endpoint: "rooms", method: "GET" });
             setLoader(false);
-            if (result.status === 200) {
+            if (result && result.status === 200) {
                 setRooms(result.data);
             }
         } catch (error) {
@@ -156,16 +143,14 @@ const GuideImages = () => {
 
     const getAllServicesType = async () => {
         // setLoading(true);
-        const requestOptions = { method: 'GET', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "services-type", requestOptions)
-            .then(response => response.json())
-            .then(result => {
+        try {
+            const result = await apiCall({ endpoint: "services-type", method: 'GET' });
+            if (result && result.data) {
                 setServices(result.data);
-            })
-            .catch(error => {
-                console.error('Error fetching services:', error);
-            })
-
+            }
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
     };
 
     return (

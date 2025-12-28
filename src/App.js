@@ -154,6 +154,9 @@ import { requestForToken } from "./firebaseConfig";
 import PartnerTicketList from "layouts/partner/TicketList";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "firebaseConfig"; // Import the auth object from firebaseConfig
+import UpdateBooking from "layouts/seeb/booking/UpdateBooking";
+import { apiCall } from "utils/apiClient";
+import AddServicePage from "layouts/seeb/booking/AddServicePage";
 
 export default function App() {
   const [controller, dispatch] = useSoftUIController();
@@ -168,7 +171,7 @@ export default function App() {
   const [notification, setNotification] = useState({ title: "", body: "" });
   const [isTokenFound, setTokenFound] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-const user_id = localStorage.getItem("id");
+  const user_id = localStorage.getItem("id");
 
 
   useEffect(() => {
@@ -200,26 +203,45 @@ const user_id = localStorage.getItem("id");
 
   useEffect(() => {
     setLoading(true);
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
+    // var requestOptions = {
+    //   method: "GET",
+    //   redirect: "follow",
+    // };
 
+    // fetch(
+    //   process.env.REACT_APP_HAPS_MAIN_BASE_URL +
+    //   `privileges/get-admin-privileges?admin_id=${localStorage.getItem("id")}`,
+    //   requestOptions
+    // )
+    // .then((response) => response.json())
+    // .then((result) => {
+    //     setAccessKeys(result.data);
+    //     let rou = routes.filter((o1) => result.data.some((o2) => o1.accessKey === o2));        
+    //     setNewRoutes(rou);
+    //     setLoading(false);
+    //   })
+    //   .catch((error) => console.log("error", error));
 
-    fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-      `privileges/get-admin-privileges?admin_id=${localStorage.getItem("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        setAccessKeys(result.data);
-        let rou = routes.filter((o1) => result.data.some((o2) => o1.accessKey === o2));        
+    const fetchPrivileges = async () => {
+      try {
+        const res = await apiCall({
+          endpoint: `privileges/get-admin-privileges?admin_id=${localStorage.getItem("id")}`,
+          method: "GET",
+        });
+        console.log("res", res);
+        setAccessKeys(res?.data || []);
+        let rou = routes.filter((o1) => res?.data?.some((o2) => o1.accessKey === o2));
         setNewRoutes(rou);
+
+      } catch (error) {
+        console.log("error", error);
+      }
+      finally {
         setLoading(false);
-      })
-      .catch((error) => console.log("error", error));
-    setLoading(false);
+      }
+    };
+    fetchPrivileges();
+
   }, [pathname]);
 
 
@@ -366,13 +388,13 @@ const user_id = localStorage.getItem("id");
       {loading ? (
         <>
           <div className="relative bg-white h-screen overflow-hidden" >
-          {loading && (
-            <div className="flex justify-center">
-              <div className="absolute top-[30%]">
-                <Loader />
+            {loading && (
+              <div className="flex justify-center">
+                <div className="absolute top-[30%]">
+                  <Loader />
+                </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
         </>
       ) : (
@@ -666,6 +688,9 @@ const user_id = localStorage.getItem("id");
                   <Route path="/services/create" element={<AddService />} />
                   <Route path="/bookings" element={<ListBookings />} />
                   <Route path="/booking-details" element={<BookingDetails />} />
+                  <Route path="/bookings/edit/:id" element={<UpdateBooking />} />
+                  <Route path="/bookings/:id/add-service" element={<AddServicePage />} />
+
                   <Route path="/assign-worker" element={<AssignWorker />} />
                   <Route path="/worker/:id" element={<WorkerDetail />} />
                   <Route path="/cart" element={<CartPage />} />

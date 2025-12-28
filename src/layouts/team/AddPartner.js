@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast, Toaster } from 'react-hot-toast';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
+import { apiCall } from 'utils/apiClient';
 
 const AddPartner = () => {
     const navigate = useNavigate();
@@ -122,12 +123,11 @@ const AddPartner = () => {
         }
 
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "partner/register", {
+            const result = await apiCall({
+                endpoint: "partner/register",
                 method: 'POST',
-                body: formData,
+                data: formData
             });
-
-            const result = await response.json();
 
             if (result.status === 200 || result.status === 'success') {
                 toast.success('Partner added successfully');

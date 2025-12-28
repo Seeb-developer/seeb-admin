@@ -17,6 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import NontAuthorized401 from "NontAuthorized401";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
@@ -107,55 +108,26 @@ function AddCategory() {
     var formdata = new FormData();
     formdata.append("image", selectedImage);
 
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/updateHomeZoneCategoryImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log("result", result);
-        // setPath(result.image_path);
-        setImageUrl(result.image_path);
-        setSelectedImage("");
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: "admin/updateHomeZoneCategoryImage", method: "POST", data: formdata });
+      setImageUrl(result.image_path);
+      setSelectedImage("");
+    } catch (error) {
+      console.log("error", error);
+    }
   };
   
 
   const handleImageDelete = async (e) => {
     e.target.value = null;
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Cookie", "ci_session=vbu3uetq5e9sc49uo8lu1taurf34ldce");
-
-    var raw = JSON.stringify({
-      path_128x128: imageUrl,
-    });
-
-    var requestOptions = {
-      method: "DELETE",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/admin/deleteHomeZoneImage`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setSelectedImage(null);
-        setImageUrl(null);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `/admin/deleteHomeZoneImage`, method: "DELETE", data: { path_128x128: imageUrl } });
+      console.log(result);
+      setSelectedImage(null);
+      setImageUrl(null);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const openNormalModal = (image) => {
@@ -279,26 +251,15 @@ function AddCategory() {
     setLoading(true);
     var formdata = new FormData();
     formdata.append("path", selectedFiles[0]);
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "/banner/createBannerImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      // .then(result => console.log('ima',result))
-      .then((result) => {
-        appendImage(result.data);
-        // setImageSources([...imageSources, result.data.banner_image]);
-        selectedDesktopImage("");
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const result = await apiCall({ endpoint: "/banner/createBannerImage", method: "POST", data: formdata });
+      appendImage(result.data);
+      selectedDesktopImage("");
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   //
@@ -309,26 +270,15 @@ function AddCategory() {
     setLoading(true);
     var formdata = new FormData();
     formdata.append("path", mobileSelectedFile[0]);
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "/banner/createBannerImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      // .then(result => console.log('ima',result))
-      .then((result) => {
-        appendMobileImage(result.data);
-        // setImageSources([...imageSources, result.data.banner_image]);
-        setMobileSelectedImage("");
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const result = await apiCall({ endpoint: "/banner/createBannerImage", method: "POST", data: formdata });
+      appendMobileImage(result.data);
+      setMobileSelectedImage("");
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   //
@@ -336,19 +286,8 @@ function AddCategory() {
   //
   const deleteImage = (index) => {
     const imageId = imagesArray[index].id;
-
-    const requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/banner/deleteBanner/${imageId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    apiCall({ endpoint: `/banner/deleteBanner/${imageId}`, method: "DELETE" })
       .then((result) => {
-        // console.log("Image deleted successfully:", result);
         removeItem(index);
       })
       .catch((error) => console.log("Error deleting image:", error));
@@ -359,19 +298,8 @@ function AddCategory() {
   //
   const deleteMobileImage = (index) => {
     const imageId = mobileImagesArray[index].id;
-
-    const requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/banner/deleteBanner/${imageId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    apiCall({ endpoint: `/banner/deleteBanner/${imageId}`, method: "DELETE" })
       .then((result) => {
-        // console.log("Image deleted successfully:", result);
         removeItemMobile(index);
       })
       .catch((error) => console.log("Error deleting image:", error));
@@ -380,7 +308,7 @@ function AddCategory() {
   //
   // add category api
   //
-  const handleAddCategory =async (e) => {
+  const handleAddCategory = async (e) => {
     e.preventDefault();
     setNameError("");
     setImageError("");
@@ -402,34 +330,28 @@ function AddCategory() {
       let allBanners = imagesArray.concat(mobileImagesArray);
       formdata.append("banner_image", JSON.stringify(allBanners));
 
-      var requestOptions = {
-        method: "POST",
-        body: formdata,
-        redirect: "follow",
-      };
-
-     await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/AddHomeZoneAppliances",
-        requestOptions
-      )
-        .then((response) => response.json())
-        .then((result) => {
-          // console.log(result);
-          if (result.status === 200) {
-            setLoading(false);
-            toast.success("Category Added Successfully", {
-              theme: "light",
-              autoClose: 3000,
-            });
-            Navigate("/list-category");
-          } else {
-            toast.error("Something Went Wrong", {
-              theme: "light",
-              autoClose: 3000,
-            });
-          }
-        })
-        .catch((error) => console.log("error", error));
+      try {
+        const result = await apiCall({ endpoint: "admin/AddHomeZoneAppliances", method: "POST", data: formdata });
+        if (result.status === 200) {
+          setLoading(false);
+          toast.success("Category Added Successfully", {
+            theme: "light",
+            autoClose: 3000,
+          });
+          Navigate("/list-category");
+        } else {
+          toast.error("Something Went Wrong", {
+            theme: "light",
+            autoClose: 3000,
+          });
+        }
+      } catch (error) {
+        console.log("error", error);
+        toast.error("Something Went Wrong", {
+          theme: "light",
+          autoClose: 3000,
+        });
+      }
     }
     setTimeout(() => {
       setLoading(false);

@@ -9,6 +9,7 @@ import Pagination from "components/pagination";
 import AddLeadForm from "./component/AddLeadForm";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { apiCall } from "utils/apiClient";
 
 
 function InteriorLeads() {
@@ -109,35 +110,12 @@ function InteriorLeads() {
   };
 
   const listLeads = async (page = 1, limit = recordsPerPage, startDate = dateRange[0], endDate = dateRange[1], query = debouncedSearch) => {
-    // setLoading(true);
-
     // Format dates to YYYY-MM-DD (if available)
     const formattedStartDate = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
     const formattedEndDate = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
 
-    const requestBody = JSON.stringify({
-      start_date: formattedStartDate,
-      end_date: formattedEndDate,
-      page,
-      limit,
-      search: query,
-    });
-
-    const requestOptions = {
-      method: "POST", // Changed from GET to POST
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: requestBody,
-      redirect: "follow",
-    };
-
     try {
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + "interior/getAllContactUs",
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({ endpoint: "interior/getAllContactUs", method: "POST", data: { start_date: formattedStartDate, end_date: formattedEndDate, page, limit, search: query } });
       console.log(result);
 
       if (result.status === 200) {
@@ -175,30 +153,12 @@ function InteriorLeads() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // setLoading(true);
-
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.name,
-        contact_number: formData.phone,
-        email_id: formData.email,
-        message: formData.message,
-        status: 1
-      }),
-    };
-
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}interior/contactUs`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({ endpoint: "interior/contactUs", method: "POST", data: { name: formData.name, contact_number: formData.phone, email_id: formData.email, message: formData.message, status: 1 } });
 
       if (result.status === 200) {
         toast.success("Lead added successfully!");
-        listLeads()
+        listLeads();
         setFormData({ name: "", phone: "", email: "", message: "" });
       } else {
         alert("Failed to add lead.");
@@ -224,31 +184,24 @@ function InteriorLeads() {
 
     const updatedRemarks = [
       ...existingRemarks,
-      { text: newRemark, timestamp: new Date().toISOString() }, // Store timestamp in ISO format
+      { text: newRemark, timestamp: new Date().toISOString() },
     ];
 
-    fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}interior/updateRemark/${selectedLead.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ remark: JSON.stringify(updatedRemarks) }), // Send updated remarks array
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success('Remark Added sucessfully')
-          setSelectedLead((prev) => ({ ...prev, remark: JSON.stringify(updatedRemarks) }));
-          setNewRemark("");
-          listLeads()
-        } else {
-          alert("Failed to add remark.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error updating remark:", error);
-      });
+    try {
+      const result = await apiCall({ endpoint: `interior/updateRemark/${selectedLead.id}`, method: "PUT", data: { remark: JSON.stringify(updatedRemarks) } });
+      if (result.status === 200) {
+        toast.success('Remark Added sucessfully');
+        setSelectedLead((prev) => ({ ...prev, remark: JSON.stringify(updatedRemarks) }));
+        setNewRemark("");
+        listLeads();
+      } else {
+        alert("Failed to add remark.");
+      }
+    } catch (error) {
+      console.error("Error updating remark:", error);
+    }
   };
+
   const formatToIST = (timestamp) => {
     return new Date(timestamp).toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",

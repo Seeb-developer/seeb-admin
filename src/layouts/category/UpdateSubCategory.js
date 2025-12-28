@@ -17,6 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NontAuthorized401 from "NontAuthorized401";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 const { Option } = Select;
@@ -53,16 +54,7 @@ function UpdateSubCategory() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -83,24 +75,14 @@ function UpdateSubCategory() {
     var formdata = new FormData();
     formdata.append("image", selectedImage);
 
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/updateHomeZoneSubCategoryImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log("result", result);
-        setPath(result.image_path);
-        setImageUrl(result.image_path);
-        setSelectedImage("");
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: "admin/updateHomeZoneSubCategoryImage", method: "POST", data: formdata });
+      setPath(result.image_path);
+      setImageUrl(result.image_path);
+      setSelectedImage("");
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
 
@@ -140,35 +122,31 @@ function UpdateSubCategory() {
         redirect: "follow",
       };
 
-      await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/updateHomeZoneCaterory/${data.id}`,
-        requestOptions
-      )
-        .then((response) => response.json())
-        .then((result) => {
-          // console.log(result);
-          if (result.success) {
-            setName("");
-            setSelectedImage("");
-            setImageUrl("");
-            setNewlyUploadedImage(null);
-            setPath("");
-          }
-          if (result.status === 200) {
-            setLoading(false);
-            toast.success("Category Updated Successfully", {
-              theme: "light",
-              autoClose: 3000,
-            });
-            Navigate("/list-sub-category");
-          } else {
-            toast.error("Something Went Wrong", {
-              theme: "light",
-              autoClose: 3000,
-            });
-          }
-        })
-        .catch((error) => console.log("error", error));
+      try {
+        const result = await apiCall({ endpoint: `admin/updateHomeZoneCaterory/${data.id}`, method: "POST", data: formdata });
+        if (result.success) {
+          setName("");
+          setSelectedImage("");
+          setImageUrl("");
+          setNewlyUploadedImage(null);
+          setPath("");
+        }
+        if (result.status === 200) {
+          setLoading(false);
+          toast.success("Category Updated Successfully", {
+            theme: "light",
+            autoClose: 3000,
+          });
+          Navigate("/list-sub-category");
+        } else {
+          toast.error("Something Went Wrong", {
+            theme: "light",
+            autoClose: 3000,
+          });
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
     }
     setTimeout(() => {
       setLoading(false);

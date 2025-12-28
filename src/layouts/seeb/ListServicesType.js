@@ -10,6 +10,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { Option } from 'antd/es/mentions';
 import ConfirmModal from 'components/modal/ConfirmModal';
 import Toggle from 'react-toggle';
+import { apiCall } from 'utils/apiClient';
 
 const ListServicesType = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
@@ -35,37 +36,36 @@ const ListServicesType = () => {
     };
 
     const handleConfirmDelete = async () => {
-        const requestOptions = { method: 'DELETE', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `services-type/delete/${selectedServiceId}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 200) {
-                    getAllServices();
-                    toast.success("Service Type Deleted Successfully");
-                }
-            })
-            .catch(error => console.log('Error deleting service:', error))
-            .finally(() => {
-                setShowDeleteModal(false);
-                setSelectedServiceId(null);
+        try {
+            const result = await apiCall({
+                endpoint: `services-type/delete/${selectedServiceId}`,
+                method: 'DELETE',
             });
+            if (result.status === 200) {
+                getAllServices();
+                toast.success("Service Type Deleted Successfully");
+            }
+        } catch (error) {
+            console.log('Error deleting service:', error);
+        }
+        setShowDeleteModal(false);
+        setSelectedServiceId(null);
     };
 
-    // Fetch all services
     const getAllServices = async () => {
         setLoader(true);
-        const requestOptions = { method: 'GET', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "services-type", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                setLoader(false);
-                setServiceData(result.data);
-                setFilteredServices(result.data);
-            })
-            .catch(error => {
-                setLoader(false);
-                console.error('Error fetching services:', error);
+        try {
+            const result = await apiCall({
+                endpoint: "services-type",
+                method: 'GET',
             });
+            setLoader(false);
+            setServiceData(result.data);
+            setFilteredServices(result.data);
+        } catch (error) {
+            setLoader(false);
+            console.error('Error fetching services:', error);
+        }
     };
 
     // Handle search change
@@ -84,37 +84,33 @@ const ListServicesType = () => {
     };
 
 
-    // Handle service form submission (Add/Edit)
     const handleServiceSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate that an image preview exists if the service form includes image requirements
         if (!serviceFormData.imagePreview) {
             toast.error("Image is required.");
-            return; // Stop the form submission if there's no image preview
+            return;
         }
 
-        // Create the JSON object for submission
         const data = {
             name: serviceFormData.name,
-            image: serviceFormData.imagePreview, // This is the image path, not an image object
+            image: serviceFormData.imagePreview,
             room_ids: serviceFormData.room_ids
         };
 
-        const url = editMode
-            ? `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}services-type/update/${serviceIdToEdit}`
-            : `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}services-type/create`;
+        const endpoint = editMode
+            ? `services-type/update/${serviceIdToEdit}`
+            : `services-type/create`;
 
         const method = editMode ? 'PUT' : 'POST';
 
         try {
             setLoader(true);
-            const response = await fetch(url, {
+            const result = await apiCall({
+                endpoint: endpoint,
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data), // Send data as JSON
+                data: data,
             });
-            const result = await response.json();
 
             if (result.status === (editMode ? 200 : 201)) {
                 getAllServices();
@@ -167,7 +163,6 @@ const ListServicesType = () => {
         }
     };
 
-    // Handle image upload
     const handleImageUpload = async () => {
         if (!serviceFormData.image) {
             toast.error("Please select an image to upload.");
@@ -178,11 +173,11 @@ const ListServicesType = () => {
         formData.append('image', serviceFormData.image);
 
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'services-type/upload-image', {
+            const result = await apiCall({
+                endpoint: 'services-type/upload-image',
                 method: 'POST',
-                body: formData,
+                data: formData,
             });
-            const result = await response.json();
             if (result.status === 200) {
                 setServiceFormData({
                     ...serviceFormData,
@@ -198,15 +193,13 @@ const ListServicesType = () => {
         }
     };
 
-    // Handle image deletion
     const handleImageDelete = async () => {
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'services/delete-image', {
+            const result = await apiCall({
+                endpoint: 'services/delete-image',
                 method: 'POST',
-                body: JSON.stringify({ image_path: serviceFormData.imagePreview }),
-                headers: { 'Content-Type': 'application/json' },
+                data: { image_path: serviceFormData.imagePreview },
             });
-            const result = await response.json();
             if (result.status === 200) {
                 setServiceFormData({ ...serviceFormData, imagePreview: null, image: null });
                 toast.success("Image deleted successfully!");
@@ -221,19 +214,18 @@ const ListServicesType = () => {
 
     const getAllRooms = async () => {
         setLoader(true);
-        const requestOptions = { method: 'GET', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "rooms", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                // console.log)
-                setLoader(false);
-                if (result.status === 200)
-                    setRoomData(result.data);
-            })
-            .catch(error => {
-                setLoader(false);
-                console.error('Error fetching rooms:', error);
+        try {
+            const result = await apiCall({
+                endpoint: "rooms",
+                method: 'GET',
             });
+            setLoader(false);
+            if (result.status === 200)
+                setRoomData(result.data);
+        } catch (error) {
+            setLoader(false);
+            console.error('Error fetching rooms:', error);
+        }
     };
 
     // Load services data when the component mounts
@@ -246,17 +238,13 @@ const ListServicesType = () => {
         const newStatus = currentStatus === "1" ? "0" : "1";
 
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `services-type/change-status/${id}`, {
+            const result = await apiCall({
+                endpoint: `services-type/change-status/${id}`,
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ status: newStatus }),
+                data: { status: newStatus },
             });
 
-            const result = await response.json();
             if (result.status === 200) {
-                // Update UI after status change
                 setFilteredServices(prevData => prevData.map(el =>
                     el.id === id ? { ...el, status: newStatus } : el
                 ));

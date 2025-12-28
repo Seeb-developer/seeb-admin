@@ -18,6 +18,7 @@ import { Modal, Select } from "antd";
 import NontAuthorized401 from "NontAuthorized401";
 import { Link } from "react-router-dom";
 import Filter from "./Filter";
+import { apiCall } from "utils/apiClient";
 
 const { Option } = Select;
 
@@ -53,11 +54,10 @@ function ProductList() {
         redirect: "follow",
       };
 
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/getHomeZoneCateroryByid/${event}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({
+        endpoint: `admin/getHomeZoneCateroryByid/${event}`,
+        method: "GET",
+      });
       console.log("check", result);
       setSubCategories(result.data);
     } catch (error) {
@@ -80,11 +80,7 @@ function ProductList() {
           redirect: "follow",
         };
 
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "brand/getAllBrand",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "brand/getAllBrand", method: "GET" });
         setProductBrand(result.Brand);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -118,11 +114,7 @@ function ProductList() {
           redirect: "follow",
         };
 
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -150,12 +142,10 @@ function ProductList() {
 
     try {
       [];
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-          `product/getProducts?page=${page}&latest=${latest}&home_zone_appliances_id=${home_zone_appliances_id}&home_zone_category_id=${home_zone_category_id}&brand_id=${brand_id}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({
+        endpoint: `product/getProducts?page=${page}&latest=${latest}&home_zone_appliances_id=${home_zone_appliances_id}&home_zone_category_id=${home_zone_category_id}&brand_id=${brand_id}`,
+        method: "GET",
+      });
       // console.log("Updated data", result.data.products);
       if (result.status === 200) {
         setProducts(result.data.products);
@@ -226,8 +216,7 @@ function ProductList() {
       redirect: "follow",
     };
 
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "/product/getSearchAll", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: "product/getSearchAll", method: "POST", data: { search } })
       .then((result) => {
         setSearch("");
         setProducts(result.products);
@@ -245,11 +234,7 @@ function ProductList() {
       redirect: "follow",
     };
 
-    return fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/getProductById/${productId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    return apiCall({ endpoint: `product/getProductById/${productId}`, method: "GET" })
       .then((result) => {
         // console.log(result);
         return result.data;
@@ -270,11 +255,7 @@ function ProductList() {
       redirect: "follow",
     };
 
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/deleteProduct/${productId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: `product/deleteProduct/${productId}`, method: "DELETE" })
       .then((result) => {
         // console.log(result);
         removeProduct(index);
@@ -310,11 +291,11 @@ function ProductList() {
       redirect: "follow",
     };
 
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/updateProductStatus/${product.id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({
+      endpoint: `product/updateProductStatus/${product.id}`,
+      method: "PUT",
+      data: { status: parseInt(product.status) === 1 ? 0 : 1 },
+    })
       .then((result) => {
         console.log(result);
         if (result.status === "success") {
@@ -367,8 +348,7 @@ function ProductList() {
       redirect: "follow",
     };
 
-    fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}product/searchProduct`, requestOptions)
-      .then((response) => response.json())
+    apiCall({ endpoint: "product/searchProduct", method: "POST", data: { serach: search } })
       .then((result) => {
         setProducts(result.Data);
       })

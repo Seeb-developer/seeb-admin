@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 
 const PaymentRequestModal = ({ onClose, bookingId, userId, onSubmit }) => {
@@ -16,35 +17,31 @@ const PaymentRequestModal = ({ onClose, bookingId, userId, onSubmit }) => {
         }
 
         setLoading(true)
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        const raw = JSON.stringify({
-            booking_id: bookingId,
-            user_id: userId,
-            amount: parseFloat(amount),
-            // reason: reason.trim(),
-        });
+        try {
+            const result = await apiCall({
+                endpoint: "payment/request",
+                method: "POST",
+                data: {
+                    booking_id: bookingId,
+                    user_id: userId,
+                    amount: parseFloat(amount),
+                    reason: reason.trim(),
+                },
+            });
 
-        const requestOptions = {
-            method: "POST",  // Use PUT for editing, POST for adding new
-            headers: myHeaders,
-            body: raw,
-            redirect: "follow",
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "payment/request", requestOptions)
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.status === 201) {
-                    toast.success("Payment request submitted successfully!");
-                    onSubmit();
-                    onClose();
-                } else {
-                    toast.error(result.Message || "Failed to save expense");
-                }
-            })
-            .catch((error) => console.error("Error:", error))
-            .finally(setLoading(false))
+            if (result && (result.status === 201 || result.success === true)) {
+                toast.success("Payment request submitted successfully!");
+                onSubmit();
+                onClose();
+            } else {
+                toast.error(result?.Message || result?.message || "Failed to save expense");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
 
     };
 

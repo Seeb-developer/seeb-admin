@@ -3,6 +3,7 @@ import Loader from "layouts/loader/Loader";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import React, { useState, useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 import { useNavigate, createSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Empty } from "antd";
@@ -22,18 +23,11 @@ function LiveProductList(props) {
   // list product total count
   const getAllList = async (id) => {
     setLoading(true);
-
-    var requestOptions = {
+    await apiCall({
+      endpoint: "product/getProducts",
       method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-        `product/getProducts?home_zone_appliances_id=${ListingLive}&status=5`,
-      requestOptions
-    )
-      .then((response) => response.json())
+      params: { home_zone_appliances_id: ListingLive, status: 5 },
+    })
       .then((result) => {
         console.log(result);
         setListProductCategory(result.data.products);

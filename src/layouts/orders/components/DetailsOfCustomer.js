@@ -8,6 +8,7 @@ import { Tabs } from "antd";
 import { Card } from "antd";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 
 const { TabPane } = Tabs;
 
@@ -20,22 +21,13 @@ function DetailsOfCustomer() {
   const [orderDetails, setOrderDetails] = useState([]);
 
   const getCustomerData = async () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-        `admin/getCustomer/${searchParam.get("customer_id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        setCustomerDetails(result.data);
-        console.log(result);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `admin/getCustomer/${searchParam.get("customer_id")}`, method: "GET" });
+      setCustomerDetails(result.data);
+      console.log(result);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {
@@ -43,21 +35,13 @@ function DetailsOfCustomer() {
   }, []);
 
   const getOrderData = async () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/getOrder/${searchParam.get("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setOrderDetails(result.order);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `product/getOrder/${searchParam.get("id")}`, method: "GET" });
+      console.log(result);
+      setOrderDetails(result.order);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {

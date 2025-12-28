@@ -10,6 +10,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 // import Footer from "examples/Footer";
 import NontAuthorized401 from "NontAuthorized401";
+import { apiCall } from 'utils/apiClient';
 import { useState } from "react";
 import { Spin } from "antd";
 import { useEffect } from "react";
@@ -44,11 +45,7 @@ function CreateRole() {
       redirect: "follow",
     };
 
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "privileges/get-all-sections",
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "privileges/get-all-sections", method: "GET" })
       .then((result) => {
         console.log(result);
         setPageList(result.data);
@@ -80,11 +77,10 @@ function CreateRole() {
       redirect: "follow",
     };
 
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "/privileges/create-role",
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "privileges/create-role", method: "POST", data: {
+      role_title: roleName,
+      sections_id: JSON.stringify(selectedPages)
+    } })
       .then((result) => {
         console.log(result);
         if (result.status === 200) {

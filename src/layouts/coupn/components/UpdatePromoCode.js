@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiCall } from "utils/apiClient";
 import { Select, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { RxCross2 } from "react-icons/rx";
@@ -75,20 +76,12 @@ const UpdatePromoCode = () => {
   const [couponCodeData, setCouponCodeData] = useState(null);
 
   const fetchCoupon = async () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `coupon/getById/${searchParam.get("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        setCouponCodeData(result.coupon);
-        console.log(result);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `coupon/getById/${searchParam.get("id")}`, method: 'GET' });
+      setCouponCodeData(result.coupon);
+    } catch (error) {
+      console.log('error', error);
+    }
   };
 
   useEffect(() => {
@@ -125,72 +118,53 @@ const UpdatePromoCode = () => {
 
   // update coupon code
   const handleUpdateCouponCode = async () => {
-    var myHeaders = new Headers();
     setLoading(true);
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      coupon_category: JSON.stringify(selectedType),
-      shop_keeper: shopkeeperValue,
-      channel_partner: channelPartnerValue,
-      area: areaValue,
-      universal: universalValue,
-      coupon_type: selectedItem,
-      coupon_type_name:
-        selectedItem === 1 ? percentValue : selectedItem === 2 ? amountValue : servicesValue,
-      coupon_name: couponName,
-      description: description,
-      coupon_expiry: JSON.stringify([startDate, endDate]),
-      cart_minimum_amount: cartMinAmount,
-      coupon_use_limit: couponUseLimit,
-      coupon_per_user_limit: perUsageLimit,
-      coupon_code: couponCode,
-      terms_and_conditions: JSON.stringify(couponData),
-    });
-
-    var requestOptions = {
-      method: "PUT",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `coupon/couponupdate/${searchParam.get("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        if (result.success) {
-          // setCouponType('');
-          setShopkeeperValue("");
-          setChannelPartnerValue("");
-          setAreaValue("");
-          setUniversalValue("");
-          setCouponName("");
-          setDescription("");
-          setCouponExpiry("");
-          setCartMinAmount("");
-          setCouponUseLimit("");
-          setPerUsageLimit("");
-          setCouponCode("");
-          setCouponData([]);
-        }
-        if (result.status === 200) {
-          toast.success("Coupon Updated successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-          Navigate("/coupon-list");
-        } else {
-          // message.error('Failed to create product');
-        }
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const payload = {
+        coupon_category: JSON.stringify(selectedType),
+        shop_keeper: shopkeeperValue,
+        channel_partner: channelPartnerValue,
+        area: areaValue,
+        universal: universalValue,
+        coupon_type: selectedItem,
+        coupon_type_name:
+          selectedItem === 1 ? percentValue : selectedItem === 2 ? amountValue : servicesValue,
+        coupon_name: couponName,
+        description: description,
+        coupon_expiry: JSON.stringify([startDate, endDate]),
+        cart_minimum_amount: cartMinAmount,
+        coupon_use_limit: couponUseLimit,
+        coupon_per_user_limit: perUsageLimit,
+        coupon_code: couponCode,
+        terms_and_conditions: JSON.stringify(couponData),
+      };
+      const result = await apiCall({ endpoint: `coupon/couponupdate/${searchParam.get("id")}`, method: 'PUT', data: payload });
+      if (result.success) {
+        setShopkeeperValue("");
+        setChannelPartnerValue("");
+        setAreaValue("");
+        setUniversalValue("");
+        setCouponName("");
+        setDescription("");
+        setCouponExpiry("");
+        setCartMinAmount("");
+        setCouponUseLimit("");
+        setPerUsageLimit("");
+        setCouponCode("");
+        setCouponData([]);
+      }
+      if (result.status === 200) {
+        toast.success("Coupon Updated successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+        Navigate("/coupon-list");
+      }
+    } catch (error) {
+      console.log('error', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

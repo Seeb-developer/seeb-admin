@@ -15,6 +15,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import React, { useState, useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 
@@ -25,26 +26,15 @@ function OfferList() {
 
   // list categories
   const getAllOffer = async () => {
-    setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Offers/getAllOffers",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setListOffer(result.data);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      setLoading(true);
+      const result = await apiCall({ endpoint: "Offers/getAllOffers", method: "GET" });
+      setListOffer(result.data || []);
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -57,31 +47,21 @@ function OfferList() {
     setListOffer(updateOffer);
   };
   const handleOfferDelete = async (index, id) => {
-    var requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `Offers/deleteOffers/${id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        removeOffer(index);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Offer deleted successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-        }
-      })
-      .catch((error) => console.log("error", error));
-      setTimeout(() => {
+    try {
+      const result = await apiCall({ endpoint: `Offers/deleteOffers/${id}`, method: "DELETE" });
+      removeOffer(index);
+      if (result.status === 200) {
         setLoading(false);
-      }, 3000);
+        toast.success("Offer deleted successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+      }
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

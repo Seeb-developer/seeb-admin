@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { apiCall } from 'utils/apiClient'
 import { useLocation, useNavigate } from 'react-router-dom';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -191,49 +192,38 @@ const CustomerQuotation = () => {
                 return;
             }
 
-            var myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-
-            var raw = JSON.stringify({
-                "customer_name": otherFormData.customer_name,
-                "phone": otherFormData.phone,
-                "address": otherFormData.address,
-                "items": JSON.stringify(titleinputFields),
-                "mark_list": JSON.stringify(selectedSubcategories),
-                "total": total,
-                "discount": discount,
-                "discountAmount": discountAmount,
-                "discountDesc": discountDescription,
-                "sgst": sgst,
-                "cgst": cgst,
-                "grandTotal": grandTotal,
-                "installment": JSON.stringify(installments),
-                "time_line": JSON.stringify(timeline),
-                "created_by": id,
-                'type': type
-            });
-            // console.log(raw)
-            var requestOptions = {
-                method: 'POST',
-                headers: myHeaders,
-                body: raw,
-                redirect: 'follow'
-            };
-
-            await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "quotation/create", requestOptions)
-                .then(response => response.json())
-                .then(result => {
-                    if (result.status === 201) {
-                        toast.success("Quotation Added Successfully")
-
-                        setTimeout(() => {
-                            BackToListQuotation()
-                            // window.location.reload(false)
-                        }, 1000);
-                    }
-
-                })
-                .catch(error => console.log('error', error));
+            try {
+                const result = await apiCall({
+                    endpoint: 'quotation/create',
+                    method: 'POST',
+                    data: {
+                        customer_name: otherFormData.customer_name,
+                        phone: otherFormData.phone,
+                        address: otherFormData.address,
+                        items: JSON.stringify(titleinputFields),
+                        mark_list: JSON.stringify(selectedSubcategories),
+                        total: total,
+                        discount: discount,
+                        discountAmount: discountAmount,
+                        discountDesc: discountDescription,
+                        sgst: sgst,
+                        cgst: cgst,
+                        grandTotal: grandTotal,
+                        installment: JSON.stringify(installments),
+                        time_line: JSON.stringify(timeline),
+                        created_by: id,
+                        type: type,
+                    },
+                });
+                if (result.status === 201) {
+                    toast.success("Quotation Added Successfully")
+                    setTimeout(() => {
+                        BackToListQuotation()
+                    }, 1000);
+                }
+            } catch (error) {
+                console.log('error', error);
+            }
         }
 
     }

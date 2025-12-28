@@ -6,6 +6,7 @@ import { Spin } from 'antd';
 import { Toaster, toast } from 'react-hot-toast';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
+import { apiCall } from 'utils/apiClient';
 
 const GuideVideos = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
@@ -29,10 +30,9 @@ const GuideVideos = () => {
     const getAllGuideVideos = async () => {
         setLoader(true);
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "guide-videos");
-            const result = await response.json();
+            const result = await apiCall({ endpoint: "guide-videos", method: "GET" });
             setLoader(false);
-            if (result.status === 200) {
+            if (result && result.status === 200) {
                 setGuideVideos(result.data);
             }
         } catch (error) {
@@ -58,21 +58,20 @@ const GuideVideos = () => {
         };
 
         const url = editMode
-            ? `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}guide-videos/update/${videoIdToEdit}`
-            : `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}guide-videos/create`;
+            ? `guide-videos/update/${videoIdToEdit}`
+            : `guide-videos/create`;
 
         const method = editMode ? 'PUT' : 'POST';
 
         try {
             setLoader(true);
-            const response = await fetch(url, {
+            const result = await apiCall({
+                endpoint: url,
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                data: data,
             });
-            const result = await response.json();
 
-            if (result.status === (editMode ? 200 : 201)) {
+            if (result && result.status === (editMode ? 200 : 201)) {
                 getAllGuideVideos();
                 toast.success(editMode ? "Guide Video Updated Successfully" : "Guide Video Added Successfully");
                 resetForm();
@@ -107,9 +106,8 @@ const GuideVideos = () => {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}guide-videos/${id}`, { method: 'DELETE' });
-            const result = await response.json();
-            if (result.status === 200) {
+            const result = await apiCall({ endpoint: `guide-videos/${id}`, method: 'DELETE' });
+            if (result && result.status === 200) {
                 getAllGuideVideos();
                 toast.success("Guide Video Deleted Successfully");
             }
@@ -122,10 +120,9 @@ const GuideVideos = () => {
     const getAllRooms = async () => {
         setLoader(true);
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "rooms");
-            const result = await response.json();
+            const result = await apiCall({ endpoint: "rooms", method: "GET" });
             setLoader(false);
-            if (result.status === 200) {
+            if (result && result.status === 200) {
                 setRooms(result.data);
             }
         } catch (error) {
@@ -135,17 +132,14 @@ const GuideVideos = () => {
     };
 
     const getAllServicesType = async () => {
-        // setLoading(true);
-        const requestOptions = { method: 'GET', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "services-type", requestOptions)
-            .then(response => response.json())
-            .then(result => {
+        try {
+            const result = await apiCall({ endpoint: "services-type", method: "GET" });
+            if (result && result.status === 200) {
                 setServices(result.data);
-            })
-            .catch(error => {
-                console.error('Error fetching services:', error);
-            })
-
+            }
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
     };
 
     return (

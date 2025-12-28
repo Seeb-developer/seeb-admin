@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PropTypes from "prop-types";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiCall } from "utils/apiClient";
 
 function ListingProduct(props) {
   const { handleClick } = props;
@@ -20,17 +21,7 @@ function ListingProduct(props) {
   // list product total count
   const getAllList = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "dashboard/products-statics",
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "dashboard/products-statics", method: "GET" })
       .then((result) => {
         console.log(result);
         setListProduct(result.data);

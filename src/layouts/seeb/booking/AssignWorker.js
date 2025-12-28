@@ -6,134 +6,7 @@ import {
   TextField,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import axios from 'axios';
-
-
-// Dummy workers
-const dummyWorkers = [
-  {
-    id: '1',
-    name: 'Amit Verma',
-    location: 'Pune',
-    assignedWorkInProgress: 2,
-    completed: 12,
-    rejected: 1,
-    assignedLocation: 'Baner',
-    teamSize: 3,
-    lastTask: '2025-06-29',
-    profession: 'Electrician',
-  },
-  {
-    id: '2',
-    name: 'Priya Sharma',
-    location: 'Pune',
-    assignedWorkInProgress: 1,
-    completed: 7,
-    rejected: 0,
-    assignedLocation: 'Kothrud',
-    teamSize: 2,
-    lastTask: '2025-06-30',
-    profession: 'Painter',
-  },
-  {
-    id: '3',
-    name: 'Rohit Mehta',
-    location: 'Pimpri',
-    assignedWorkInProgress: 0,
-    completed: 5,
-    rejected: 2,
-    assignedLocation: 'Wakad',
-    teamSize: 4,
-    lastTask: '2025-06-25',
-    profession: 'Carpenter',
-  },
-  {
-    id: '4',
-    name: 'Sneha Patil',
-    location: 'Mumbai',
-    assignedWorkInProgress: 3,
-    completed: 10,
-    rejected: 0,
-    assignedLocation: 'Andheri',
-    teamSize: 5,
-    lastTask: '2025-06-28',
-    profession: 'Modular Furniture Expert',
-  },
-  {
-    id: '5',
-    name: 'Rahul Joshi',
-    location: 'Navi Mumbai',
-    assignedWorkInProgress: 1,
-    completed: 8,
-    rejected: 1,
-    assignedLocation: 'Vashi',
-    teamSize: 2,
-    lastTask: '2025-06-27',
-    profession: 'False Ceiling Installer',
-  },
-  {
-    id: '6',
-    name: 'Neha Singh',
-    location: 'Thane',
-    assignedWorkInProgress: 2,
-    completed: 9,
-    rejected: 0,
-    assignedLocation: 'Kalyan',
-    teamSize: 3,
-    lastTask: '2025-06-26',
-    profession: 'Plumber',
-  },
-  {
-    id: '7',
-    name: 'Vikram Rao',
-    location: 'Bangalore',
-    assignedWorkInProgress: 4,
-    completed: 15,
-    rejected: 2,
-    assignedLocation: 'Koramangala',
-    teamSize: 6,
-    lastTask: '2025-06-30',
-    profession: 'CCTV & Security',
-  },
-  {
-    id: '8',
-    name: 'Anjali Gupta',
-    location: 'Delhi',
-    assignedWorkInProgress: 0,
-    completed: 3,
-    rejected: 1,
-    assignedLocation: 'Connaught Place',
-    teamSize: 1,
-    lastTask: '2025-06-29',
-    profession: 'Interior Designer',
-  },
-  {
-    id: '9',
-    name: 'Ravi Kumar',
-    location: 'Hyderabad',
-    assignedWorkInProgress: 1,
-    completed: 4,
-    rejected: 0,
-    assignedLocation: 'Banjara Hills',
-    teamSize: 2,
-    lastTask: '2025-06-30',
-    profession: 'Curtain Installer',
-  },
-  {
-    id: '10',
-    name: 'Pooja Desai',
-    location: 'Chennai',
-    assignedWorkInProgress: 2,
-    completed: 6,
-    rejected: 1,
-    assignedLocation: 'T Nagar',
-    teamSize: 3,
-    lastTask: '2025-06-28',
-    profession: 'Tile/Marble Fitter',
-  },
-];
-
-
+import { apiCall } from 'utils/apiClient';
 
 const AssignWorker = () => {
   const location = useLocation();
@@ -156,9 +29,9 @@ const AssignWorker = () => {
 
   const fetchWorkers = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}admin/partners/summary`);
+      const res = await apiCall({ endpoint: "admin/partners/summary", method: "GET" });
 
-      const Workers = response.data.data.map(worker => ({
+      const Workers = (res?.data?.data ?? res?.data ?? []).map(worker => ({
         id: worker.id,
         name: worker.name,
         location: worker.location,
@@ -199,8 +72,8 @@ const AssignWorker = () => {
       for (const service of bookingData.services) {
         const serviceId = service.id;
 
-        const response = await axios.get(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assignment/booking-requests/${serviceId}`);
-        const assigned = response.data?.data || [];
+        const res = await apiCall({ endpoint: `assignment/booking-requests/${serviceId}`, method: "GET" });
+        const assigned = res?.data?.data ?? res?.data ?? [];
 
         if (assigned.length > 0) {
           updatedAssignments[serviceId] = assigned.map((a) => Number(a.partner_id));
@@ -308,8 +181,8 @@ const handleWorkerToggle = (workerId, serviceId) => {
     console.log("Submitting payload:", payload);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assignment/create-requests`, payload); // use your full API base URL if needed
-      console.log('✅ Success:', response.data);
+      const res = await apiCall({ endpoint: "assignment/create-requests", method: "POST", data: payload });
+      console.log('✅ Success:', res);
       alert('Assignments submitted successfully!');
     } catch (error) {
       console.error('❌ Submission failed:', error);

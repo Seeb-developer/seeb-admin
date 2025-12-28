@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { apiCall } from 'utils/apiClient'
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -41,34 +42,31 @@ const CustomerEditQuotation = () => {
   }, [])
 
 
-  const ApiFetch = () => {
-    var requestOptions = {
-      method: 'GET',
-      redirect: 'follow'
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `quotation/getById/${quotation_id}`, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log("res", result);
-        if (result.status === 200) {
-          let data = result?.data
-          setInstallments(result?.data?.installments)
-          setTimeline(result?.data?.timelines)
-          setSelectedSubcategories(JSON.parse(result?.data?.mark_list) ?? {})
-          setTitleInputFields(result?.data?.items)
-          setOtherFormData({ customer_name: data?.customer_name, phone: data?.phone, address: data?.address })
-          setTotal(data?.total)
-          setDiscount(data?.discount)
-          setDiscountAmount(data?.discount_amount)
-          setDiscountDescription(data?.discount_desc)
-          setSGST(data?.sgst)
-          setCGST(data?.cgst)
-          setGrandTotal(data?.grand_total)
-          setLoader(false)
-        }
-      })
-      .catch(error => console.log('error', error));
+  const ApiFetch = async () => {
+    try {
+      const result = await apiCall({
+        endpoint: `quotation/getById/${quotation_id}`,
+        method: 'GET',
+      });
+      if (result.status === 200) {
+        let data = result?.data
+        setInstallments(result?.data?.installments)
+        setTimeline(result?.data?.timelines)
+        setSelectedSubcategories(JSON.parse(result?.data?.mark_list) ?? {})
+        setTitleInputFields(result?.data?.items)
+        setOtherFormData({ customer_name: data?.customer_name, phone: data?.phone, address: data?.address })
+        setTotal(data?.total)
+        setDiscount(data?.discount)
+        setDiscountAmount(data?.discount_amount)
+        setDiscountDescription(data?.discount_desc)
+        setSGST(data?.sgst)
+        setCGST(data?.cgst)
+        setGrandTotal(data?.grand_total)
+        setLoader(false)
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
   }
 
   useEffect(() => {
@@ -156,51 +154,38 @@ const CustomerEditQuotation = () => {
         return;
       }
 
-      var myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-
-      var raw = JSON.stringify({
-        "customer_name": otherFormData.customer_name,
-        "phone": otherFormData.phone,
-        "address": otherFormData.address,
-        "items": titleinputFields,
-        "mark_list": JSON.stringify(selectedSubcategories),
-        "total": total,
-        "discount": discount,
-        "discountAmount": discountAmount,
-        "discountDesc": discountDescription,
-        "sgst": sgst,
-        "cgst": cgst,
-        "grandTotal": grandTotal,
-        "installment": installments,
-        "time_line": timeline,
-        "created_by": admin_id
-      });
-
-      console.log(raw)
-
-      var requestOptions = {
-        method: 'PUT',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow'
-      };
-
-
-      await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `quotation/update/${quotation_id}`, requestOptions)
-        .then(response => response.json())
-
-        .then(result => {
-          if (result.status === 200) {
-            setLoader(false)
-            toast.success("Quotation Updated Successfully")
-
-            setTimeout(() => {
-              BackToListQuotation()
-            }, 500);
-          }
-        })
-        .catch(error => console.log('error', error));
+      try {
+        const result = await apiCall({
+          endpoint: `quotation/update/${quotation_id}`,
+          method: 'PUT',
+          data: {
+            customer_name: otherFormData.customer_name,
+            phone: otherFormData.phone,
+            address: otherFormData.address,
+            items: titleinputFields,
+            mark_list: JSON.stringify(selectedSubcategories),
+            total: total,
+            discount: discount,
+            discountAmount: discountAmount,
+            discountDesc: discountDescription,
+            sgst: sgst,
+            cgst: cgst,
+            grandTotal: grandTotal,
+            installment: installments,
+            time_line: timeline,
+            created_by: admin_id,
+          },
+        });
+        if (result.status === 200) {
+          setLoader(false)
+          toast.success("Quotation Updated Successfully")
+          setTimeout(() => {
+            BackToListQuotation()
+          }, 500);
+        }
+      } catch (error) {
+        console.log('error', error);
+      }
     }
 
   }
@@ -245,50 +230,38 @@ const CustomerEditQuotation = () => {
         return;
       }
 
-      var myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-
-      var raw = JSON.stringify({
-        "customer_name": otherFormData.customer_name,
-        "phone": otherFormData.phone,
-        "address": otherFormData.address,
-        "items": JSON.stringify(titleinputFields),
-        "mark_list": JSON.stringify(selectedSubcategories),
-        "total": total,
-        "discount": discount,
-        "discountAmount": discountAmount,
-        "discountDesc": discountDescription,
-        "sgst": sgst,
-        "cgst": cgst,
-        "grandTotal": grandTotal,
-        "installment": JSON.stringify(installments),
-        "time_line": JSON.stringify(timeline),
-        "created_by": admin_id,
-        'type': type
-      });
-      // console.log(raw)
-      var requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow'
-      };
-
-      await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "quotation/create", requestOptions)
-        .then(response => response.json())
-        .then(result => {
-          if (result.status === 201) {
-            toast.success("Quotation Added Successfully")
-
-            setTimeout(() => {
-              BackToListQuotation()
-              // window.location.reload(false)
-            }, 1000);
-          }
-
-        })
-
-        .catch(error => console.log('error', error));
+      try {
+        const result = await apiCall({
+          endpoint: 'quotation/create',
+          method: 'POST',
+          data: {
+            customer_name: otherFormData.customer_name,
+            phone: otherFormData.phone,
+            address: otherFormData.address,
+            items: JSON.stringify(titleinputFields),
+            mark_list: JSON.stringify(selectedSubcategories),
+            total: total,
+            discount: discount,
+            discountAmount: discountAmount,
+            discountDesc: discountDescription,
+            sgst: sgst,
+            cgst: cgst,
+            grandTotal: grandTotal,
+            installment: JSON.stringify(installments),
+            time_line: JSON.stringify(timeline),
+            created_by: admin_id,
+            type: type,
+          },
+        });
+        if (result.status === 201) {
+          toast.success("Quotation Added Successfully")
+          setTimeout(() => {
+            BackToListQuotation()
+          }, 1000);
+        }
+      } catch (error) {
+        console.log('error', error);
+      }
     }
   }
 

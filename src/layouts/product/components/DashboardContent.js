@@ -17,6 +17,7 @@ import ReadyProductList from "../content-dashboard/ReadyProductList";
 import EditingProductList from "../content-dashboard/EditingProductList";
 import LiveProductList from "../content-dashboard/LiveProductList";
 import PhotoDoneList from "../content-dashboard/PhotoDoneList";
+import { apiCall } from "utils/apiClient";
 
 const { TabPane } = Tabs;
 
@@ -43,8 +44,7 @@ const DashboardContent = () => {
       redirect: "follow",
     };
 
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `dashboard/get-statics`, requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: `dashboard/get-statics`, method: "GET" })
       .then((result) => {
         // console.warn(result)
         setAllDetails(result.data);

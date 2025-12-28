@@ -8,7 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import PaymentRequestModal from './PaymentRequestModal';
 import AddPaymentModal from './AddPaymentModal';
 import AddExpensesModal from './AddExpensesModal';
-import axios from 'axios';
+import { apiCall } from 'utils/apiClient';
 
 const BookingDetails = () => {
     const location = useLocation();
@@ -25,10 +25,9 @@ const BookingDetails = () => {
     const fetchBookingDetails = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}booking/${bookingId}`);
-            const result = await response.json();
-            if (result.status === 200) {
-                setBookingData(result.data);
+            const res = await apiCall({ endpoint: `booking/${bookingId}`, method: "GET" });
+            if (res && res.status === 200) {
+                setBookingData(res.data);
             }
         } catch (error) {
             console.error('Error fetching booking details:', error);
@@ -51,19 +50,17 @@ const BookingDetails = () => {
         if (!window.confirm("Are you sure you want to delete this payment request?")) return;
 
         try {
-            const response = await fetch(
-                `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}payment/request/delete/${requestId}`,
-                { method: "DELETE" }
-            );
+            const res = await apiCall({
+                endpoint: `payment/request/delete/${requestId}`,
+                method: "DELETE",
+            });
 
-            const result = await response.json();
-
-            if (result.status === 200) {
+            if (res && res.status === 200) {
                 toast.success("Payment request deleted successfully!");
                 // Refresh booking data to reflect changes
                 fetchBookingDetails();
             } else {
-                toast.success(result.message || "Failed to delete request");
+                toast.success(res?.message || "Failed to delete request");
             }
         } catch (error) {
             console.error("Error deleting payment request:", error);
@@ -72,10 +69,12 @@ const BookingDetails = () => {
 
     const fetchAssignedWorkers = async (serviceId) => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assignment/booking-requests/${serviceId}`);
-            const data = response.data?.data || [];
+            const res = await apiCall({ endpoint: `assignment/booking-requests/${serviceId}`, method: "GET" });
+            const workers = res?.data?.data ?? res?.data ?? [];
 
-            const acceptedWorkers = data.filter(worker => worker.status === 'accepted');
+            const acceptedWorkers = Array.isArray(workers)
+                ? workers.filter(worker => worker.status === 'accepted')
+                : [];
 
             setAssignedWorkers(prev => ({
                 ...prev,

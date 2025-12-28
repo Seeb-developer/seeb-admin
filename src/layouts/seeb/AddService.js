@@ -6,6 +6,7 @@ import { RiDeleteBin6Fill } from 'react-icons/ri';
 import { Toaster, toast } from 'react-hot-toast';
 import { Select, Tag } from 'antd';
 import Addon from './component/Addon';
+import { apiCall } from 'utils/apiClient';
 
 const AddService = () => {
     const location = useLocation();
@@ -85,13 +86,9 @@ const AddService = () => {
         }
 
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'services/upload-image', {
-                method: 'POST',
-                body: formBody,
-            });
+            const result = await apiCall({ endpoint: 'services/upload-image', method: 'POST', data: formBody });
 
-            const result = await response.json();
-            if (result.status === 200) {
+            if (result && result.status === 200) {
                 setFormData((prevData) => ({
                     ...prevData,
                     imagePreviews: [...(prevData.imagePreviews || []), ...result.image_urls], // Ensure array exists
@@ -112,22 +109,9 @@ const AddService = () => {
         try {
             const imageToDelete = formData.imagePreviews[index];
 
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'services/delete-image', {
-                method: 'POST',
-                body: JSON.stringify({ image_path: imageToDelete }), // Send image path to backend
-                headers: { 'Content-Type': 'application/json' },
-            });
+            const result = await apiCall({ endpoint: 'services/delete-image', method: 'POST', data: { image_path: imageToDelete } });
 
-            const result = await response.json();
-            if (result.status === 200) {
-                setFormData((prevData) => {
-                    const newImages = prevData.images.filter((_, i) => i !== index);
-                    const newPreviews = prevData.imagePreviews.filter((_, i) => i !== index);
-                    return { ...prevData, images: newImages, imagePreviews: newPreviews };
-                });
-
-                toast.success("Image deleted successfully!");
-            } else if (result.status === 404) {
+            if (result && (result.status === 200 || result.status === 404)) {
                 setFormData((prevData) => {
                     const newImages = prevData.images.filter((_, i) => i !== index);
                     const newPreviews = prevData.imagePreviews.filter((_, i) => i !== index);
@@ -178,20 +162,11 @@ const AddService = () => {
         };
         console.log(raw)
 
-        const requestOptions = {
-            method: serviceId ? "PUT" : "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(raw),
-            redirect: "follow"
-        };
-
         try {
-            const response = await fetch(
-                process.env.REACT_APP_HAPS_MAIN_BASE_URL + `services/${serviceId ? `update/${serviceId}` : 'create'}`,
-                requestOptions
-            );
-            const result = await response.json();
-            if (result.status === (serviceId ? 200 : 201)) {
+            const endpoint = serviceId ? `services/update/${serviceId}` : `services/create`;
+            const method = serviceId ? "PUT" : "POST";
+            const result = await apiCall({ endpoint, method, data: raw });
+            if (result && result.status === (serviceId ? 200 : 201)) {
                 toast.success(`Service ${serviceId ? "Updated" : "Added"} Successfully`);
                 navigate('/services');
             }
@@ -248,45 +223,37 @@ const AddService = () => {
 
     const getAllServicesType = async () => {
         setLoading(true);
-        const requestOptions = { method: 'GET', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "services-type", requestOptions)
-            .then(response => response.json())
-            .then(result => {
+        try {
+            const result = await apiCall({ endpoint: "services-type", method: 'GET' });
+            if (result && result.data) {
                 setServiceTypeData(result.data);
-                // getServiesRooms(result?.data?.service_type_id)
-
-            })
-            .catch(error => {
-                console.error('Error fetching services:', error);
-            })
-            .finally(() =>
-                setLoading(false)
-            )
+            }
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        } finally {
+            setLoading(false);
+        }
     };
     const getServiesRooms = async (id) => {
-
         setLoading(true);
-        const requestOptions = { method: 'GET', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `services-type/${id}/rooms`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
+        try {
+            const result = await apiCall({ endpoint: `services-type/${id}/rooms`, method: 'GET' });
+            if (result && result.data) {
                 setRooms(result.data);
-            })
-            .catch(error => {
-                console.error('Error fetching service types:', error);
-            })
-            .finally(() =>
-                setLoading(false)
-            )
+            }
+        } catch (error) {
+            console.error('Error fetching service types:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const fetchServiceDetails = async (id) => {
         setLoading(true);
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `services/${id}`);
-            const result = await response.json();
+            const result = await apiCall({ endpoint: `services/${id}`, method: 'GET' });
 
-            if (result.status === 200) {
+            if (result && result.status === 200) {
                 const images = result.data.image ? JSON.parse(result.data.image) : []; // Parse JSON string
                 setFormData({
                     ...result.data,

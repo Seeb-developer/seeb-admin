@@ -22,6 +22,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
@@ -37,7 +38,7 @@ function SignIn() {
   useEffect(() => {
     setOtpError();
   }, []);
-  const handleSignIn = (value) => {
+  const handleSignIn = async (value) => {
     if (otp === "") {
       setOtpError("please enter otp");
     } else {
@@ -58,58 +59,72 @@ function SignIn() {
         redirect: "follow",
       };
 
-      fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/adminLogin", requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-          if (result.status === 200) {
-            localStorage.setItem("Token", result.token);
-            localStorage.setItem("id", result.admin.id);
-            Navigate("/dashboard");
-          } else if (result.status === 401) {
-            setIsLoading(false);
-            setOtp("");
-            toast("Invalid Otp");
-          } else {
-            setIsLoading(false);
-            setOtp("");
-            toast("Admin Not Found");
-          }
-        })
-        .catch((error) => console.log("error", error));
+      // fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/adminLogin", requestOptions)
+      //   .then((response) => response.json())
+      //   .then((result) => {
+      //     if (result.status === 200) {
+      //       localStorage.setItem("Token", result.token);
+      //       localStorage.setItem("id", result.admin.id);
+      //       Navigate("/dashboard");
+      //     } else if (result.status === 401) {
+      //       setIsLoading(false);
+      //       setOtp("");
+      //       toast("Invalid Otp");
+      //     } else {
+      //       setIsLoading(false);
+      //       setOtp("");
+      //       toast("Admin Not Found");
+      //     }
+      //   })
+      //   .catch((error) => console.log("error", error));
+      const res = await apiCall({
+        endpoint: "admin/adminLogin",
+        method: "POST",
+        data: {
+          mobile_no: mobileNumber,
+          otp: value,
+        },
+        headers: {
+          "Content-Type": "application/json",
+          "Cookie": "ci_session=g3u6o22uru8nefqg2iu50u2tven7mgr9",
+        },
+      });
+      if (res.status === 200) {
+        localStorage.setItem("Token", res.token);
+        localStorage.setItem("id", res.admin.id);
+        Navigate("/dashboard");
+      } else if (res.status === 401) {
+        setIsLoading(false);
+        setOtp("");
+        toast("Invalid Otp");
+      } else {
+        setIsLoading(false);
+        setOtp("");
+        toast("Admin Not Found");
+      }
     }
   };
-  const sendOtp = (e) => {
+  const sendOtp = async(e) => {
     e.preventDefault();
     if (mobileNumber === "") {
       setmobileNoError("Please Enter Your Mobile Number");
     } else if (mobileNumber < 10) {
       setmobileNoError("Please Enter Valid Mobile Number");
     } else {
-      var myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-
-      var raw = JSON.stringify({
-        mobile_no: mobileNumber,
+     
+      const result = await apiCall({
+        endpoint: "admin/adminSendOTP",
+        method: "POST", 
+        data: {
+          mobile_no: mobileNumber,
+        },
       });
-
-      var requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow",
-      };
-
-      fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/adminSendOTP", requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-          if (result.status === 200) {
-            toast.success("Otp Send Successfully");
-            setShowOtpField(true);
-          } else {
-            toast.error("User Not Found");
-          }
-        })
-        .catch((error) => console.log("error", error));
+      if (result.status === 200) {
+        toast.success("Otp Send Successfully");
+        setShowOtpField(true);
+      } else {
+        toast.error("User Not Found");    
+      }
     }
   };
   const handleMobileNumberChange = () => {

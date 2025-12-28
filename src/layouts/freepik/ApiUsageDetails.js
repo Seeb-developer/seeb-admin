@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { apiCall } from "utils/apiClient";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster } from "react-hot-toast";
@@ -29,12 +30,7 @@ const ApiUsageDetails = () => {
 
     const fetchApiDetails = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}freepik-api/user-all/${apiHistoryId}`, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
-
-            const result = await response.json();
+            const result = await apiCall({ endpoint: `freepik-api/user-all/${apiHistoryId}`, method: "GET" });
             if (result.status === 200 && Array.isArray(result.data)) {
                 setApiDetails(result.data);
             } else {

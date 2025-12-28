@@ -7,6 +7,7 @@ import { DatePicker, Space } from "antd";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { apiCall } from "utils/apiClient";
 const { RangePicker } = DatePicker;
 let index = 0;
 
@@ -69,72 +70,54 @@ const ApplyPromoCode = () => {
   };
 
   // here will be the create coupon api
-  const handleCreateCoupon = () => {
-    var myHeaders = new Headers();
+  const handleCreateCoupon = async () => {
     setLoading(true);
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Cookie", "ci_session=uh0bd6of81mmus1ho7i242ehk70jhjcc");
-
-    var raw = JSON.stringify({
-      coupon_category: JSON.stringify(selectedType),
-      shop_keeper: shopkeeperValue,
-      channel_partner: channelPartnerValue,
-      area: areaValue,
-      universal: universalValue,
-      coupon_type: selectedItem,
-      coupon_type_name:
-        selectedItem === 1 ? percentValue : selectedItem === 2 ? amountValue : servicesValue,
-      coupon_name: couponName,
-      description: description,
-      coupon_expiry: JSON.stringify(couponExpiry),
-      cart_minimum_amount: cartMinAmount,
-      coupon_use_limit: couponUseLimit,
-      coupon_per_user_limit: perUsageLimit,
-      coupon_code: couponCode,
-      terms_and_conditions: JSON.stringify(couponData),
-    });
-    // console.log('categor', JSON.parse(couponExpiry));
-    console.log(JSON.parse(raw));
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "coupon/couponcreate", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        if (result.success) {
-          // setCouponType('');
-          setShopkeeperValue("");
-          setChannelPartnerValue("");
-          setAreaValue("");
-          setUniversalValue("");
-          setCouponName("");
-          setDescription("");
-          setCouponExpiry("");
-          setCartMinAmount("");
-          setCouponUseLimit("");
-          setPerUsageLimit("");
-          setCouponCode("");
-          setCouponData([]);
-        }
-        if (result.status === 200) {
-          toast.success("Coupon Created successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-          Navigate('/coupon-list');
-        } else {
-          // message.error('Failed to create product');
-        }
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const payload = {
+        coupon_category: JSON.stringify(selectedType),
+        shop_keeper: shopkeeperValue,
+        channel_partner: channelPartnerValue,
+        area: areaValue,
+        universal: universalValue,
+        coupon_type: selectedItem,
+        coupon_type_name:
+          selectedItem === 1 ? percentValue : selectedItem === 2 ? amountValue : servicesValue,
+        coupon_name: couponName,
+        description: description,
+        coupon_expiry: JSON.stringify(couponExpiry),
+        cart_minimum_amount: cartMinAmount,
+        coupon_use_limit: couponUseLimit,
+        coupon_per_user_limit: perUsageLimit,
+        coupon_code: couponCode,
+        terms_and_conditions: JSON.stringify(couponData),
+      };
+      const result = await apiCall({ endpoint: 'coupon/couponcreate', method: 'POST', data: payload });
+      if (result.success) {
+        setShopkeeperValue("");
+        setChannelPartnerValue("");
+        setAreaValue("");
+        setUniversalValue("");
+        setCouponName("");
+        setDescription("");
+        setCouponExpiry("");
+        setCartMinAmount("");
+        setCouponUseLimit("");
+        setPerUsageLimit("");
+        setCouponCode("");
+        setCouponData([]);
+      }
+      if (result.status === 200) {
+        toast.success("Coupon Created successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+        Navigate('/coupon-list');
+      }
+    } catch (error) {
+      console.log('error', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

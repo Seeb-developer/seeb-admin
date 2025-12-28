@@ -18,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLayoutEffect } from "react";
 import NontAuthorized401 from "NontAuthorized401";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
@@ -115,24 +116,14 @@ function UpdateCategory() {
   //
   const [getData, setGetData] = useState([]);
   const getById = async () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-        `admin/getHomeZoneAppliancesById/${searchParam.get("slug")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        // setGetData(result);
-        setId(result.Data.id);
-        preFillData(result);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `admin/getHomeZoneAppliancesById/${searchParam.get("slug")}`, method: "GET" });
+      console.log(result);
+      setId(result.Data.id);
+      preFillData(result);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {
@@ -291,53 +282,25 @@ function UpdateCategory() {
     var formdata = new FormData();
     formdata.append("image", selectedImage);
 
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/updateHomeZoneCategoryImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log("result", result);
-        setImageUrl(result.image_path);
-        setSelectedImage("");
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: "admin/updateHomeZoneCategoryImage", method: "POST", data: formdata });
+      setImageUrl(result.image_path);
+      setSelectedImage("");
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const handleImageDelete = async (e) => {
     e.target.value = null;
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Cookie", "ci_session=vbu3uetq5e9sc49uo8lu1taurf34ldce");
-
-    var raw = JSON.stringify({
-      path_128x128: imageUrl,
-    });
-
-    var requestOptions = {
-      method: "DELETE",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/admin/deleteHomeZoneImage`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setSelectedImage(null);
-        setImageUrl(null);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `/admin/deleteHomeZoneImage`, method: "DELETE", data: { path_128x128: imageUrl } });
+      console.log(result);
+      setSelectedImage(null);
+      setImageUrl(null);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const [loading, setLoading] = useState(false);
@@ -354,26 +317,15 @@ function UpdateCategory() {
     setLoading(true);
     var formdata = new FormData();
     formdata.append("path", selectedFiles[0]);
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "/banner/createBannerImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      // .then(result => console.log('ima',result))
-      .then((result) => {
-        appendDesktopImage(result.data);
-        // setImageSources([...imageSources, result.data.banner_image]);
-        setDesktopSelectedImage("");
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const result = await apiCall({ endpoint: "/banner/createBannerImage", method: "POST", data: formdata });
+      appendDesktopImage(result.data);
+      setDesktopSelectedImage("");
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   //
@@ -384,26 +336,15 @@ function UpdateCategory() {
     setLoading(true);
     var formdata = new FormData();
     formdata.append("path", mobileSelectedFile[0]);
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "/banner/createBannerImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      // .then(result => console.log('ima',result))
-      .then((result) => {
-        appendMobileImage(result.data);
-        // setImageSources([...imageSources, result.data.banner_image]);
-        setMobileSelectedImage("");
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const result = await apiCall({ endpoint: "/banner/createBannerImage", method: "POST", data: formdata });
+      appendMobileImage(result.data);
+      setMobileSelectedImage("");
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   //
@@ -411,19 +352,8 @@ function UpdateCategory() {
   //
   const deleteImage = (index) => {
     const imageId = imagesArray[index].id;
-
-    const requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    fetch(
-      `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/banner/deleteBanner/${imageId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    apiCall({ endpoint: `/banner/deleteBanner/${imageId}`, method: "DELETE" })
       .then((result) => {
-        // console.log("Image deleted successfully:", result);
         removeItem(index);
       })
       .catch((error) => console.log("Error deleting image:", error));
@@ -434,19 +364,8 @@ function UpdateCategory() {
   //
   const deleteMobileImage = (index) => {
     const imageId = mobileImagesArray[index].id;
-
-    const requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    fetch(
-      `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/banner/deleteBanner/${imageId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    apiCall({ endpoint: `/banner/deleteBanner/${imageId}`, method: "DELETE" })
       .then((result) => {
-        // console.log("Image deleted successfully:", result);
         removeItemMobile(index);
       })
       .catch((error) => console.log("Error deleting image:", error));
@@ -487,41 +406,37 @@ function UpdateCategory() {
         redirect: "follow",
       };
 
-      await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/updateHomeZoneAppliances/${id}`,
-        requestOptions
-      )
-        .then((response) => response.json())
-        .then((result) => {
-          // console.log(result);
-          if (result.success) {
-            setName("");
-            setDescriptionInputFields([]);
-            setFeaturesInputFields([]);
-            setSelectedImage("");
-            setImageUrl("");
-            setNewlyUploadedImage(null);
-            setPath("");
-            setImageSources([]);
-            setMobileImageSources([]);
-            setImagesArray([]);
-            setMobileImagesArray([]);
-          }
-          if (result.status === 200) {
-            setLoading(false);
-            toast.success("Category Updated Successfully", {
-              theme: "light",
-              autoClose: 3000,
-            });
-            Navigate("/list-category");
-          } else {
-            toast.error("Something Went Wrong", {
-              theme: "light",
-              autoClose: 3000,
-            });
-          }
-        })
-        .catch((error) => console.log("error", error));
+      try {
+        const result = await apiCall({ endpoint: `admin/updateHomeZoneAppliances/${id}`, method: "POST", data: formdata });
+        if (result.success) {
+          setName("");
+          setDescriptionInputFields([]);
+          setFeaturesInputFields([]);
+          setSelectedImage("");
+          setImageUrl("");
+          setNewlyUploadedImage(null);
+          setPath("");
+          setImageSources([]);
+          setMobileImageSources([]);
+          setImagesArray([]);
+          setMobileImagesArray([]);
+        }
+        if (result.status === 200) {
+          setLoading(false);
+          toast.success("Category Updated Successfully", {
+            theme: "light",
+            autoClose: 3000,
+          });
+          Navigate("/list-category");
+        } else {
+          toast.error("Something Went Wrong", {
+            theme: "light",
+            autoClose: 3000,
+          });
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
     }
     setTimeout(() => {
       setLoading(false);
@@ -639,11 +554,10 @@ function UpdateCategory() {
                 <input
                   type="text"
                   id="email"
-                  className={`${
-                    nameError
+                  className={`${nameError
                       ? "border border-red-500 placeholder:text-red-500"
                       : "border border-gray-300"
-                  } bg-gray-50  text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                    } bg-gray-50  text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
                   placeholder="category name"
                   onChange={(e) => setName(e.target.value)}
                   value={name}
@@ -669,9 +583,8 @@ function UpdateCategory() {
                   />
 
                   <div
-                    className={`absolute top-7 right-0 ${
-                      selectedImage === null ? "hidden" : "block"
-                    }`}
+                    className={`absolute top-7 right-0 ${selectedImage === null ? "hidden" : "block"
+                      }`}
                   >
                     {loading ? (
                       <Spin
@@ -740,21 +653,21 @@ function UpdateCategory() {
                 {/* {descriptionError && <div className="text-xs text-red-500 p-1">{descriptionError}</div>} */}
                 {descriptionInputFields && descriptionInputFields.length > 0
                   ? descriptionInputFields.map((input, index) => (
-                      <div key={index} className="flex gap-2 items-center">
-                        <textarea
-                          type="text"
-                          className="bg-gray-50 my-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                          rows={3}
-                          value={descriptionInputFields}
-                          placeholder="write Descriptions..."
-                          onChange={(event) => handleChangeDescriptionInput(index, event)}
-                        />
-                        <RxCross2
-                          className="text-red-500 cursor-pointer"
-                          onClick={() => handleRemoveDescriptionFields(index)}
-                        />
-                      </div>
-                    ))
+                    <div key={index} className="flex gap-2 items-center">
+                      <textarea
+                        type="text"
+                        className="bg-gray-50 my-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        rows={3}
+                        value={descriptionInputFields}
+                        placeholder="write Descriptions..."
+                        onChange={(event) => handleChangeDescriptionInput(index, event)}
+                      />
+                      <RxCross2
+                        className="text-red-500 cursor-pointer"
+                        onClick={() => handleRemoveDescriptionFields(index)}
+                      />
+                    </div>
+                  ))
                   : null}
               </div>
               <Divider />
@@ -770,20 +683,20 @@ function UpdateCategory() {
                 </button>
                 {featuresInputFields && featuresInputFields.length > 0
                   ? featuresInputFields.map((input, index) => (
-                      <div key={index} className="flex gap-2 items-center">
-                        <input
-                          type="text"
-                          className="bg-gray-50 my-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                          value={input.name}
-                          placeholder="write Features..."
-                          onChange={(event) => handleChangeFeaturesInput(index, event)}
-                        />
-                        <RxCross2
-                          className="text-red-500 cursor-pointer"
-                          onClick={() => handleRemoveFeaturesFields(index)}
-                        />
-                      </div>
-                    ))
+                    <div key={index} className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        className="bg-gray-50 my-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        value={input.name}
+                        placeholder="write Features..."
+                        onChange={(event) => handleChangeFeaturesInput(index, event)}
+                      />
+                      <RxCross2
+                        className="text-red-500 cursor-pointer"
+                        onClick={() => handleRemoveFeaturesFields(index)}
+                      />
+                    </div>
+                  ))
                   : null}
               </div>
               <Divider />
@@ -806,9 +719,8 @@ function UpdateCategory() {
                   />
 
                   <div
-                    className={`absolute top-7 right-0 ${
-                      selectedFiles[0] === undefined ? "hidden" : "block"
-                    }`}
+                    className={`absolute top-7 right-0 ${selectedFiles[0] === undefined ? "hidden" : "block"
+                      }`}
                   >
                     {loading ? (
                       <Spin
@@ -889,9 +801,8 @@ function UpdateCategory() {
                   />
 
                   <div
-                    className={`absolute top-7 right-0 ${
-                      mobileSelectedFile[0] === undefined ? "hidden" : "block"
-                    }`}
+                    className={`absolute top-7 right-0 ${mobileSelectedFile[0] === undefined ? "hidden" : "block"
+                      }`}
                   >
                     {loading ? (
                       <Spin

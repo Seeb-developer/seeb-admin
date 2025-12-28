@@ -19,6 +19,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 const { Option } = Select;
@@ -44,16 +45,7 @@ function UpdateAdminRegistration() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "privileges/get-all-roles",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "privileges/get-all-roles", method: "GET" });
         setRoles(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -75,22 +67,13 @@ function UpdateAdminRegistration() {
 
   // get by id
   const getDatabyId = async () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/getAdminByID/${searchParam.get("slug")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setId(result.data.id);
-        getAdminData(result);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `admin/getAdminByID/${searchParam.get("slug")}`, method: "GET" });
+      setId(result.data.id);
+      getAdminData(result);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {
@@ -105,53 +88,33 @@ function UpdateAdminRegistration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Cookie", "ci_session=8q12so578p1tpcvqsq8rtpnm73sh41fg");
-
-    var raw = JSON.stringify({
-      name: name,
-      email: email,
-      mobile_no: mobileNumber,
-      password: password,
-      is_logged_in: "1",
-      otp: "",
-      role_id: selectedRoleId,
-      status: "1",
-    });
-
-    var requestOptions = {
-      method: "PUT",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/updateAdmin/${id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Admin Updated Successfully", {
-            theme: "light",
-            autoClose: 3000,
-          });
-          Navigate("/admin-list");
-        } else {
-          toast.error("Something Went Wrong", {
-            theme: "light",
-            autoClose: 3000,
-          });
-        }
-      })
-      .catch((error) => console.log("error", error));
-    setTimeout(() => {
+    try {
+      const result = await apiCall({
+        endpoint: `admin/updateAdmin/${id}`,
+        method: "PUT",
+        data: {
+          name,
+          email,
+          mobile_no: mobileNumber,
+          password,
+          is_logged_in: "1",
+          otp: "",
+          role_id: selectedRoleId,
+          status: "1",
+        },
+      });
+      if (result.status === 200) {
+        toast.success("Admin Updated Successfully", { theme: "light", autoClose: 3000 });
+        Navigate("/admin-list");
+      } else {
+        toast.error("Something Went Wrong", { theme: "light", autoClose: 3000 });
+      }
+    } catch (error) {
+      console.log("error", error);
+      toast.error("Something Went Wrong", { theme: "light", autoClose: 3000 });
+    } finally {
       setLoading(false);
-    }, 3000);
+    }
   };
 
   return (

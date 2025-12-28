@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { apiCall } from 'utils/apiClient';
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { MdModeEdit } from "react-icons/md";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -30,26 +31,15 @@ const PartnerTicketList = () => {
     const getAllTickets = async () => {
         // setLoader(true);
         try {
-            const response = await fetch(
-                process.env.REACT_APP_HAPS_MAIN_BASE_URL + "tickets/all",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        search: searchQuery,
-                        start_date: dateRange.length > 0 ? dateRange[0] : null,
-                        end_date: dateRange.length > 0 ? dateRange[1] : null,
-                        status: status,
-                        limit: recordsPerPage,
-                        page: currentPage,
-                        user_type: "partner", 
-                    }),
-                }
-            );
-
-            const result = await response.json();
+            const result = await apiCall({ endpoint: "tickets/all", method: "POST", data: {
+                search: searchQuery,
+                start_date: dateRange.length > 0 ? dateRange[0] : null,
+                end_date: dateRange.length > 0 ? dateRange[1] : null,
+                status: status,
+                limit: recordsPerPage,
+                page: currentPage,
+                user_type: "partner",
+            } });
             setLoader(false);
             if (result.status === 200) {
                 // const filtered = result.data.filter(ticket => ticket.user_type === "partner");
@@ -67,8 +57,7 @@ const PartnerTicketList = () => {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/${id}`, { method: 'DELETE' });
-            const result = await response.json();
+            const result = await apiCall({ endpoint: `tickets/${id}`, method: 'DELETE' });
             if (result.status === 200) {
                 getAllTickets();
                 toast.success("Ticket Deleted Successfully");
@@ -98,15 +87,10 @@ const PartnerTicketList = () => {
 
     const handleTicketClick = async (ticket) => {
         try {
-            await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/mark-as-read`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ticket_id: ticket.id,
-                    viewer_type: "admin",
-                }),
-            });
-
+            await apiCall({ endpoint: "tickets/mark-as-read", method: "POST", data: {
+                ticket_id: ticket.id,
+                viewer_type: "admin",
+            } });
         } catch (err) {
             console.error("❌ Failed to mark ticket as read:", err);
         }

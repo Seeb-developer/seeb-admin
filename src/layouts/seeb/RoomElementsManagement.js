@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
-
-const API_BASE_URL = process.env.REACT_APP_HAPS_MAIN_BASE_URL + "room-elements";
+import { apiCall } from "utils/apiClient";
 
 const RoomElementsManagement = () => {
     const [roomElements, setRoomElements] = useState([]);
@@ -17,9 +16,15 @@ const RoomElementsManagement = () => {
 
     const fetchRoomElements = async () => {
         try {
-            const response = await fetch(API_BASE_URL);
-            const res = await response.json();
-            setRoomElements(res.data);
+            const result = await apiCall({
+                endpoint: "room-elements",
+                method: "GET"
+            });
+            if (result && result.status === 200) {
+                setRoomElements(result.data);
+            } else {
+                toast.error("Failed to load room elements.");
+            }
         } catch (error) {
             console.error("Error fetching room elements:", error);
             toast.error("Failed to load room elements.");
@@ -30,16 +35,15 @@ const RoomElementsManagement = () => {
         if (!title.trim()) return;
         try {
             const method = editingId ? "PUT" : "POST";
-            const url = editingId ? `${API_BASE_URL}/${editingId}` : API_BASE_URL;
+            const endpoint = editingId ? `room-elements/${editingId}` : "room-elements";
 
-            const response = await fetch(url, {
+            const result = await apiCall({
+                endpoint,
                 method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, type }),
+                data: { title, type }
             });
 
-            const result = await response.json();
-            if (response.ok) {
+            if (result.status === 200 || result.status === 201) {
                 toast.success(result.message);
                 fetchRoomElements();
                 setTitle("");
@@ -66,9 +70,11 @@ const RoomElementsManagement = () => {
     const handleDeleteRoomElement = async (id) => {
         if (!window.confirm("Are you sure you want to delete this room element?")) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
-            const result = await response.json();
-            if (response.ok) {
+            const result = await apiCall({
+                endpoint: `room-elements/${id}`,
+                method: "DELETE"
+            });
+            if (result && result.status === 200) {
                 toast.success(result.message);
                 fetchRoomElements();
             } else {

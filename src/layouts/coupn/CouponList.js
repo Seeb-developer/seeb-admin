@@ -15,6 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 // import Footer from "examples/Footer";
 
 import React, { useState, useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 
@@ -37,22 +38,15 @@ const currentItems = (indexOfFirstItem, indexOfLastItem); */
 
   // list coupon categories
   const listCoupon = async () => {
-    setLoading(true);
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "coupon/getAllCoupon", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setCouponList(result.coupons);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      setLoading(true);
+      const result = await apiCall({ endpoint: 'coupon/getAllCoupon', method: 'GET' });
+      setCouponList(result.coupons || []);
+    } catch (error) {
+      console.log('error', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -65,47 +59,31 @@ const currentItems = (indexOfFirstItem, indexOfLastItem); */
     setCouponList(updatedCoupon);
   };
   const handleDeleteCoupon = async (index, id) => {
-    var requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `coupon/coupondelete/${id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        removeCoupon(index);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Coupon deleted successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-        }
-      })
-      .catch((error) => console.log("error", error));
-      setTimeout(() => {
+    try {
+      const result = await apiCall({ endpoint: `coupon/coupondelete/${id}`, method: 'DELETE' });
+      removeCoupon(index);
+      if (result.status === 200) {
         setLoading(false);
-      }, 3000);
+        toast.success("Coupon deleted successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+      }
+    } catch (error) {
+      console.log('error', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   //   get coupon by id
   const getCoupon = async (id) => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `coupon/getById/${id}`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        return result.coupon;
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: `coupon/getById/${id}`, method: 'GET' });
+      return result.coupon;
+    } catch (error) {
+      console.log('error', error);
+    }
   };
 
   useEffect(() => {

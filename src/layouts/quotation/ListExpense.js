@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { apiCall } from 'utils/apiClient';
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -62,72 +63,55 @@ const ListExpense = ({ id, type }) => {
     }, [formData]);
 
     const handleOnSubmit = async () => {
-
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        const updatedFormData = formData.map(item => ({
-            ...item,
-            type,
-            quotation_id: id,
-            date: new Date().toISOString().split('T')[0]
-        }));
-        const raw = JSON.stringify(updatedFormData);
-
-
-        const requestOptions = {
-            method: "POST",  // Use PUT for editing, POST for adding new
-            headers: myHeaders,
-            body: raw,
-            redirect: "follow",
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "transactions/create", requestOptions)
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.status === 201 || result.status === 207) {
-                    toast.success(result.message);
-                    getAllExpenses();
-                    setFormData([{
-                        transaction_type: "Expense",
-                        category: "",
-                        amount: "",
-                        payment_method: "",
-                        transaction_no: "",
-                        vendor_or_client: "",
-                        remarks: "",
-                        description: "",
-                    }]);
-                    // Clear localStorage after successful submission
-                    localStorage.removeItem("formDataBackup");
-                } else {
-                    toast.error(result.Message || "Failed to save expense");
-                }
-            })
-            .catch((error) => console.error("Error:", error));
+        try {
+            const updatedFormData = formData.map(item => ({
+                ...item,
+                type,
+                quotation_id: id,
+                date: new Date().toISOString().split('T')[0]
+            }));
+            const result = await apiCall({
+                endpoint: 'transactions/create',
+                method: 'POST',
+                data: updatedFormData,
+            });
+            if (result.status === 201 || result.status === 207) {
+                toast.success(result.message);
+                getAllExpenses();
+                setFormData([{
+                    transaction_type: "Expense",
+                    category: "",
+                    amount: "",
+                    payment_method: "",
+                    transaction_no: "",
+                    vendor_or_client: "",
+                    remarks: "",
+                    description: "",
+                }]);
+                localStorage.removeItem("formDataBackup");
+            } else {
+                toast.error(result.Message || "Failed to save expense");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
     };
 
 
 
     const getAllExpenses = async (page = 1, perPage = 10, searchQuery = '') => {
-        setLoader(true); // Show loader before fetching data
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                id: id,
-                page: page,     // Ensure you have currentPage state
-                perPage: perPage, // Ensure you have recordsPerPage state
-                search: searchQuery,   // Ensure you have searchQuery state
-            }),
-        };
-
+        setLoader(true);
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'transactions', requestOptions);
-            const result = await response.json();
-
+            const result = await apiCall({
+                endpoint: 'transactions',
+                method: 'POST',
+                data: {
+                    id: id,
+                    page: page,
+                    perPage: perPage,
+                    search: searchQuery,
+                },
+            });
             setLoader(false);
             if (result.data) {
                 setExpenseData(result.data);
@@ -135,7 +119,6 @@ const ListExpense = ({ id, type }) => {
                 setTotalIncome(result?.totals?.income)
                 setTotalPage(result?.pagination?.totalPages)
                 setTotalRecords(result?.pagination?.totalRecords)
-                // calculateSummary(result.data);
             }
         } catch (error) {
             console.log('Error fetching expenses:', error);
@@ -146,31 +129,26 @@ const ListExpense = ({ id, type }) => {
 
 
     const saveRow = async (row) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        const requestOptions = {
-            method: "PUT", // Assuming PUT for updates
-            headers: myHeaders,
-            body: JSON.stringify(row),
-            redirect: "follow",
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `transactions/${row.id}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 200) {
-                    toast.success("Expense Updated Successfully");
-                    setEditMode(false)
-                    getAllExpenses()
-                } else {
-                    toast.error(result.Message || "Failed to update expense");
-                }
-                setEditRow(null); // Exit edit mode after saving
-                getAllExpenses();
-            })
-            .catch(error => console.error("Error updating expense:", error))
-            .finally(() => setLoader(false))
+        try {
+            const result = await apiCall({
+                endpoint: `transactions/${row.id}`,
+                method: 'PUT',
+                data: row,
+            });
+            if (result.status === 200) {
+                toast.success("Expense Updated Successfully");
+                setEditMode(false)
+                getAllExpenses()
+            } else {
+                toast.error(result.Message || "Failed to update expense");
+            }
+            setEditRow(null);
+            getAllExpenses();
+        } catch (error) {
+            console.error("Error updating expense:", error)
+        } finally {
+            setLoader(false)
+        }
     };
 
     useEffect(() => {

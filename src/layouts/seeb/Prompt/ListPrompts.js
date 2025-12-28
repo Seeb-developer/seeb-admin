@@ -3,6 +3,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { apiCall } from "utils/apiClient";
 
 const ListPrompts = () => {
     const [prompts, setPrompts] = useState([]);
@@ -10,8 +11,10 @@ const ListPrompts = () => {
 
     const fetchPrompts = async () => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}prompts`);
-            const result = await res.json();
+            const result = await apiCall({
+                endpoint: "prompts",
+                method: "GET"
+            });
             if (result.status === 200) {
                 setPrompts(result.data);
             } else {

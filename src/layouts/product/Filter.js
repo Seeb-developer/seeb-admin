@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { apiCall } from "utils/apiClient";
 
 const Filter = (props) => {
   const { children, totalCount, setSelectedCategory } = props;
@@ -25,11 +26,7 @@ const Filter = (props) => {
           redirect: "follow",
         };
 
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);

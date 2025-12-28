@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
 
@@ -14,23 +15,26 @@ const SavedFloorPlansDetails = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchUserItems = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}floor-plans/user-id/${user.user_id}`);
-                const result = await response.json();
-                if (result.status === 200) {
-                    setUserItems(result.data.reverse());
-                }
-            } catch (error) {
-                console.error("Error fetching user items details:", error);
+    const fetchUserItems = useCallback(async () => {
+        setLoading(true);
+        try {
+            const result = await apiCall({
+                endpoint: `floor-plans/user-id/${user.user_id}`,
+                method: "GET",
+            });
+            if (result && result.status === 200) {
+                setUserItems(result.data?.reverse() || []);
             }
+        } catch (error) {
+            console.error("Error fetching user items details:", error);
+        } finally {
             setLoading(false);
-        };
+        }
+    }, [user.user_id]);
 
+    useEffect(() => {
         fetchUserItems();
-    }, [user]);
+    }, [fetchUserItems]);
 
     return (
         <DashboardLayout>
@@ -38,13 +42,12 @@ const SavedFloorPlansDetails = () => {
             <div className="p-6">
                 {/* Page Title */}
                 <h2 className="text-lg font-semibold px-8">User Details for {user?.user_name}</h2>
-                    {/* Loader */}
-                {loading ? (
-                    <div className="flex justify-center items-center h-[75vh] w-full">
-                        <Spin indicator={antIcon} />
-                    </div>
-                ) : (
-                    <div className="border-solid border-2 black-indigo-600 mt-6 px-8 pb-6">
+                <div className="border-solid border-2 black-indigo-600 mt-6 px-8 pb-6 relative">
+                    {loading && (
+                        <div className="absolute inset-0 flex justify-center items-center bg-white/60 z-10">
+                            <Spin indicator={antIcon} />
+                        </div>
+                    )}
                         {/* Table Section */}
                         <div className="overflow-x-auto relative mt-4">
                             {userItems.length > 0 ? (
@@ -85,7 +88,6 @@ const SavedFloorPlansDetails = () => {
                             )}
                         </div>
                     </div>
-                )}
             </div>
         </DashboardLayout>
     );

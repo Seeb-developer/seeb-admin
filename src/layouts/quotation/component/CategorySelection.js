@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiCall } from 'utils/apiClient';
 import PropTypes from 'prop-types';
 
 const CategorySelection = ({ selectedSubcategories, setSelectedSubcategories }) => {
@@ -8,10 +9,10 @@ const CategorySelection = ({ selectedSubcategories, setSelectedSubcategories }) 
     // Function to fetch categories and subcategories
     const fetchCategoriesAndSubcategories = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}master/categories/subcategories`);
-            const result = await response.json();
-
-            // Assuming API returns categories with subcategories nested
+            const result = await apiCall({
+                endpoint: 'master/categories/subcategories',
+                method: 'GET',
+            });
             setCategories(result.data);
             setLoading(false);
         } catch (error) {

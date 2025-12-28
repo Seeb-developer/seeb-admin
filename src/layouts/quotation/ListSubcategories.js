@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiCall } from 'utils/apiClient';
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -31,44 +32,36 @@ const ListSubcategories = () => {
     // Get category name by categoryId
     const getCategoryName = async () => {
         setLoader(true);
-        var requestOptions = {
-            method: 'GET',
-            redirect: 'follow',
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `master/categories/${categoryId}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                setLoader(false);
-                if (result.data) {
-                    setCategoryName(result.data.title); // Set category name
-                }
-            })
-            .catch(error => {
-                setLoader(false);
-                console.error('Error fetching category name:', error);
+        try {
+            const result = await apiCall({
+                endpoint: `master/categories/${categoryId}`,
+                method: 'GET',
             });
+            setLoader(false);
+            if (result.data) {
+                setCategoryName(result.data.title);
+            }
+        } catch (error) {
+            setLoader(false);
+            console.error('Error fetching category name:', error);
+        }
     };
 
     // Get all subcategories for the given category
     const getAllSubcategories = async () => {
         setLoader(true);
-        var requestOptions = {
-            method: 'GET',
-            redirect: 'follow',
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `master/categories/${categoryId}/subcategories`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                setLoader(false);
-                setSubcategoryData(result.data);
-                setFilteredSubcategories(result.data);
-            })
-            .catch(error => {
-                setLoader(false);
-                console.error('Error fetching subcategories:', error);
+        try {
+            const result = await apiCall({
+                endpoint: `master/categories/${categoryId}/subcategories`,
+                method: 'GET',
             });
+            setLoader(false);
+            setSubcategoryData(result.data);
+            setFilteredSubcategories(result.data);
+        } catch (error) {
+            setLoader(false);
+            console.error('Error fetching subcategories:', error);
+        }
     };
 
     // Handle search input change
@@ -87,20 +80,18 @@ const ListSubcategories = () => {
     };
     // Handle subcategory deletion
     const handleSubcategoryDelete = async (id) => {
-        var requestOptions = {
-            method: 'DELETE',
-            redirect: 'follow',
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `master/subcategories/${id}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 200) {
-                    getAllSubcategories();
-                    toast.success("Subcategory Deleted Successfully");
-                }
-            })
-            .catch(error => console.log('Error deleting subcategory:', error));
+        try {
+            const result = await apiCall({
+                endpoint: `master/subcategories/${id}`,
+                method: 'DELETE',
+            });
+            if (result.status === 200) {
+                getAllSubcategories();
+                toast.success("Subcategory Deleted Successfully");
+            }
+        } catch (error) {
+            console.log('Error deleting subcategory:', error);
+        }
     };
 
     // Handle adding/updating subcategory
@@ -110,25 +101,14 @@ const ListSubcategories = () => {
             ...subcategoryFormData,
             master_category_id: categoryId, // Add the master_category_id to the data
         };
-        const url = editMode
-            ? `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}master/subcategories/${subcategoryIdToEdit}`
-            : process.env.REACT_APP_HAPS_MAIN_BASE_URL + 'master/subcategories';
-
         const method = editMode ? 'PUT' : 'POST';
-
-        const requestOptions = {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedFormData),
-            redirect: 'follow',
-        };
-
         setLoader(true);
-
         try {
-            const response = await fetch(url, requestOptions);
-            const result = await response.json();
-
+            const result = await apiCall({
+                endpoint: editMode ? `master/subcategories/${subcategoryIdToEdit}` : 'master/subcategories',
+                method,
+                data: updatedFormData,
+            });
             if (result.status === editMode ? 200 : 201) {
                 getAllSubcategories();
                 toast.success(editMode ? "Subcategory Updated Successfully" : "Subcategory Added Successfully");

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiCall } from 'utils/apiClient';
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -18,25 +19,16 @@ const Blog = () => {
   const handleOnSubmit = async (e) => {
     e.preventDefault();
 
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    const raw = JSON.stringify({
-      title: blogData.title,
-      description: blogData.description,
-      blog_image: uploadedFilePath,
-      status: 0,
-    });
-
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "blog/createBlog", requestOptions)
-      .then((response) => response.json())
+    await apiCall({
+      endpoint: 'blog/createBlog',
+      method: 'POST',
+      data: {
+        title: blogData.title,
+        description: blogData.description,
+        blog_image: uploadedFilePath,
+        status: 0,
+      },
+    })
       .then((result) => {
         if (result.status === 200) {
           toast.success("Blog Added Successfully");
@@ -58,14 +50,7 @@ const Blog = () => {
 
     setIsLoading(true);
 
-    const requestOptions = {
-      method: "POST",
-      body: formData,
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "blog/createBlogImage", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData })
       .then((result) => {
         if (result.status === 200) {
           setUploadedFilePath(result?.data?.blog_image);
@@ -82,19 +67,10 @@ const Blog = () => {
   const handleRemoveFile = async () => {
     if (!uploadedFilePath) return;
 
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ blog_image: uploadedFilePath }), // Include the file path for deletion
-    };
-
     try {
-      const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "blog/deleteBlogImage", requestOptions);
-      const result = await response.json();
+      const result = await apiCall({ endpoint: 'blog/deleteBlogImage', method: 'POST', data: { blog_image: uploadedFilePath } });
 
-      if (response.ok && result.status === 200) {
+      if (result.status === 200) {
         setUploadedFilePath(null);
         toast.success("File removed successfully");
       } else {

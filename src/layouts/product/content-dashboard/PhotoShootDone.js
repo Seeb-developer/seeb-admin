@@ -2,6 +2,7 @@ import NontAuthorized401 from "NontAuthorized401";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import React, { useState, useEffect } from "react";
+import { apiCall } from "utils/apiClient";
 import { useNavigate } from "react-router-dom";
 import Loader from "layouts/loader/Loader";
 import PropTypes from "prop-types";
@@ -20,17 +21,7 @@ function PhotoShootDone(props) {
   // list raw product total count
   const getAllList = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `dashboard/products-statics?status=1`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "dashboard/products-statics", method: "GET", params: { status: 1 } })
       .then((result) => {
         console.log(result);
         setListProduct(result.data);

@@ -7,8 +7,9 @@ import { Toaster, toast } from "react-hot-toast";
 import Pagination from "components/pagination";
 import { useNavigate } from "react-router-dom";
 import { MdDelete, MdModeEdit } from "react-icons/md";
+import { apiCall } from "utils/apiClient";
 
-const API_BASE_URL = process.env.REACT_APP_HAPS_MAIN_BASE_URL + "assets";
+const API_ENDPOINT = "assets";
 
 const ListAssets = () => {
     const navigate = useNavigate();
@@ -40,8 +41,7 @@ const ListAssets = () => {
 
     const fetchAssets = async () => {
         try {
-            const response = await fetch(API_BASE_URL);
-            const data = await response.json();
+            const data = await apiCall({ endpoint: API_ENDPOINT, method: "GET" });
             setAssets(data);
         } catch (error) {
             console.error("Error fetching assets:", error);
@@ -51,9 +51,10 @@ const ListAssets = () => {
 
     const fetchRoomElements = async () => {
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "room-elements");
-            const res = await response.json();
-            setRoomElements(res.data);
+            const res = await apiCall({ endpoint: "room-elements", method: "GET" });
+            if (res && res.data) {
+                setRoomElements(res.data);
+            }
         } catch (error) {
             console.error("Error fetching room elements:", error);
             toast.error("Failed to load room elements.");
@@ -103,22 +104,17 @@ const ListAssets = () => {
         setSelectedRoomElement((prev) => (prev === id ? null : id));
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this asset?")) {
-            // Call your delete API
-            fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}/assets/${id}`, {
-                method: "DELETE",
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    toast.success("Asset deleted successfully!");
-                    // Refresh or refetch assets list here
-                    fetchAssets();
-                })
-                .catch((error) => {
-                    console.error("Delete error:", error);
-                    toast.error("Failed to delete asset.");
-                });
+            try {
+                const data = await apiCall({ endpoint: `assets/${id}`, method: "DELETE" });
+                toast.success("Asset deleted successfully!");
+                // Refresh or refetch assets list here
+                fetchAssets();
+            } catch (error) {
+                console.error("Delete error:", error);
+                toast.error("Failed to delete asset.");
+            }
         }
     };
 

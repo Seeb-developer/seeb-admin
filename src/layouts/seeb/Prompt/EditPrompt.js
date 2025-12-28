@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-
-const BASE_URL = process.env.REACT_APP_HAPS_MAIN_BASE_URL;
+import { apiCall } from "utils/apiClient";
 
 const EditPrompt = () => {
     const location = useLocation();
@@ -23,8 +22,10 @@ const EditPrompt = () => {
 
     const fetchStyles = async () => {
         try {
-            const res = await fetch(`${BASE_URL}styles`);
-            const result = await res.json();
+            const result = await apiCall({
+                endpoint: "styles",
+                method: "GET"
+            });
             setStyles(result.data || []);
         } catch {
             toast.error("Failed to fetch styles");
@@ -33,16 +34,18 @@ const EditPrompt = () => {
 
     const fetchPromptDetails = async () => {
         try {
-            const res = await fetch(`${BASE_URL}prompts/${promptId}`);
-            const result = await res.json();
-            if (result.status === 200) {
+            const result = await apiCall({
+                endpoint: `prompts/${promptId}`,
+                method: "GET"
+            });
+            if (result && result.status === 200) {
                 const prompt = result.data;
                 setForm({
                     prompt: prompt.prompt,
                     style_id: prompt.style_id,
                     new_style: "",
                     image: null,
-                    imagePreview: BASE_URL + prompt.image_path
+                    imagePreview: process.env.REACT_APP_HAPS_MAIN_BASE_URL + prompt.image_path
                 });
             } else {
                 toast.error("Prompt not found");
@@ -81,14 +84,13 @@ const EditPrompt = () => {
         // 🔁 If new style is entered, create it first
         if (form.new_style) {
             try {
-                const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}styles`, {
+                const result = await apiCall({
+                    endpoint: "styles",
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: form.new_style }),
+                    data: { name: form.new_style }
                 });
 
-                const result = await res.json();
-                if (result.status === 201 || result.status === 200) {
+                if (result && (result.status === 201 || result.status === 200)) {
                     finalStyleId = result.data.id;
                     toast.success("New style created successfully");
                     setStyles((prev) => [...prev, result.data]); // Optional: update styles in dropdown
@@ -110,13 +112,13 @@ const EditPrompt = () => {
         }
 
         try {
-            const res = await fetch(`${BASE_URL}prompts/${promptId}`, {
+            const result = await apiCall({
+                endpoint: `prompts/${promptId}`,
                 method: "POST",
-                body: formData
+                data: formData
             });
-            const result = await res.json();
 
-            if (result.status === 200) {
+            if (result && result.status === 200) {
                 toast.success("Prompt updated successfully!");
                 navigate("/prompts");
             } else {

@@ -8,6 +8,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
 import { Toaster, toast } from 'react-hot-toast';
 import Toggle from 'react-toggle';
+import { apiCall } from 'utils/apiClient';
 
 const ListServices = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
@@ -20,23 +21,22 @@ const ListServices = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
 
-    // Fetch all Services
     const getAllServices = async () => {
         setLoader(true);
-        const requestOptions = { method: 'GET', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "services", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                setLoader(false);
-                if (result.status === 200) {
-                    setServiceData(result.data);
-                    setFilteredServices(result.data);
-                }
-            })
-            .catch(error => {
-                setLoader(false);
-                console.error('Error fetching Services:', error);
+        try {
+            const result = await apiCall({
+                endpoint: "services",
+                method: 'GET',
             });
+            setLoader(false);
+            if (result.status === 200) {
+                setServiceData(result.data);
+                setFilteredServices(result.data);
+            }
+        } catch (error) {
+            setLoader(false);
+            console.error('Error fetching Services:', error);
+        }
     };
 
     // Handle search change
@@ -54,35 +54,32 @@ const ListServices = () => {
         }
     };
 
-    // Handle deleting work type
     const handleServiceDelete = async (id) => {
-        const requestOptions = { method: 'DELETE', redirect: 'follow' };
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/services/${id}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 200) {
-                    getAllServices();
-                    toast.success("Services Deleted Successfully");
-                }
-            })
-            .catch(error => console.log('Error deleting work type:', error));
+        try {
+            const result = await apiCall({
+                endpoint: `/services/${id}`,
+                method: 'DELETE',
+            });
+            if (result.status === 200) {
+                getAllServices();
+                toast.success("Services Deleted Successfully");
+            }
+        } catch (error) {
+            console.log('Error deleting work type:', error);
+        }
     };
 
     const handleToggleStatus = async (id, currentStatus) => {
         const newStatus = currentStatus === "1" ? "0" : "1";
 
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `services/change-status/${id}`, {
+            const result = await apiCall({
+                endpoint: `services/change-status/${id}`,
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ status: newStatus }),
+                data: { status: newStatus },
             });
 
-            const result = await response.json();
             if (result.status === 200) {
-                // Update UI after status change
                 setFilteredServices(prevData => prevData.map(el =>
                     el.id === id ? { ...el, status: newStatus } : el
                 ));

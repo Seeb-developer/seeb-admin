@@ -19,6 +19,8 @@ import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 import { BsFilter } from "react-icons/bs";
 import { Modal, Select } from "antd";
+import { apiCall } from "utils/apiClient";
+
 function ListSubCategory() {
   let Navigate = useNavigate();
 
@@ -50,30 +52,17 @@ const currentItems = (indexOfFirstItem, indexOfLastItem); */
   // list categories
   const listHomeAppliances = async (id) => {
     setLoading(true);
-    var myHeaders = new Headers();
-    myHeaders.append("Cookie", "ci_session=a76a3d3rr6mqh4pgb0e59kt878qci8aa");
-
-    var requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-        "admin/getHomeZoneCaterory" +
-        `${id != null ? "?home_zone_appliances_id=" + id : ""}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        setListing(result.data);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const endpoint = "admin/getHomeZoneCaterory" + (id != null ? `?home_zone_appliances_id=${id}` : "");
+      const result = await apiCall({ endpoint, method: "GET" });
+      setListing(result.data);
+      if (result.status === 200) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log("error", error);
+      setLoading(false);
+    }
   };
 
   //
@@ -82,16 +71,7 @@ const currentItems = (indexOfFirstItem, indexOfLastItem); */
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -111,31 +91,22 @@ const currentItems = (indexOfFirstItem, indexOfLastItem); */
     setListing(updatedCategories);
   };
   const handleDeleteProduct = async (index, id) => {
-    var requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/deleteHomeZoneCaterory/${id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        removeCategory(index);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Sub-category deleted successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-        }
-      })
-      .catch((error) => console.log("error", error));
-      setTimeout(() => {
+    try {
+      const result = await apiCall({ endpoint: `admin/deleteHomeZoneCaterory/${id}`, method: "DELETE" });
+      removeCategory(index);
+      if (result.status === 200) {
         setLoading(false);
-      }, 3000);
+        toast.success("Sub-category deleted successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+    setTimeout(() => {
+      setLoading(false);
+    }, 3000);
   };
 
   const { Option } = Select;
@@ -146,19 +117,9 @@ const currentItems = (indexOfFirstItem, indexOfLastItem); */
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
 
   const handleCategoryChange = async (event) => {
-    // alert(event);
     setHomeZoneAppliancesID(event);
     try {
-      const requestOptions = {
-        method: "GET",
-        redirect: "follow",
-      };
-
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/getHomeZoneCateroryByid/${event}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({ endpoint: `admin/getHomeZoneCateroryByid/${event}`, method: "GET" });
       setSubCategories(result.data);
     } catch (error) {
       console.log("Error fetching data:", error);

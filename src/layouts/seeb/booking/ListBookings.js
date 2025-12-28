@@ -9,6 +9,7 @@ import { DatePicker, Spin } from 'antd';
 import { Toaster, toast } from 'react-hot-toast';
 import Toggle from 'react-toggle';
 import Pagination from 'components/pagination';
+import { apiCall } from 'utils/apiClient';
 
 const ListBookings = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
@@ -63,8 +64,13 @@ const ListBookings = () => {
                 body: JSON.stringify(body)
             };
 
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}booking`, requestOptions);
-            const result = await response.json();
+            // const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}booking`, requestOptions);
+            const result = await apiCall({
+                endpoint: "booking",
+                method: "POST",
+                data: body,
+            });
+            // const result = await res.json();
 
             if (result.status === 200) {
                 setBookingData(result.data || []);
@@ -101,14 +107,11 @@ const ListBookings = () => {
     const handleToggleStatus = async (id, status) => {
 
         try {
-            const response = await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `booking/change-status/${id}`, {
+            const result = await apiCall({
+                endpoint: `booking/change-status/${id}`,
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ status: status }),
+                data: { status }
             });
-            const result = await response.json();
             if (result.status === 200) {
                 // getAllBookings();
                 setFilteredBookings(prevData => prevData.map(el =>
@@ -312,29 +315,29 @@ const ListBookings = () => {
                                                     />
                                                 )}
                                                 {/* {el.status !== "completed" && el.status !== "cancelled" && ( */}
-                                                    <RiDeleteBin6Fill
-                                                        size={24}
-                                                        style={deletstyle}
-                                                        className="cursor-pointer"
-                                                        onClick={async () => {
-                                                            if (window.confirm("Are you sure you want to delete this booking?")) {
-                                                                try {
-                                                                    const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}booking/delete/${el.id}`, {
-                                                                        method: "DELETE",
-                                                                    });
-                                                                    const result = await response.json();
-                                                                    if (result.status === 200) {
-                                                                        toast.success("Booking deleted");
-                                                                        getAllBookings(); // Refresh list
-                                                                    } else {
-                                                                        toast.error(result.message || "Failed to delete booking");
-                                                                    }
-                                                                } catch (error) {
-                                                                    toast.error("Error deleting booking");
+                                                <RiDeleteBin6Fill
+                                                    size={24}
+                                                    style={deletstyle}
+                                                    className="cursor-pointer"
+                                                    onClick={async () => {
+                                                        if (window.confirm("Are you sure you want to delete this booking?")) {
+                                                            try {
+                                                                const result = await apiCall({
+                                                                    endpoint: `booking/delete/${el.id}`,
+                                                                    method: "DELETE",
+                                                                });
+                                                                if (result.status === 200) {
+                                                                    toast.success("Booking deleted");
+                                                                    getAllBookings(); // Refresh list
+                                                                } else {
+                                                                    toast.error(result.message || "Failed to delete booking");
                                                                 }
+                                                            } catch (error) {
+                                                                toast.error("Error deleting booking");
                                                             }
-                                                        }}
-                                                    />
+                                                        }
+                                                    }}
+                                                />
                                                 {/* )} */}
                                             </td>
                                         </tr>

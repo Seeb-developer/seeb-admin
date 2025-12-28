@@ -3,6 +3,7 @@ import { Tabs } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import Loader from 'layouts/loader/Loader';
+import { apiCall } from 'utils/apiClient';
 
 const { TabPane } = Tabs;
 
@@ -22,22 +23,15 @@ const CustomerTabs = () => {
 
 
     const getOrder = async () => {
-        setLoading(true);
-        var requestOptions = {
-            method: 'GET',
-            redirect: 'follow'
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/orders/getbycustomer/${searchParam.get("id")}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                // console.warn(result)
-                setCustomerOrders(result.orders)
-                if (result.status === 200) {
-                    setLoading(false);
-                }
-            })
-            .catch(error => console.log('error', error));
+        try {
+            setLoading(true);
+            const result = await apiCall({ endpoint: `product/orders/getbycustomer/${searchParam.get("id")}`, method: 'GET' });
+            setCustomerOrders(result.orders || []);
+        } catch (error) {
+            console.log('error', error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {

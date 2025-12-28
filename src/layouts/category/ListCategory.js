@@ -1,6 +1,7 @@
 // @mui material components
 import Card from "@mui/material/Card";
 import NontAuthorized401 from "NontAuthorized401";
+import { apiCall } from "utils/apiClient";
 
 // Arrange Free React components
 import SoftBox from "components/SoftBox";
@@ -26,28 +27,16 @@ function ListCategory() {
   // list categories
   const listHomeAppliances = async () => {
     setLoading(true);
-    var myHeaders = new Headers();
-    myHeaders.append("Cookie", "ci_session=a76a3d3rr6mqh4pgb0e59kt878qci8aa");
-
-    var requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        setList(result.data);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
+      setList(result.data);
+      if (result.status === 200) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log("error", error);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -60,31 +49,20 @@ function ListCategory() {
     setList(updatedCategories);
   };
   const handleDeleteProduct = async (index, id) => {
-    var requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/deleteHomeZoneAppliances/${id}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        removeCategory(index);
-        if (result.status === 200) {
-          setLoading(false);
-          toast.success("Category deleted successfully", {
-            theme: "light",
-            autoClose: "2000",
-          });
-        }
-      })
-      .catch((error) => console.log("error", error));
-      setTimeout(() => {
+    try {
+      const result = await apiCall({ endpoint: `admin/deleteHomeZoneAppliances/${id}`, method: "DELETE" });
+      removeCategory(index);
+      if (result.status === 200) {
         setLoading(false);
-      }, 3000);
+        toast.success("Category deleted successfully", {
+          theme: "light",
+          autoClose: "2000",
+        });
+      }
+    } catch (error) {
+      console.log("error", error);
+      setLoading(false);
+    }
   };
 
   return (

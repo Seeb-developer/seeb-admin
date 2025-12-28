@@ -17,6 +17,7 @@ import "react-toastify/dist/ReactToastify.css";
 import React, { useState, useEffect } from "react";
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
+import { apiCall } from "utils/apiClient";
 
 function IndependanceCampaign() {
   let Navigate = useNavigate();
@@ -26,25 +27,17 @@ function IndependanceCampaign() {
   // list categories
   const getAllOffer = async () => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "Campaign/getIndependenceCampaign",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setCampaignData(result.data);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: "Campaign/getIndependenceCampaign", method: "GET" });
+      console.log(result);
+      setCampaignData(result.data);
+      if (result.status === 200) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log("error", error);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

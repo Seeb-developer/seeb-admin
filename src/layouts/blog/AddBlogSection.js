@@ -5,6 +5,7 @@ import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import { Toaster, toast } from 'react-hot-toast';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { apiCall } from 'utils/apiClient';
 
 const AddBlogSection = () => {
   const location = useLocation();
@@ -77,11 +78,7 @@ const AddBlogSection = () => {
       const formData = new FormData();
       formData.append('blog_image', bannerFile);
       try {
-        const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/createBlogImage`, {
-          method: 'POST',
-          body: formData,
-        });
-        const result = await response.json();
+        const result = await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData });
         if (result.status === 200) {
           bannerImageUrl = result.data?.blog_image;
         } else {
@@ -105,11 +102,7 @@ const AddBlogSection = () => {
       let uploadedImages = '';
       if (images.length > 0) {
         try {
-          const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/createBlogImage`, {
-            method: 'POST',
-            body: formData,
-          });
-          const result = await response.json();
+          const result = await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData });
           if (result.status === 200) {
             uploadedImages = result.data?.blog_image || '';
           }
@@ -137,18 +130,15 @@ const AddBlogSection = () => {
     };
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/blog-section`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const result = await res.json();
+      const result = await apiCall({ endpoint: 'blog/blog-section', method: 'POST', data: payload });
       if (result.status === 201) {
         toast.success('Section added');
         // Clear form
         setBlogData({ title: '', description: '', section_link: '' });
         setBannerFile(null);
         setSubSections([{ title: '', description: '', images: [] }]);
+      } else {
+        toast.error('Failed to add section');
       }
     } catch {
       toast.error('Failed to add section');

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiCall } from 'utils/apiClient';
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -53,47 +54,38 @@ const OfficeExpense = () => {
     }, [formData]);
 
     const handleOnSubmit = async () => {
-
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        const updatedFormData = formData.map(item => ({
-            ...item,
-            type,
-            quotation_id: null,
-            date: new Date().toISOString().split('T')[0]
-        }));
-        const raw = JSON.stringify(updatedFormData);
-
-        const requestOptions = {
-            method: "POST",  // Use PUT for editing, POST for adding new
-            headers: myHeaders,
-            body: raw,
-            redirect: "follow",
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "transactions/create", requestOptions)
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.status === 201 || result.status === 207) {
-                    toast.success(result.message);
-                    getAllExpenses();
-                    setFormData([{
-                        transaction_type: "Expense",
-                        category: "",
-                        amount: "",
-                        payment_method: "",
-                        transaction_no: "",
-                        vendor_or_client: "",
-                        remarks: "",
-                        description: "",
-                    }]);
-                    // Clear localStorage after successful submission
-                    localStorage.removeItem("formDataBackup");
-                } else {
-                    toast.error(result.Message || "Failed to save expense");
-                }
-            })
-            .catch((error) => console.error("Error:", error));
+        try {
+            const updatedFormData = formData.map(item => ({
+                ...item,
+                type,
+                quotation_id: null,
+                date: new Date().toISOString().split('T')[0]
+            }));
+            const result = await apiCall({
+                endpoint: "transactions/create",
+                method: "POST",
+                data: updatedFormData,
+            });
+            if (result.status === 201 || result.status === 207) {
+                toast.success(result.message);
+                getAllExpenses();
+                setFormData([{
+                    transaction_type: "Expense",
+                    category: "",
+                    amount: "",
+                    payment_method: "",
+                    transaction_no: "",
+                    vendor_or_client: "",
+                    remarks: "",
+                    description: "",
+                }]);
+                localStorage.removeItem("formDataBackup");
+            } else {
+                toast.error(result.Message || "Failed to save expense");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
     };
 
     const calculateSummary = (data) => {
@@ -126,55 +118,41 @@ const OfficeExpense = () => {
     };
 
     const getAllExpenses = async () => {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        const raw = JSON.stringify({ type });
-
-        const requestOptions = {
-            method: "POST",  // Use PUT for editing, POST for adding new
-            headers: myHeaders,
-            body: raw,
-            redirect: "follow",
-        };
-
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `transactions/office-expense`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                setLoader(false);
-                setExpenseData(result.data);
-                calculateSummary(result.data);
-            })
-            .catch(error => console.log('Error fetching expenses:', error))
-            .finally(() => setLoader(false))
+        try {
+            const result = await apiCall({
+                endpoint: `transactions/office-expense`,
+                method: "POST",
+                data: { type },
+            });
+            setLoader(false);
+            setExpenseData(result.data);
+            calculateSummary(result.data);
+        } catch (error) {
+            console.log('Error fetching expenses:', error);
+        } finally {
+            setLoader(false);
+        }
     };
 
     const saveRow = async (row) => {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        const requestOptions = {
-            method: "PUT", // Assuming PUT for updates
-            headers: myHeaders,
-            body: JSON.stringify(row),
-            redirect: "follow",
-        };
-
-        await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `transactions/${row.id}`, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 200) {
-                    toast.success("Expense Updated Successfully");
-                    setEditMode(false)
-                    getAllExpenses()
-                } else {
-                    toast.error(result.Message || "Failed to update expense");
-                }
-                setEditRow(null); // Exit edit mode after saving
-                getAllExpenses();
-            })
-            .catch(error => console.error("Error updating expense:", error));
+        try {
+            const result = await apiCall({
+                endpoint: `transactions/${row.id}`,
+                method: "PUT",
+                data: row,
+            });
+            if (result.status === 200) {
+                toast.success("Expense Updated Successfully");
+                setEditMode(false)
+                getAllExpenses()
+            } else {
+                toast.error(result.Message || "Failed to update expense");
+            }
+            setEditRow(null);
+            getAllExpenses();
+        } catch (error) {
+            console.error("Error updating expense:", error);
+        }
     };
 
     useEffect(() => {

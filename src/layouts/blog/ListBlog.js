@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { apiCall } from 'utils/apiClient';
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -22,8 +23,7 @@ const ListBlog = () => {
       redirect: "follow",
     };
 
-    await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/get-all`, requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: 'blog/get-all', method: 'GET' })
       .then((result) => {
         setBlogs(result.data || []);
       })
@@ -40,8 +40,7 @@ const ListBlog = () => {
       redirect: "follow",
     };
 
-    await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/deleteBlog/${id}`, requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: `blog/deleteBlog/${id}`, method: 'DELETE' })
       .then((result) => {
         if (result.status === 200) {
           fetchBlogs();
@@ -63,8 +62,7 @@ const ListBlog = () => {
       redirect: "follow",
     };
 
-    await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/updateStatus/${id}`, requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: `blog/updateStatus/${id}`, method: 'POST', data: { status: newStatus } })
       .then((result) => {
         if (result.status === 200) {
           fetchBlogs();

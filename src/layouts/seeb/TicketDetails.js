@@ -11,8 +11,8 @@ import { db, auth } from "firebaseConfig";
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from "firebase/auth";
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import axios from "axios";
 import select from "assets/theme/components/form/select";
+import { apiCall } from "utils/apiClient";
 
 
 const TicketDetails = () => {
@@ -144,11 +144,13 @@ const TicketDetails = () => {
     const uploadImageToBackend = async (image) => {
         const formData = new FormData();
         formData.append('file', image);
-
-        const response = await axios.post(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/upload-image`, formData);
-
-        console.log("image", response.data)
-        return response.data?.file_path || null;
+        const result = await apiCall({
+            endpoint: "tickets/upload-image",
+            method: "POST",
+            data: formData,
+        });
+        console.log("image", result.data);
+        return result.data?.file_path || null;
     };
 
     const handleSendMessage = async () => {
@@ -186,10 +188,10 @@ const TicketDetails = () => {
             };
 
             // Send to backend
-            await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/add-message`, {
+            await apiCall({
+                endpoint: "tickets/add-message",
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(PayloadData),
+                data: PayloadData,
             });
 
             // Send to Firestore
@@ -216,9 +218,11 @@ const TicketDetails = () => {
 
     const fetchTicketDetails = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/ticket/${ticketData.id}`);
-            const result = await response.json();
-            if (result.status === 200) {
+            const result = await apiCall({
+                endpoint: `tickets/ticket/${ticketData.id}`,
+                method: "GET",
+            });
+            if (result && result.status === 200) {
                 setTicket(result.data.ticket);
                 setTicketStatus(result.data.ticket.status);
             }
@@ -231,15 +235,14 @@ const TicketDetails = () => {
         setTicketStatus(status);
         setAnchorEl(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/update-status/${ticketData.id}`, {
+            const result = await apiCall({
+                endpoint: `tickets/update-status/${ticketData.id}`,
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status }),
+                data: { status },
             });
-            console.log("url", `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}tickets/update-status/${ticketData.id}`);
+            console.log("url", `tickets/update-status/${ticketData.id}`);
 
-            const result = await response.json();
-            if (result.status === 200) {
+            if (result && result.status === 200) {
                 toast.success("Ticket status updated successfully");
                 fetchTicketDetails();
             }

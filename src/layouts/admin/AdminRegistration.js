@@ -18,6 +18,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 const { Option } = Select;
@@ -40,16 +41,7 @@ function AdminRegistration() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "privileges/get-all-roles",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "privileges/get-all-roles", method: "GET" });
         setRoles(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -63,51 +55,34 @@ function AdminRegistration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Cookie", "ci_session=4fo510e337vfs125h3th7q8mm0jtlgas");
-
-    var raw = JSON.stringify({
-      role_id: selectedRoleId,
-      name: name,
-      email: email,
-      mobile_no: mobileNumber,
-      password: password,
-      is_logged_in: "1",
-      otp: "",
-      status: "1",
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/register", requestOptions)
-    .then((response) => response.json())
-    .then((result) => {
-      console.log(result);
+    try {
+      const result = await apiCall({
+        endpoint: "admin/register",
+        method: "POST",
+        data: {
+          role_id: selectedRoleId,
+          name,
+          email,
+          mobile_no: mobileNumber,
+          password,
+          is_logged_in: "1",
+          otp: "",
+          status: "1",
+        },
+      });
       if (result.status === 200) {
-        setLoading(false);
-        toast.success("Admin Added Successfully", {
-          theme: "light",
-          autoClose: 3000,
-        });
+        toast.success("Admin Added Successfully", { theme: "light", autoClose: 3000 });
         Navigate("/admin-list");
       } else {
-        toast.error("Something Went Wrong", {
-          theme: "light",
-          autoClose: 3000,
-        });
+        toast.error("Something Went Wrong", { theme: "light", autoClose: 3000 });
       }
-    })
-    .catch((error) => console.log("error", error));
-    setTimeout(() => {
+    } catch (error) {
+      console.log("error", error);
+      toast.error("Something Went Wrong", { theme: "light", autoClose: 3000 });
+    } finally {
       setLoading(false);
-    }, 3000);
-}
+    }
+  }
 
 
   return (

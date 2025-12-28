@@ -10,6 +10,7 @@ import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { ImageAspectRatio } from "@mui/icons-material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
@@ -66,11 +67,7 @@ const UpdateForm = () => {
           redirect: "follow",
         };
 
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -88,11 +85,10 @@ const UpdateForm = () => {
         redirect: "follow",
       };
 
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `admin/getHomeZoneCateroryByid/${event}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({
+        endpoint: `admin/getHomeZoneCateroryByid/${event}`,
+        method: "GET",
+      });
       setSubCategories(result.data);
       console.log(result);
     } catch (error) {
@@ -116,11 +112,7 @@ const UpdateForm = () => {
           redirect: "follow",
         };
 
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "brand/getAllBrand",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "brand/getAllBrand", method: "GET" });
         setProductBrand(result.Brand);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -225,14 +217,10 @@ const UpdateForm = () => {
       redirect: "follow",
     };
 
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/createProductImage",
-      requestOptions
-    )
-      .then((response) => response.text())
+    await apiCall({ endpoint: "product/createProductImage", method: "POST", data: formdata })
       .then((result) => {
         console.log("result", result);
-        appendImage(JSON.parse(result).data);
+        appendImage(result.data);
         if (inputFileRef.current) {
           inputFileRef.current.value = null;
           selectedFiles[0] = undefined;
@@ -269,11 +257,11 @@ const UpdateForm = () => {
         redirect: "follow",
       };
 
-      await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/deleteProductImageById",
-        requestOptions
-      )
-        .then((response) => response.json())
+      await apiCall({
+        endpoint: "product/deleteProductImageById",
+        method: "POST",
+        data: raw,
+      })
         .then((result) => {
           console.log(result);
           removeItem(index);
@@ -308,11 +296,7 @@ const UpdateForm = () => {
       method: "GET",
       redirect: "follow",
     };
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/get-product/${searchParam.get("id")}`,
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: `product/get-product/${searchParam.get("id")}`, method: "GET" })
       .then((result) => {
         console.log("result", result.data);
         let images = result.data[0].images;
@@ -488,11 +472,11 @@ const UpdateForm = () => {
         body: raw,
         redirect: "follow",
       };
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/updateProduct/${searchParam.get("id")}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({
+        endpoint: `product/updateProduct/${searchParam.get("id")}`,
+        method: "PUT",
+        data: JSON.parse(raw),
+      });
       if (result.success) {
         setSelectedCategory("");
         setSelectedSubCategory("");

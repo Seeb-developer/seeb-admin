@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react'
+import { apiCall } from 'utils/apiClient';
 import { Navigate, useNavigate } from 'react-router-dom';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -23,47 +24,34 @@ const Staff = () => {
     navigate("/liststaff")
   }
 
-  const handleOnSubmit = (e) => {
+  const handleOnSubmit = async (e) => {
     e.preventDefault();
-
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      name: staffData.name,
-      email: staffData.email,
-      mobile_no: staffData.phone,
-      salary: staffData.salary,
-      aadhar_no: staffData.aadhaar_no,
-      pan_no: staffData.pan_no,
-      designation: staffData.designation,
-      joining_date: staffData.joining_date,
-      aadhar_card: staffData.adhaar_file,
-      pan_card: staffData.pan_file,
-      photo: staffData.photo,
-      join_letter: staffData.join_letter,
-      status: "active"
-    });
-
-    var requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow'
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "staff/create", requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        console.log("result", result);
-        if (result.status === 201) {
-          toast.success("Staff Added Successfully");
-          setTimeout(() => {
-            RedirectToListStaff()
-          }, 1000);
-        }
-      })
-      .catch(error => console.log('error', error));
+    try {
+      const payload = {
+        name: staffData.name,
+        email: staffData.email,
+        mobile_no: staffData.phone,
+        salary: staffData.salary,
+        aadhar_no: staffData.aadhaar_no,
+        pan_no: staffData.pan_no,
+        designation: staffData.designation,
+        joining_date: staffData.joining_date,
+        aadhar_card: staffData.adhaar_file,
+        pan_card: staffData.pan_file,
+        photo: staffData.photo,
+        join_letter: staffData.join_letter,
+        status: "active"
+      };
+      const result = await apiCall({ endpoint: 'staff/create', method: 'POST', data: payload });
+      if (result.status === 201) {
+        toast.success("Staff Added Successfully");
+        setTimeout(() => {
+          RedirectToListStaff();
+        }, 1000);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
   };
   const HandleUploadFile = async (type) => {
     var formdata = new FormData();
@@ -81,70 +69,51 @@ const Staff = () => {
       formdata.append("file", FilesToUpload.join_letter);
     }
 
-    var requestOptions = {
-      method: 'POST',
-      body: formdata,
-      redirect: 'follow'
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "staff/FileUpload", requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        if (result.status === 200) {
-          if (type === 1) {
-            setStaffData({ ...staffData, ["pan_file"]: result.path });
-            setIsLoading({ ...isLoading, ["pan_file"]: false });
-            toast.success("File Uploaded Successfully");
-          } else if (type === 2) {
-            setStaffData({ ...staffData, ["adhaar_file"]: result.path });
-            setIsLoading({ ...isLoading, ["adhaar_file"]: false });
-            toast.success("File Uploaded Successfully");
-          } else if (type === 3) {
-            setStaffData({ ...staffData, ["photo"]: result.path });
-            setIsLoading({ ...isLoading, ["photo"]: false });
-            toast.success("File Uploaded Successfully");
-          } else if (type === 4) {
-            setStaffData({ ...staffData, ["join_letter"]: result.path });
-            setIsLoading({ ...isLoading, ["join_letter"]: false });
-            toast.success("File Uploaded Successfully");
-          }
+    try {
+      const result = await apiCall({ endpoint: 'staff/FileUpload', method: 'POST', data: formdata });
+      if (result.status === 200) {
+        if (type === 1) {
+          setStaffData({ ...staffData, ["pan_file"]: result.path });
+          setIsLoading({ ...isLoading, ["pan_file"]: false });
+          toast.success("File Uploaded Successfully");
+        } else if (type === 2) {
+          setStaffData({ ...staffData, ["adhaar_file"]: result.path });
+          setIsLoading({ ...isLoading, ["adhaar_file"]: false });
+          toast.success("File Uploaded Successfully");
+        } else if (type === 3) {
+          setStaffData({ ...staffData, ["photo"]: result.path });
+          setIsLoading({ ...isLoading, ["photo"]: false });
+          toast.success("File Uploaded Successfully");
+        } else if (type === 4) {
+          setStaffData({ ...staffData, ["join_letter"]: result.path });
+          setIsLoading({ ...isLoading, ["join_letter"]: false });
+          toast.success("File Uploaded Successfully");
         }
-      })
-      .catch(error => console.log('error', error))
-      .finally(() => setIsLoading({
+      }
+    } catch (error) {
+      console.log('error', error)
+    } finally {
+      setIsLoading({
         adhaar_file: false,
         pan_file: false,
         photo: false,
         join_letter: false
-      }))
+      })
+    }
   };
 
   const handleRemoveFile = async (path, type) => {
 
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      file_path: path,
-    });
-
-    var requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow'
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "staff/filedelete", requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        if (result.status === 200) {
-          setStaffData((prev) => ({ ...prev, [type]: null }))
-          setFilesToUpload((prev) => ({ ...prev, [type]: null }));
-          toast.success("File deleted successfully")
-        }
-      })
-      .catch(error => console.log('error', error));
+    try {
+      const result = await apiCall({ endpoint: 'staff/filedelete', method: 'POST', data: { file_path: path } });
+      if (result.status === 200) {
+        setStaffData((prev) => ({ ...prev, [type]: null }))
+        setFilesToUpload((prev) => ({ ...prev, [type]: null }));
+        toast.success("File deleted successfully")
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
   };
   return (
     <DashboardLayout>

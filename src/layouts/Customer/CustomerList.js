@@ -5,7 +5,8 @@ import CustomerListing from "./components/CustomerListing";
 import { useEffect, useState } from "react";
 import NontAuthorized401 from "NontAuthorized401";
 import { DatePicker } from "antd";
-import Pagination from "components/pagination"; // ✅ use standard pagination component
+import Pagination from "components/pagination";
+import { apiCall } from "utils/apiClient";
 
 function CustomerList() {
   const [customer, setCustomer] = useState([]);
@@ -43,16 +44,7 @@ function CustomerList() {
         filter: quickFilter || undefined,
       };
 
-      const response = await fetch(
-        `${process.env.REACT_APP_HAPS_MAIN_BASE_URL}customer/getCustomer`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }
-      );
-
-      const result = await response.json();
+      const result = await apiCall({ endpoint: "customer/getCustomer", method: "POST", data: body });
 
       if (result.status === 200) {
         setCustomer(result.data || []);

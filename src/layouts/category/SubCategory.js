@@ -18,6 +18,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import NontAuthorized401 from "NontAuthorized401";
+import { apiCall } from "utils/apiClient";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 const { Option } = Select;
@@ -35,16 +36,7 @@ function SubCategory() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/getHomeZoneAppliances",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "admin/getHomeZoneAppliances", method: "GET" });
         setCategories(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -68,7 +60,7 @@ function SubCategory() {
   const [nameError, setNameError] = useState("");
   const [imageError, setImageError] = useState("");
 
-  const handleAddSubCategory = (e) => {
+  const handleAddSubCategory = async(e) => {
     e.preventDefault();
     setNameError("");
     setImageError("");
@@ -89,25 +81,24 @@ function SubCategory() {
         redirect: "follow",
       };
       console.log(formdata)
-      fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "admin/AddHomeZoneCaterory", requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-          // console.log(result);
-          if (result.status === 200) {
-            setLoading(false);
-            toast.success("Sub Category Added Successfully", {
-              theme: "light",
-              autoClose: 3000,
-            });
-            Navigate("/list-sub-category");
-          } else {
-            toast.error("Something Went Wrong", {
-              theme: "light",
-              autoClose: 3000,
-            });
-          }
-        })
-        .catch((error) => console.log("error", error));
+      try {
+        const result = await apiCall({ endpoint: "admin/AddHomeZoneCaterory", method: "POST", data: formdata });
+        if (result.status === 200) {
+          setLoading(false);
+          toast.success("Sub Category Added Successfully", {
+            theme: "light",
+            autoClose: 3000,
+          });
+          Navigate("/list-sub-category");
+        } else {
+          toast.error("Something Went Wrong", {
+            theme: "light",
+            autoClose: 3000,
+          });
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
     }
     setTimeout(() => {
       setLoading(false);

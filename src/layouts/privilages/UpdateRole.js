@@ -10,6 +10,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 // import Footer from "examples/Footer";
 import NontAuthorized401 from "NontAuthorized401";
+import { apiCall } from 'utils/apiClient';
 import { useState } from "react";
 import { Select, Spin } from "antd";
 import { useEffect } from "react";
@@ -51,16 +52,7 @@ function UpdateRole() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow",
-        };
-
-        const response = await fetch(
-          process.env.REACT_APP_HAPS_MAIN_BASE_URL + "privileges/get-all-roles",
-          requestOptions
-        );
-        const result = await response.json();
+        const result = await apiCall({ endpoint: "privileges/get-all-roles", method: "GET" });
         setRoles(result.data);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -78,11 +70,7 @@ function UpdateRole() {
       redirect: "follow",
     };
 
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "privileges/get-all-sections",
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "privileges/get-all-sections", method: "GET" })
       .then((result) => {
         console.log(result);
         setPageList(result.data);
@@ -98,21 +86,14 @@ function UpdateRole() {
   }, []);
 
   // api to get data by id
-  const getDataById = (id) => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/privileges/get-role/${id}`, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        // console.log('type',  JSON.parse(result.data.section_access));
-
-        setSelectedPages(JSON.parse(result.data.section_access));
-      })
-      .catch((error) => console.log("error", error));
+  const getDataById = async (id) => {
+    try {
+      const result = await apiCall({ endpoint: `/privileges/get-role/${id}`, method: "GET" });
+      console.log(result);
+      setSelectedPages(JSON.parse(result.data.section_access));
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   // useEffect(() => {
@@ -138,8 +119,10 @@ function UpdateRole() {
       redirect: "follow",
     };
 
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + `privileges/update-role`, requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: `privileges/update-role`, method: "POST", data: {
+      role_id: selectedRoleId,
+      sections_id: JSON.stringify(selectedPages)
+    } })
       .then((result) => {
         console.log(result);
         if (result.status === 200) {
@@ -172,8 +155,7 @@ function UpdateRole() {
       redirect: "follow",
     };
 
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "privileges/delete-role", requestOptions)
-      .then((response) => response.json())
+    await apiCall({ endpoint: "privileges/delete-role", method: "DELETE", data: { role_id: selectedRoleId } })
       .then((result) => console.log(result))
       .catch((error) => console.log("error", error));
   };

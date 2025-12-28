@@ -11,6 +11,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 // import Footer from "examples/Footer";
 
 import React, { useState, useEffect } from "react";
+import { apiCall } from 'utils/apiClient';
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 import { Modal } from "antd";
@@ -53,11 +54,7 @@ const currentItems = (indexOfFirstItem, indexOfLastItem); */
       redirect: "follow",
     };
 
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "product/getAllRatingReview",
-      requestOptions
-    )
-      .then((response) => response.json())
+    await apiCall({ endpoint: "product/getAllRatingReview", method: "GET" })
       .then((result) => {
         console.log(result);
         setReviews(result.data);
@@ -88,11 +85,8 @@ const currentItems = (indexOfFirstItem, indexOfLastItem); */
         redirect: "follow",
       };
 
-      const response = await fetch(
-        process.env.REACT_APP_HAPS_MAIN_BASE_URL + `product/update-review-status/${id}`,
-        requestOptions
-      );
-      const result = await response.json();
+      const result = await apiCall({ endpoint: `product/update-review-status/${id}` , method: "POST", data: { status } });
+      const response = { ok: true };
       if (response.ok && result.status === 200) {
         setReviews((prevReviews) =>
           prevReviews.map((review) => (review.id === id ? { ...review, status: status } : review))

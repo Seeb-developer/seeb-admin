@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import React, { useState, useEffect } from "react";
 import { useNavigate, createSearchParams } from "react-router-dom";
 import { Empty } from "antd";
+import { apiCall } from "utils/apiClient";
 
 function ListProductByCategory(props) {
   const { MainList, Titles } = props;
@@ -22,26 +23,19 @@ function ListProductByCategory(props) {
   // list product total count
   const getAllList = async (id) => {
     setLoading(true);
-
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-        `product/getProducts?home_zone_appliances_id=${MainList}&status=null`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setListProductCategory(result.data.products);
-        if (result.status === 200) {
-          setLoading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({
+        endpoint: "product/getProducts",
+        method: "GET",
+        params: { home_zone_appliances_id: MainList, status: "null" },
+      });
+      setListProductCategory(result.data.products);
+      if (result.status === 200) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {

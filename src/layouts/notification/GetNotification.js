@@ -4,22 +4,18 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { AiFillEdit, AiOutlineDelete } from "react-icons/ai";
+import { apiCall } from "utils/apiClient";
 
 function GetNotification() {
   const [NotificationData, setNotificationData] = useState([]);
 
-  const GetNotification = () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    fetch("https://main-backend.hapspro.com/product/getProductById/168", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        setNotificationData(result.data);
-      })
-      .catch((error) => console.log("error", error));
+  const GetNotification = async () => {
+    try {
+      const result = await apiCall({ endpoint: "product/getProductById/168", method: "GET" });
+      setNotificationData(result.data);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
   useEffect(() => {
     GetNotification();

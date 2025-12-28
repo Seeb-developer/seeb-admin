@@ -11,6 +11,7 @@ import SoftTypography from "components/SoftTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useEffect, useState, useRef } from "react";
+import { apiCall } from "utils/apiClient";
 import { AiOutlinePlus } from "react-icons/ai";
 import { RxCross2 } from "react-icons/rx";
 import { ToastContainer, toast } from "react-toastify";
@@ -69,18 +70,12 @@ function MainBannerImages() {
     setMobileImagesArray(newMobileImagesArray);
   };
   const getData = async () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
-
-    await fetch(process.env.REACT_APP_HAPS_MAIN_BASE_URL + "banner/getMainBanner", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        renderBanners(result);
-      })
-      .catch((error) => console.log("error", error));
+    try {
+      const result = await apiCall({ endpoint: "banner/getMainBanner", method: "GET" });
+      renderBanners(result);
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {
@@ -220,26 +215,15 @@ function MainBannerImages() {
     setLoading(true);
     var formdata = new FormData();
     formdata.append("path", selectedFiles[0]);
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "/banner/createBannerImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      // .then(result => console.log('ima',result))
-      .then((result) => {
-        appendImage(result.data);
-        // setImageSources([...imageSources, result.data.banner_image]);
-        setSelectedImage("");
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const result = await apiCall({ endpoint: "/banner/createBannerImage", method: "POST", data: formdata });
+      appendImage(result.data);
+      setSelectedImage("");
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   //
@@ -250,26 +234,15 @@ function MainBannerImages() {
     setLoading(true);
     var formdata = new FormData();
     formdata.append("path", mobileSelectedFile[0]);
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "/banner/createBannerImage",
-      requestOptions
-    )
-      .then((response) => response.json())
-      // .then(result => console.log('ima',result))
-      .then((result) => {
-        appendMobileImage(result.data);
-        // setImageSources([...imageSources, result.data.banner_image]);
-        setMobileSelectedImage("");
-      })
-      .catch((error) => console.log("error", error))
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const result = await apiCall({ endpoint: "/banner/createBannerImage", method: "POST", data: formdata });
+      appendMobileImage(result.data);
+      setMobileSelectedImage("");
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   //
@@ -277,22 +250,13 @@ function MainBannerImages() {
   //
   const deleteImage = async (index) => {
     const imageId = imagesArray[index].id;
-
-    const requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/banner/deleteBanner/${imageId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("Image deleted successfully:", result);
-        removeItem(index);
-      })
-      .catch((error) => console.log("Error deleting image:", error));
+    try {
+      const result = await apiCall({ endpoint: `/banner/deleteBanner/${imageId}`, method: "DELETE" });
+      console.log("Image deleted successfully:", result);
+      removeItem(index);
+    } catch (error) {
+      console.log("Error deleting image:", error);
+    }
   };
 
   //
@@ -300,22 +264,13 @@ function MainBannerImages() {
   //
   const deleteMobileImage = async (index) => {
     const imageId = mobileImagesArray[index].id;
-
-    const requestOptions = {
-      method: "DELETE",
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + `/banner/deleteBanner/${imageId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("Image deleted successfully:", result);
-        removeItemMobile(index);
-      })
-      .catch((error) => console.log("Error deleting image:", error));
+    try {
+      const result = await apiCall({ endpoint: `/banner/deleteBanner/${imageId}`, method: "DELETE" });
+      console.log("Image deleted successfully:", result);
+      removeItemMobile(index);
+    } catch (error) {
+      console.log("Error deleting image:", error);
+    }
   };
 
   //
@@ -324,34 +279,23 @@ function MainBannerImages() {
   const addBanner = async (e) => {
     e.preventDefault();
     var formdata = new FormData();
-    // setLoading(true);
     let allBanners = imagesArray.concat(mobileImagesArray);
     formdata.append("banner_image", JSON.stringify(allBanners));
 
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
-
-    await fetch(
-      process.env.REACT_APP_HAPS_MAIN_BASE_URL + "banner/createMainBanner",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        if (result.status === 200) {
-          getData();
-          setLoading(false);
-          setSelectedFiles([]);
-          setMobileSelectedFile([]);
-          setPreviewImages([]);
-          setImageSources([]);
-          setMobileImageSources([]);
-          setImagesArray([]);
-          setMobileImagesArray([]);
-          toast.success("Banners Added Successfully", {
+    try {
+      const result = await apiCall({ endpoint: "banner/createMainBanner", method: "POST", data: formdata });
+      console.log(result);
+      if (result.status === 200) {
+        getData();
+        setLoading(false);
+        setSelectedFiles([]);
+        setMobileSelectedFile([]);
+        setPreviewImages([]);
+        setImageSources([]);
+        setMobileImageSources([]);
+        setImagesArray([]);
+        setMobileImagesArray([]);
+        toast.success("Banners Added Successfully", {
             theme: "light",
             autoClose: 3000,
           });
@@ -362,8 +306,9 @@ function MainBannerImages() {
             autoClose: 3000,
           });
         }
-      })
-      .catch((error) => console.log("error", error));
+      } catch (error) {
+        console.log("error", error);
+      }
   };
   setTimeout(() => {
     setLoading(false);

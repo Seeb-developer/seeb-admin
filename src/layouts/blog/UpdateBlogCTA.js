@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import { Toaster, toast } from 'react-hot-toast';
+import { apiCall } from 'utils/apiClient';
 
 const UpdateBlogCTA = () => {
     const { id } = useParams();
@@ -25,17 +26,15 @@ const UpdateBlogCTA = () => {
 
     const fetchSectionData = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/blog-section/${id}`);
-            const result = await response.json();
+            const result = await apiCall({ endpoint: `blog/blog-section/${id}`, method: 'GET' });
             if (result.status === 200) {
                 setBlogData({
                     title: result.data.title,
                     description: result.data.description,
                     section_link: result.data.section_link,
-                    cta_text: result.data.cta_text || '', // new CTA input
+                    cta_text: result.data.cta_text || '',
                 });
                 setBannerImageUrl(result.data.banner_image || '');
-                // Parse sub_sections and handle images as string or array
             } else {
                 toast.error('Error fetching section data');
             }
@@ -56,11 +55,7 @@ const UpdateBlogCTA = () => {
             const formData = new FormData();
             formData.append('blog_image', bannerFile);
             try {
-                const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/createBlogImage`, {
-                    method: 'POST',
-                    body: formData,
-                });
-                const result = await response.json();
+                const result = await apiCall({ endpoint: 'blog/createBlogImage', method: 'POST', data: formData });
                 if (result.status === 200) {
                     bannerImageUrlToSend = result.data.blog_image;
                 } else {
@@ -88,12 +83,7 @@ const UpdateBlogCTA = () => {
         };
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/blog-section/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const result = await response.json();
+            const result = await apiCall({ endpoint: `blog/blog-section/${id}`, method: 'PUT', data: payload });
             if (result.status === 200) {
                 toast.success('Section updated successfully');
                 fetchSectionData();
@@ -172,11 +162,7 @@ const UpdateBlogCTA = () => {
                                     if (!file) return;
 
                                     if (bannerImageUrl) {
-                                        await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}blog/deleteBlogImage`, {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ blog_image: bannerImageUrl }),
-                                        });
+                                        await apiCall({ endpoint: 'blog/deleteBlogImage', method: 'POST', data: { blog_image: bannerImageUrl } });
                                     }
 
                                     setBannerFile(file);

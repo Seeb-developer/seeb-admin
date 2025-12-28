@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Toaster, toast } from "react-hot-toast";
+import { apiCall } from "utils/apiClient";
 
 const FaqsCategory = () => {
     const [categories, setCategories] = useState([]);
@@ -11,9 +12,11 @@ const FaqsCategory = () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}faqs-category`);
-            const result = await res.json();
-            if (result.status === 200) {
+            const result = await apiCall({
+                endpoint: "faqs-category",
+                method: "GET"
+            });
+            if (result && result.status === 200) {
                 setCategories(result.data);
             } else {
                 toast.error("Failed to fetch FAQ categories");
@@ -34,14 +37,13 @@ const FaqsCategory = () => {
             ? `faqs-category/update/${editingId}`
             : "faqs-category";
 
-        const res = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}${endpoint}`, {
+        const result = await apiCall({
+            endpoint,
             method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name }),
+            data: { name }
         });
 
-        const result = await res.json();
-        if (result.status === 200 || result.status === 201) {
+        if (result && (result.status === 200 || result.status === 201)) {
             toast.success(`Category ${editingId ? "updated" : "added"} successfully`);
             setName("");
             setEditingId(null);
