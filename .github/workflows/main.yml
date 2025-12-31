@@ -25,6 +25,8 @@ jobs:
         run: |
           echo "REACT_APP_HAPS_MAIN_BASE_URL=${{ secrets.REACT_APP_HAPS_MAIN_BASE_URL }}" >> .env.production
           echo "REACT_APP_HTTPS=${{ secrets.HTTPS }}" >> .env.production
+          echo "REACT_APP_AES_KEY=${{ secrets.REACT_APP_AES_KEY }}" >> .env.production
+          echo "REACT_APP_API_HMAC_KEY=${{ secrets.REACT_APP_API_HMAC_KEY }}" >> .env.production
 
       - name: Build React App
         run: npm run build
