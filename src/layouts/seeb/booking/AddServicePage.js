@@ -27,6 +27,52 @@ const AddServicePage = () => {
     const [search, setSearch] = useState("");
     const [showAddModal, setShowAddModal] = useState(false)
 
+    const [data, setData] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
+
+    /* ---------------- SUBMIT ALL SERVICES ---------------- */
+    const handleSubmitServices = async () => {
+        if (!data || data.length === 0) {
+            toast.error("Please add at least one service");
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+
+            const payload = data.map((service) => ({
+                booking_id: bookingId,
+                service_id: service.id,
+                service_type_id: serviceTypeId,
+                room_id: roomId,
+                value: service.value,
+                rate: service.rate,
+                addons: service.addons,
+                amount: service.total,
+                images: service.images,
+            }));
+
+            const res = await apiCall({
+                endpoint: "booking/add-services",
+                method: "POST",
+                data: { services: payload, booking_id: bookingId  },
+            });
+            console.log("Submit Services Response:", res);
+
+            if (res.status === 200 || res.status === 201) {
+                toast.success("All services added successfully");
+                navigate(-1);
+            } else {
+                toast.error(res.message || "Failed to add services");
+            }
+        } catch (error) {
+            toast.error("Something went wrong");
+            console.error(error);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     /* ---------------- FETCH SERVICE TYPES ---------------- */
     useEffect(() => {
         const fetchServiceTypes = async () => {
@@ -243,13 +289,96 @@ const AddServicePage = () => {
                     </Card>
                 )}
 
-                {/* STEP 4 */}
+                {/* STEP 4: ADDED SERVICES LIST */}
+                {data && Array.isArray(data) && data.length > 0 && (
+                    <Card title="4. Added Services">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b">
+                                        <th className="text-left py-2 px-3 font-semibold">Service</th>
+                                        <th className="text-left py-2 px-3 font-semibold">Value</th>
+                                        <th className="text-left py-2 px-3 font-semibold">Rate</th>
+                                        <th className="text-right py-2 px-3 font-semibold">Base</th>
+                                        <th className="text-right py-2 px-3 font-semibold">Addons</th>
+                                        <th className="text-right py-2 px-3 font-semibold">Total</th>
+                                        <th className="text-center py-2 px-3 font-semibold">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.map((service, index) => (
+                                        <tr key={index} className="border-b hover:bg-gray-50">
+                                            <td className="py-3 px-3 font-medium">{service.name}</td>
+                                            <td className="py-3 px-3">{service.value}</td>
+                                            <td className="py-3 px-3">₹{service.rate}</td>
+                                            <td className="py-3 px-3 text-right">₹{service.baseTotal}</td>
+                                            <td className="py-3 px-3 text-right">₹{service.addonTotal}</td>
+                                            <td className="py-3 px-3 text-right font-semibold text-red-600">
+                                                ₹{service.total}
+                                            </td>
+                                            <td className="py-3 px-3 text-center">
+                                                <button
+                                                    onClick={() => {
+                                                        setData((prev) =>
+                                                            prev.filter((_, i) => i !== index)
+                                                        );
+                                                        toast.success("Service removed");
+                                                    }}
+                                                    className="text-red-600 hover:text-red-800 font-semibold"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+
+                            {/* SUMMARY */}
+                            <div className="mt-4 p-4 bg-gray-50 rounded">
+                                <div className="flex justify-between mb-2">
+                                    <span>Total Services: {data.length}</span>
+                                </div>
+                                <div className="flex justify-between text-lg font-bold text-red-600 mb-4">
+                                    <span>Grand Total:</span>
+                                    <span>
+                                        ₹
+                                        {data
+                                            .reduce((sum, service) => sum + parseFloat(service.total), 0)
+                                            .toFixed(2)}
+                                    </span>
+                                </div>
+
+                                {/* SUBMIT BUTTONS */}
+                                <div className="flex gap-3 justify-end">
+                                    <button
+                                        onClick={() => navigate(-1)}
+                                        className="px-6 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-100"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSubmitServices}
+                                        disabled={submitting}
+                                        className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {submitting ? "Submitting..." : "Submit Services"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                )}
+
+                {/* STEP 5: MODAL */}
                 {showAddModal && selectedService && (
                     <AdminAddServiceModal
                         isOpen={true}
                         bookingId={bookingId}
                         selectedService={selectedService}
                         roomId={roomId}
+                        data={data}
+                        setData={setData}
                         onClose={(refresh) => {
                             setShowAddModal(false);
                             // if (refresh) fetchBooking();

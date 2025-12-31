@@ -10,6 +10,8 @@ const AdminServiceBookingModal = ({
   selectedService,
   roomId,
   bookingId,
+  setData,
+  data,
 }) => {
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ const AdminServiceBookingModal = ({
 
         const calculatedQty =
           addon.price_type === "square_feet"
-            ? Math.max(1, Math.floor((baseQty / 100) * area))
+            ? Math.max(1, Math.ceil((baseQty / 100) * area))
             : baseQty;
 
         if (isRequired || selectedAddons.hasOwnProperty(addon.id)) {
@@ -43,7 +45,7 @@ const AdminServiceBookingModal = ({
 
       setSelectedAddons(updatedAddons);
     }
-  }, [selectedService, width, height]);
+  }, [selectedService, width, height, selectedAddons]);
 
   // if (!isOpen || !selectedService) return null;
 
@@ -68,7 +70,7 @@ const AdminServiceBookingModal = ({
         if (!isRequired) delete copy[addonId];
         return copy;
       }
-      return { ...prev, [addonId]: qty };
+      return { ...prev, [addonId]: Math.max(1, qty) };
     });
   };
 
@@ -148,6 +150,22 @@ const AdminServiceBookingModal = ({
           group_name: a.group_name,
         }));
 
+      // const payload = {
+      //   booking_id: bookingId,
+      //   service_id: selectedService.id,
+      //   service_type_id: selectedService.service_type_id,
+      //   room_id: roomId,
+      //   rate_type: selectedService.rate_type,
+      //   value,
+      //   rate: selectedService.rate,
+      //   addons: addonsPayload,
+      //   ...(referenceImagesJson && {
+      //     reference_image: referenceImagesJson,
+      //   }),
+      //   amount: total.toFixed(2),
+      //   user_id: selectedService.user_id,
+      // };
+
       const payload = {
         booking_id: bookingId,
         service_id: selectedService.id,
@@ -164,18 +182,42 @@ const AdminServiceBookingModal = ({
         user_id: selectedService.user_id,
       };
 
-      const res = await apiCall({
-        endpoint: "booking-service/add",
-        method: "POST",
-        data: payload,
+      // Add to data list
+      const newService = {
+        id: selectedService.id,
+        name: selectedService.name,
+        value,
+        rate: selectedService.rate,
+        baseTotal: baseTotal.toFixed(2),
+        addonTotal: addonTotal.toFixed(2),
+        total: total.toFixed(2),
+        addons: addonsPayload,
+        ...(referenceImagesJson && {
+          reference_image: referenceImagesJson,
+        }),
+        timestamp: new Date().toISOString(),
+      };
+
+      setData((prevData) => {
+        const updatedData = Array.isArray(prevData) ? [...prevData, newService] : [newService];
+        return updatedData;
       });
 
-      if (res.status === 200 || res.status === 201) {
-        toast.success("Service added to booking");
-        onClose(true);
-      } else {
-        toast.error(res.message || "Failed to add service");
-      }
+      // const res = await apiCall({
+      //   endpoint: "booking-service/add",
+      //   method: "POST",
+      //   data: payload,
+      // });
+
+      // if (res.status === 200 || res.status === 201) {
+      //   toast.success("Service added to booking");
+      //   onClose(true);
+      // } else {
+      //   toast.error(res.message || "Failed to add service");
+      // }
+
+      toast.success("Service added to list");
+      onClose(true);
     } catch (e) {
       toast.error("Something went wrong");
     } finally {
@@ -291,7 +333,7 @@ const AdminServiceBookingModal = ({
                         const isChecked = selectedAddons.hasOwnProperty(addon.id);
                         const baseQty = addon.qty ? Number(addon.qty) : 1;
                         const calculatedQty = addon.price_type === "square_feet"
-                          ? Math.ceil((parseFloat(baseQty || 0) / 100) * (width * height))
+                          ? Math.max(1, Math.ceil((parseFloat(baseQty || 0) / 100) * (width * height)))
                           : baseQty;
 
                         const addonQty = isChecked ? selectedAddons[addon.id] : calculatedQty;
@@ -463,6 +505,8 @@ AdminServiceBookingModal.propTypes = {
   selectedService: PropTypes.object.isRequired,
   roomId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   bookingId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  setData: PropTypes.func.isRequired,
+  data: PropTypes.any,
 };
 
 export default AdminServiceBookingModal;

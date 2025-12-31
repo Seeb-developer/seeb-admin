@@ -202,25 +202,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // setLoading(true);
-    // var requestOptions = {
-    //   method: "GET",
-    //   redirect: "follow",
-    // };
-
-    // fetch(
-    //   process.env.REACT_APP_HAPS_MAIN_BASE_URL +
-    //   `privileges/get-admin-privileges?admin_id=${localStorage.getItem("id")}`,
-    //   requestOptions
-    // )
-    // .then((response) => response.json())
-    // .then((result) => {
-    //     setAccessKeys(result.data);
-    //     let rou = routes.filter((o1) => result.data.some((o2) => o1.accessKey === o2));        
-    //     setNewRoutes(rou);
-    //     setLoading(false);
-    //   })
-    //   .catch((error) => console.log("error", error));
 
     const fetchPrivileges = async () => {
       try {
@@ -228,7 +209,7 @@ export default function App() {
           endpoint: `privileges/get-admin-privileges?admin_id=${localStorage.getItem("id")}`,
           method: "GET",
         });
-        console.log("res", res);
+
         setAccessKeys(res?.data || []);
         let rou = routes.filter((o1) => res?.data?.some((o2) => o1.accessKey === o2));
         setNewRoutes(rou);
