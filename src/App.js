@@ -202,7 +202,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     // var requestOptions = {
     //   method: "GET",
     //   redirect: "follow",
