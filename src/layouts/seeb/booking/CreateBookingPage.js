@@ -30,9 +30,12 @@ const CreateBookingPage = () => {
     const [data, setData] = useState([]);
 
     /* TEMP SUMMARY (UI ONLY) */
-    const [subtotal, setSubtotal] = useState(0);
+    // const [subtotal, setSubtotal] = useState(0);
     const [manualDiscount, setManualDiscount] = useState(0);
     const [coupon, setCoupon] = useState(null);
+    const [couponOptions, setCouponOptions] = useState([]);
+    const [manualCouponCode, setManualCouponCode] = useState("");
+    const [appliedCouponDiscount, setAppliedCouponDiscount] = useState(0);
 
     /* SEARCH STATE */
     const [searchTerm, setSearchTerm] = useState('');
@@ -63,9 +66,49 @@ const CreateBookingPage = () => {
                 setCustomers(result.data || []);
             }
         };
-
+        fetchCouponList();
         fetchData();
     }, [debouncedSearch]);
+
+    /* ---------------- LOAD COUPONS & VALIDATE ---------------- */
+    const fetchCouponList = async () => {
+        const result = await apiCall({ endpoint: "coupon/active", method: "GET" });
+        console.log("Coupons API Result:", result);
+        if (result?.status === 200) {
+            const options = result.data.map(coupon => ({
+                value: coupon.coupon_code,
+                label: `${coupon.coupon_code} - ${coupon.coupon_name || ""} (${coupon.coupon_type_name}${coupon.coupon_type === '1' ? '%' : 'Rs'} off)`,
+                discount: coupon.discount,
+                couponData: coupon,
+            }));
+            setCouponOptions(options);
+        }
+    };
+
+    /* APPLY COUPON CODE (SELECTED OR MANUAL) */
+    const applyCoupon = async (couponCode) => {
+        if (!couponCode) {
+            setAppliedCouponDiscount(0);
+            return;
+        }
+
+        const result = await apiCall({
+            endpoint: "coupon/use-coupon",
+            method: "POST",
+            data: { coupon_code: couponCode, user_id: selectedCustomer ? selectedCustomer.value : null, cart_total: subtotal },
+        });
+        console.log("Apply Coupon Result:", result);
+        if (result?.status === 200) {
+            setCoupon({ value: couponCode });
+            const discountAmount = result.discount || 0;
+            setAppliedCouponDiscount(discountAmount);
+            toast.success(`Coupon applied! Discount: ₹${discountAmount}`);
+        } else {
+            const errorMsg = result?.message || "Invalid coupon code";
+            toast.error(errorMsg);
+            setAppliedCouponDiscount(0);
+        }
+    };
 
     useEffect(() => {
         const fetchServiceTypes = async () => {
@@ -150,10 +193,9 @@ const CreateBookingPage = () => {
                 slot_date: slotDate,
                 services: data,
                 discount_amount: manualDiscount,
-                coupon_code: coupon ? coupon.value : null,
+                coupon_code: coupon ? coupon.value : (manualCouponCode || null),
                 created_by_role: "admin",
                 created_by_id: localStorage.getItem("id"),
-
             },
         });
         console.log("Create Booking Response:", res);
@@ -173,13 +215,19 @@ const CreateBookingPage = () => {
         label: `${c.name} (${c.mobile_no})`,
     }));
 
-    const finalTotal = Math.max(
-        0,
-        subtotal - manualDiscount
-    );
+    // const finalTotal = Math.max(
+    //     0,
+    //     subtotal - manualDiscount
+    // );
 
     /* ===================================================== */
-
+    const subtotal = data && Array.isArray(data) && data.length > 0
+        ? data.reduce((sum, service) => sum + parseFloat(service.total || 0), 0)
+        : 0;
+    const totalDiscount = manualDiscount + appliedCouponDiscount;
+    const afterDiscount = subtotal - totalDiscount;
+    const gst = afterDiscount * 0.18; // 18% GST
+    const finalTotal = afterDiscount + gst;
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -386,34 +434,97 @@ const CreateBookingPage = () => {
                     <div className="grid grid-cols-2 gap-8">
                         {/* LEFT: DISCOUNT & COUPON */}
                         <div>
-                            <label className="text-xs font-medium block mb-2">Discount Amount (₹)</label>
+                            <label className="text-xs font-medium block mb-2">Manual Discount (₹)</label>
                             <input
                                 type="number"
                                 value={manualDiscount}
-                                onChange={(e) => setManualDiscount(Number(e.target.value))}
+                                onChange={(e) => {
+                                    setManualDiscount(Number(e.target.value));
+                                    if (Number(e.target.value) > 0 && appliedCouponDiscount > 0) {
+                                        setCoupon(null);
+                                        setManualCouponCode("");
+                                        setAppliedCouponDiscount(0);
+                                        toast.success("Coupon removed - using manual discount");
+                                    }
+                                }}
                                 className="w-full border rounded px-3 py-2 text-sm mb-4"
                                 placeholder="Enter discount amount"
                             />
 
-                            <label className="text-xs font-medium block mb-2">Coupon Code</label>
-                            <Select
-                                placeholder="Select coupon"
-                                value={coupon}
-                                onChange={setCoupon}
-                                className="w-full"
-                                isClearable
-                            />
+                            <label className="text-xs font-medium block mb-2">Select Coupon</label>
+                            {couponOptions.length > 0 ? (
+                                <div className="space-y-2 mb-4 max-h-48 overflow-y-auto border rounded p-2">
+                                    {couponOptions.map((opt) => (
+                                        <div
+                                            key={opt.value}
+                                            className="flex justify-between items-center p-2 border rounded bg-gray-50 hover:bg-gray-100"
+                                        >
+                                            <div className="flex-1">
+                                                <div className="text-sm font-semibold">{opt.label}</div>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setManualCouponCode("");
+                                                    applyCoupon(opt.value);
+                                                }}
+                                                className={`px-3 py-1 rounded text-sm font-semibold whitespace-nowrap ml-2 ${coupon?.value === opt.value
+                                                        ? "bg-green-600 text-white"
+                                                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                                                    }`}
+                                            >
+                                                {coupon?.value === opt.value ? "✓ Applied" : "Apply"}
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-500 mb-4">No active coupons available</p>
+                            )}
+
+                            <label className="text-xs font-medium block mb-2">Or Enter Coupon Code</label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={manualCouponCode}
+                                    onChange={(e) => setManualCouponCode(e.target.value.toUpperCase())}
+                                    className="flex-1 border rounded px-3 py-2 text-sm"
+                                    placeholder="Enter coupon code"
+                                />
+                                <button
+                                    onClick={() => {
+                                        setCoupon(null);
+                                        applyCoupon(manualCouponCode);
+                                    }}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold"
+                                >
+                                    Apply
+                                </button>
+                            </div>
+
+                            {appliedCouponDiscount > 0 && (
+                                <div className="mt-3 p-3 bg-green-50 border border-green-300 rounded flex justify-between items-center">
+                                    <div className="text-sm text-green-700">
+                                        ✓ Coupon Discount Applied: <span className="font-semibold">₹{appliedCouponDiscount.toFixed(2)}</span>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setCoupon(null);
+                                            setManualCouponCode("");
+                                            setAppliedCouponDiscount(0);
+                                            toast.success("Coupon removed");
+                                        }}
+                                        className="text-red-600 hover:text-red-800 font-semibold text-xs"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {/* RIGHT: SUMMARY */}
                         <div>
                             {(() => {
-                                const subtotal = data && Array.isArray(data) && data.length > 0
-                                    ? data.reduce((sum, service) => sum + parseFloat(service.total || 0), 0)
-                                    : 0;
-                                const afterDiscount = subtotal - manualDiscount;
-                                const gst = afterDiscount * 0.18; // 18% GST
-                                const finalTotal = afterDiscount + gst;
+
 
                                 return (
                                     <div className="bg-gray-50 p-4 rounded border border-gray-200">
@@ -423,10 +534,10 @@ const CreateBookingPage = () => {
                                                 <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
                                             </div>
 
-                                            {manualDiscount > 0 && (
+                                            {totalDiscount > 0 && (
                                                 <div className="flex justify-between text-green-600">
-                                                    <span>Discount:</span>
-                                                    <span className="font-semibold">-₹{manualDiscount.toFixed(2)}</span>
+                                                    <span>Total Discount:</span>
+                                                    <span className="font-semibold">-₹{totalDiscount.toFixed(2)}</span>
                                                 </div>
                                             )}
 
