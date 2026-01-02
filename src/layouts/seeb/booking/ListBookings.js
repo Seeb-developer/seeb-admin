@@ -158,7 +158,15 @@ const ListBookings = () => {
                 </div>
             ) : (
                 <div className="border-solid border-2 black-indigo-600 mt-6">
-                    <div className="px-8 mt-5 text-lg font-semibold">Bookings</div>
+                    <div className="flex items-center justify-between px-8 mt-5">
+                        <div className="text-lg font-semibold">Bookings</div>
+                        <button
+                            onClick={() => navigate('/create-new-booking')}
+                            className="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg transition duration-150"
+                        >
+                            + Create New Booking
+                        </button>
+                    </div>
                     <div className="flex flex-col gap-4 px-4 py-4 bg-white rounded-lg shadow mx-6 mt-4">
                         {/* Row 1: Search, Date Range, Status, Pagination */}
                         <div className="flex flex-wrap items-center justify-between gap-4">

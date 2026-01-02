@@ -43,9 +43,7 @@ const BookingDetails = () => {
             fetchAssignedWorkers(service.id); // or service.service_id based on your real data
         });
     }, [bookingData]);
-
-    console.log("AssignedWorkers:", assignedWorkers);
-
+    
     const handleDelete = async (requestId) => {
         if (!window.confirm("Are you sure you want to delete this payment request?")) return;
 

@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import { apiCall } from "utils/apiClient";
 
 
-const AdminServiceBookingModal = ({
+const AdminAddServiceModal = ({
   isOpen,
   onClose,
   selectedService,
@@ -12,6 +12,7 @@ const AdminServiceBookingModal = ({
   bookingId,
   setData,
   data,
+  serviceTypeId,
 }) => {
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -45,7 +46,7 @@ const AdminServiceBookingModal = ({
 
       setSelectedAddons(updatedAddons);
     }
-  }, [selectedService, width, height, selectedAddons]);
+  }, [selectedService, width, height]);
 
   // if (!isOpen || !selectedService) return null;
 
@@ -166,26 +167,29 @@ const AdminServiceBookingModal = ({
       //   user_id: selectedService.user_id,
       // };
 
-      const payload = {
-        booking_id: bookingId,
-        service_id: selectedService.id,
-        service_type_id: selectedService.service_type_id,
-        room_id: roomId,
-        rate_type: selectedService.rate_type,
-        value,
-        rate: selectedService.rate,
-        addons: addonsPayload,
-        ...(referenceImagesJson && {
-          reference_image: referenceImagesJson,
-        }),
-        amount: total.toFixed(2),
-        user_id: selectedService.user_id,
-      };
+      // const payload = {
+      //   booking_id: bookingId,
+      //   service_id: selectedService.id,
+      //   service_type_id: selectedService.service_type_id,
+      //   room_id: roomId,
+      //   rate_type: selectedService.rate_type,
+      //   value,
+      //   rate: selectedService.rate,
+      //   addons: addonsPayload,
+      //   ...(referenceImagesJson && {
+      //     reference_image: referenceImagesJson,
+      //   }),
+      //   amount: total.toFixed(2),
+      //   user_id: selectedService.user_id,
+      // };
 
       // Add to data list
       const newService = {
-        id: selectedService.id,
+        id:selectedService.id,
+        service_id: selectedService.id,
         name: selectedService.name,
+        service_type_id: serviceTypeId,
+        room_id: roomId,
         value,
         rate: selectedService.rate,
         baseTotal: baseTotal.toFixed(2),
@@ -499,7 +503,7 @@ const AdminServiceBookingModal = ({
 
 
 
-AdminServiceBookingModal.propTypes = {
+AdminAddServiceModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   selectedService: PropTypes.object.isRequired,
@@ -507,7 +511,8 @@ AdminServiceBookingModal.propTypes = {
   bookingId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   setData: PropTypes.func.isRequired,
   data: PropTypes.any,
+  serviceTypeId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 };
 
-export default AdminServiceBookingModal;
+export default AdminAddServiceModal;
 

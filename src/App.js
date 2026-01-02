@@ -157,6 +157,7 @@ import { auth } from "firebaseConfig"; // Import the auth object from firebaseCo
 import UpdateBooking from "layouts/seeb/booking/UpdateBooking";
 import { apiCall } from "utils/apiClient";
 import AddServicePage from "layouts/seeb/booking/AddServicePage";
+import CreateBookingPage from "layouts/seeb/booking/CreateBookingPage";
 
 export default function App() {
   const [controller, dispatch] = useSoftUIController();
@@ -670,6 +671,7 @@ export default function App() {
                   <Route path="/bookings" element={<ListBookings />} />
                   <Route path="/booking-details" element={<BookingDetails />} />
                   <Route path="/bookings/edit/:id" element={<UpdateBooking />} />
+                  <Route path= '/create-new-booking' element={<CreateBookingPage />} />
                   <Route path="/bookings/:id/add-service" element={<AddServicePage />} />
 
                   <Route path="/assign-worker" element={<AssignWorker />} />
