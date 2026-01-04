@@ -43,15 +43,16 @@ export const apiCall = async ({
         const response = await fetch(url, config);
         const json = await response.json();
         const result = decryptCBCResponse(json);
-        // console.log("API Response:", result);
-        
+        console.log("API Response:", result);
+
         // The decrypted response contains the actual status
         // Return it as-is, whether success or error
         return result;
     } catch (err) {
-        console.error("API Error:", err);
+        console.error("API Error:", decryptCBCResponse(err?.response?.data) || err);
         // Return error object instead of throwing
-        return {
+
+        return decryptCBCResponse(err?.response?.data) || {
             status: 500,
             message: err?.message || "Network or parsing error",
             data: null,

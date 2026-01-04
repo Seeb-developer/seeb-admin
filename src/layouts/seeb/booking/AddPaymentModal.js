@@ -22,6 +22,7 @@ const AddPaymentModal = ({ onClose, bookingId, userId, onSubmit }) => {
         }
 
         const payload = {
+            admin_id: localStorage.getItem("id"),
             booking_id: bookingId,
             user_id: userId,
             amount: parseFloat(amount),
