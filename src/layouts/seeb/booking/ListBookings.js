@@ -46,7 +46,7 @@ const ListBookings = () => {
     // Fetch all Bookings
     const getAllBookings = async () => {
         try {
-            setLoader(true);
+            // setLoader(true);
 
             const body = {
                 page: currentPage,
@@ -56,12 +56,6 @@ const ListBookings = () => {
                 startDate: dateRange[0]?.format("YYYY-MM-DD"),
                 endDate: dateRange[1]?.format("YYYY-MM-DD"),
                 filter: quickFilter || undefined
-            };
-
-            const requestOptions = {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
             };
 
             // const response = await fetch(`${process.env.REACT_APP_HAPS_MAIN_BASE_URL}booking`, requestOptions);
