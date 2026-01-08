@@ -21,7 +21,7 @@ const ListServicesType = () => {
     const [filteredServices, setFilteredServices] = useState([]);
     const [Loader, setLoader] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [serviceFormData, setServiceFormData] = useState({ name: '', image: null, imagePreview: null, room_ids: [] });
+    const [serviceFormData, setServiceFormData] = useState({ name: '', slug: '', image: null, imagePreview: null, room_ids: [] });
     const [editMode, setEditMode] = useState(false);
     const [serviceIdToEdit, setServiceIdToEdit] = useState(null);
     const [rooms, setRoomData] = useState([])
@@ -68,6 +68,15 @@ const ListServicesType = () => {
         }
     };
 
+    // Generate slug from service name
+    const generateSlug = (name) => {
+        return name
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]/g, '');
+    };
+
     // Handle search change
     const handleSearchChange = (e) => {
         const value = e.target.value;
@@ -83,6 +92,12 @@ const ListServicesType = () => {
         }
     };
 
+    // Handle service name change and auto-generate slug
+    const handleServiceNameChange = (e) => {
+        const name = e.target.value;
+        const slug = generateSlug(name);
+        setServiceFormData({ ...serviceFormData, name, slug });
+    };
 
     const handleServiceSubmit = async (e) => {
         e.preventDefault();
@@ -94,6 +109,7 @@ const ListServicesType = () => {
 
         const data = {
             name: serviceFormData.name,
+            slug: serviceFormData.slug,
             image: serviceFormData.imagePreview,
             room_ids: serviceFormData.room_ids
         };
@@ -127,10 +143,8 @@ const ListServicesType = () => {
         }
     };
 
-
-    // Reset form state
     const resetForm = () => {
-        setServiceFormData({ name: '', image: null, imagePreview: null, room_ids: [] });
+        setServiceFormData({ name: '', slug: '', image: null, imagePreview: null, room_ids: [] });
         setEditMode(false);
         setServiceIdToEdit(null);
     };
@@ -139,17 +153,13 @@ const ListServicesType = () => {
     const handleServiceEdit = (service) => {
         setServiceFormData({
             name: service.name,
+            slug: service.slug || '',
             image: null,
             imagePreview: service.image,
-            room_ids: service.room_ids?.map(String), // Convert each ID to a string
+            room_ids: service.room_ids?.map(String),
         });
         setServiceIdToEdit(service.id);
         setEditMode(true);
-    };
-
-    // Handle service subservices view
-    const handleViewSubservices = (serviceId) => {
-        navigate(`/subservices/${serviceId}`);
     };
 
     // Handle image file selection
@@ -257,7 +267,6 @@ const ListServicesType = () => {
     };
 
     const tagRender = ({ label, value, closable, onClose }) => {
-        // const { label, value, closable, onClose } = props;
         const onPreventMouseDown = (event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -286,218 +295,261 @@ const ListServicesType = () => {
                     <Spin indicator={antIcon} />
                 </div>
             ) : (
-                <div className="border-solid border-2 black-indigo-600 mt-6">
-                    <div style={{ fontSize: 15 }} className="px-8 mt-5">
-                        {editMode ? 'Edit Service' : 'Add New Service Type'}
-                    </div>
+                <div className="mt-4 mx-4 md:mx-6">
+                    {/* Form Section */}
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-4">
+                        <h2 className="text-sm font-semibold text-gray-800 mb-4 flex items-center">
+                            <span className="w-1 h-5 bg-indigo-500 mr-2 rounded"></span>
+                            {editMode ? 'Edit Service Type' : 'Add New Service Type'}
+                        </h2>
 
-                    {/* Add/Edit Service Form */}
-                    <form className="" onSubmit={handleServiceSubmit}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 px-8 mt-4">
-                            {/* Service Name Input */}
-                            <div className="relative w-full">
-                                <input
-                                    type="text"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-3 p-2.5"
-                                    placeholder="Service Type Name"
-                                    value={serviceFormData.name}
-                                    onChange={(e) => setServiceFormData({ ...serviceFormData, name: e.target.value })}
-                                    required
-                                />
-                            </div>
-
-                            {/* Image Upload Section */}
-                            <div className="flex">
-                                <div className="relative w-1/2">
+                        {/* Add/Edit Service Form */}
+                        <form onSubmit={handleServiceSubmit}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {/* Service Type Name Input */}
+                                <div className="relative w-full">
+                                    <label className="block mb-1.5 text-xs font-semibold text-gray-700">Service Type Name</label>
                                     <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-3 p-2.5"
-                                        onChange={handleImageChange}
+                                        type="text"
+                                        className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent block w-full p-2 transition duration-200"
+                                        placeholder="Enter service type name"
+                                        value={serviceFormData.name}
+                                        onChange={handleServiceNameChange}
+                                        required
                                     />
+                                </div>
+
+                                {/* Service Slug Input */}
+                                <div className="relative w-full">
+                                    <label className="block mb-1.5 text-xs font-semibold text-gray-700">Slug</label>
+                                    <input
+                                        type="text"
+                                        className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent block w-full p-2 transition duration-200"
+                                        placeholder="service-type-slug (auto-generated)"
+                                        value={serviceFormData.slug}
+                                        onChange={(e) => setServiceFormData({ ...serviceFormData, slug: e.target.value })}
+                                        required
+                                    />
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <p className="text-xs text-gray-500">Suggested:</p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setServiceFormData({ ...serviceFormData, slug: generateSlug(serviceFormData.name) })}
+                                            className="text-xs text-blue-600 hover:text-blue-800 font-semibold cursor-pointer"
+                                        >
+                                            {generateSlug(serviceFormData.name)}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Select Rooms */}
+                                <div className="relative w-full">
+                                    <label className="block mb-1.5 text-xs font-semibold text-gray-700">Select Rooms</label>
+                                    <Select
+                                        mode="multiple"
+                                        tagRender={tagRender}
+                                        value={serviceFormData.room_ids}
+                                        style={{ width: "100%" }}
+                                        placeholder="Select rooms"
+                                        onChange={(selectedValues) => {
+                                            setServiceFormData({ ...serviceFormData, room_ids: selectedValues });
+                                        }}
+                                    >
+                                        {rooms?.map((room) => (
+                                            <Option key={room.id} value={room.id}>
+                                                {room.name}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </div>
+
+                                {/* Image Upload Section */}
+                                <div className='w-full'>
+                                    <label className="block mb-1.5 text-xs font-semibold text-gray-700">Service Icon</label>
+                                    <div className="flex gap-3 items-start">
+                                        <div className="flex-1">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent block w-full p-2 transition duration-200"
+                                                onChange={handleImageChange}
+                                            />
+                                        </div>
+                                        {serviceFormData?.image && (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleImageUpload}
+                                                    className="py-1.5 px-3 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-lg transition duration-200 whitespace-nowrap"
+                                                >
+                                                    Upload
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                     {serviceFormData.imagePreview && (
-                                        <div className="mt-2 relative">
+                                        <div className="mt-2 relative inline-block">
                                             <img
                                                 src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + serviceFormData.imagePreview}
                                                 alt="Preview"
-                                                className="w-32 h-32 object-cover"
+                                                className="w-20 h-20 object-cover rounded-lg border border-gray-200"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={handleImageDelete}
-                                                className="absolute top-0 left-0 text-red-500 bg-white rounded-full p-1 shadow-md"
+                                                className="absolute -top-2 -right-2 text-red-500 bg-white rounded-full p-1 shadow-lg hover:bg-gray-100 transition duration-200"
+                                                title="Delete image"
                                             >
-                                                <RiDeleteBin6Fill color='red' size={24} />
+                                                <RiDeleteBin6Fill color='red' size={16} />
                                             </button>
                                         </div>
                                     )}
                                 </div>
 
-                                {/* Upload Button */}
-                                {serviceFormData?.image && (
-                                    <div className="flex justify-center items-center ml-4 sm:mt-0">
-                                        <button
-                                            type="button"
-                                            onClick={handleImageUpload}
-                                            className="p-2.5 text-sm font-medium text-white bg-blue-500 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none"
-                                        >
-                                            Upload Image
-                                        </button>
-                                    </div>
+                                {/* Submit/Cancel Buttons */}
+                            </div>
+                            <div className="flex gap-2 justify-center mt-4 pt-4 border-t border-gray-200">
+                                <button 
+                                    type="submit" 
+                                    className="px-5 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white font-medium text-sm rounded-lg transition duration-200 shadow-sm hover:shadow-md"
+                                >
+                                    {editMode ? 'Update Service Type' : 'Add Service Type'}
+                                </button>
+                                {editMode && (
+                                    <button 
+                                        type="button" 
+                                        onClick={resetForm} 
+                                        className="px-5 py-1.5 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium text-sm rounded-lg transition duration-200"
+                                    >
+                                        Cancel
+                                    </button>
                                 )}
                             </div>
+                        </form>
+                    </div>
 
-                            {/* Multi-Select for Rooms */}
-                            <div className="relative w-full">
-                                <label className="block mb-1 text-sm font-medium text-gray-900">
-                                    Select Rooms
-                                </label>
-                                <Select
-                                    mode="multiple"
-                                    tagRender={tagRender}
-                                    value={serviceFormData.room_ids}
-                                    style={{ width: "100%" }}
-                                    placeholder="Select rooms"
-                                    onChange={(selectedValues) => {
-                                        setServiceFormData({ ...serviceFormData, room_ids: selectedValues });
-                                    }}
-                                >
-                                    {rooms?.map((room) => (
-                                        <Option key={room.id} value={room.id}>
-                                            {room.name}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </div>
-                        </div>
-
-                        {/* Submit Form */}
-                        <div className='flex items-center justify-center'>
-                            <button
-                                type="submit"
-                                className="m-6 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none"
-                            >
-                                {editMode ? 'Update Service' : 'Add Service'}
-                            </button>
-                            {editMode && (
-                                <button
-                                    type="button"
-                                    onClick={resetForm}
-                                    className="p-2.5 ml-2 text-sm font-medium text-white bg-red-500 rounded-lg border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none"
-                                >
-                                    Cancel
-                                </button>
-                            )}
-                        </div>
-                    </form>
-
-
-                    {/* Search Input */}
-                    <form className="flex items-center mt-6 mx-4">
-                        <div className="relative w-1/2 m-4">
-                            <input
-                                type="text"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-                                placeholder="Search services..."
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                            />
-                        </div>
-                    </form>
-                    <ConfirmModal
-                        show={showDeleteModal}
-                        onClose={() => setShowDeleteModal(false)}
-                        onConfirm={handleConfirmDelete}
-                        title="Are you sure?"
-                        message="Do you really want to delete this service type? This action cannot be undone."
-                        confirmText="Delete"
-                        cancelText="Cancel"
-                    />
-
-
-                    {/* Services List */}
-                    <div className="flex flex-col mt-4 mx-6">
-                        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-                            <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-                                <div className="overflow-hidden">
-                                    <table className="w-full text-sm text-left text-gray-500">
-                                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                                            <tr>
-                                                <th className="py-3 px-4 w-12">Sr.No</th>
-                                                <th className="py-3 px-6 w-1/6">Service Name</th>
-                                                <th className="py-3 px-6 w-8">Image</th>
-                                                <th className="py-3 px-6 w-1/3">Rooms</th>
-                                                <th className="py-3 px-6 w-8">Status</th>
-                                                <th className="py-3 px-6 w-8">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filteredServices?.length > 0 ? (
-                                                filteredServices.map((service, index) => (
-                                                    <tr className="bg-white border-b hover:bg-gray-50" key={index}>
-                                                        <td className="py-4 px-4 text-center">{index + 1}</td>
-                                                        <td className="py-4 px-6">{service.name}</td>
-                                                        <td className="py-4 px-6">
-                                                            {service.image && (
-                                                                <img
-                                                                    src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + service.image}
-                                                                    alt={service.name}
-                                                                    className="w-16 h-16 object-cover rounded-full"
-                                                                />
-                                                            )}
-                                                        </td>
-                                                        <td className="py-4 px-6 w-48 break-words whitespace-normal">
-                                                            {service?.room_names?.length > 0 ? service.room_names.join(', ') : <span className="text-gray-500">No Rooms</span>}
-                                                        </td>
-                                                        <td className="py-4 px-6">
-                                                            <Toggle
-                                                                checked={service.status === "1"}
-                                                                onChange={() => handleToggleStatus(service.id, service.status)}
-                                                                icons={false}
-                                                            />
-                                                        </td>
-                                                        <td className="py-4 px-6 flex items-center">
-                                                            <MdModeEdit
-                                                                style={editstyle}
-                                                                onClick={() => {
-                                                                    handleServiceEdit(service);
-                                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                                }}
-                                                            />
-
-                                                            <RiDeleteBin6Fill
-                                                                size={24}
-                                                                className='ml-4'
-                                                                style={deletstyle}
-                                                                onClick={() => confirmServiceDelete(service.id)}
-                                                            />
-                                                            {/* <button
-                                                                type="button"
-                                                                onClick={() => handleViewSubservices(service.id)}
-                                                                className="px-4 py-2 ml-4 text-sm font-medium text-white bg-blue-500 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none"
-                                                            >
-                                                                View Work Type
-                                                            </button> */}
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan="5" className="py-4 text-center">No Services Available</td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-
+                    {/* Display Services Section */}
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div className="p-4 border-b border-gray-200">
+                            <div className="flex gap-4 items-end">
+                                <div className="flex items-center">
+                                    <h2 className="text-sm font-semibold text-gray-800 flex items-center whitespace-nowrap">
+                                        <span className="w-1 h-5 bg-indigo-500 mr-2 rounded"></span>
+                                        Service Types List
+                                    </h2>
+                                </div>
+                                {/* Search Input */}
+                                <div className="relative flex-1">
+                                    <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <input
+                                        type="text"
+                                        placeholder="Search by service type name..."
+                                        value={searchTerm}
+                                        onChange={handleSearchChange}
+                                        className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent pl-9 pr-4 py-2 transition duration-200"
+                                    />
                                 </div>
                             </div>
                         </div>
+
+                        {/* Table Section */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-xs text-left text-gray-700">
+                                <thead className="bg-gray-100 border-b border-gray-200 sticky top-0">
+                                    <tr>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Sr.</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Name</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Slug</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Image</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Rooms</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Status</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredServices?.length > 0 ? (
+                                        filteredServices.map((service, index) => (
+                                            <tr className="border-b hover:bg-gray-50 transition duration-150" key={service.id}>
+                                                <td className="py-2 px-3 font-medium text-gray-900">{index + 1}</td>
+                                                <td className="py-2 px-3 text-gray-700">{service.name}</td>
+                                                <td className="py-2 px-3 text-gray-600 font-mono text-xs bg-gray-50 rounded px-2 inline-block">{service.slug || 'N/A'}</td>
+                                                <td className="py-2 px-3">
+                                                    {service.image && (
+                                                        <img
+                                                            src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + service.image}
+                                                            alt={service.name}
+                                                            className="w-10 h-10 object-cover rounded border border-gray-200"
+                                                        />
+                                                    )}
+                                                </td>
+                                                <td className="py-2 px-3">
+                                                    <span className="text-xs text-gray-600">
+                                                        {service?.room_names?.length > 0 ? service.room_names.join(', ') : <span className="text-gray-400">No Rooms</span>}
+                                                    </span>
+                                                </td>
+                                                <td className="py-2 px-3">
+                                                    <Toggle
+                                                        checked={service.status === "1"}
+                                                        onChange={() => handleToggleStatus(service.id, service.status)}
+                                                        icons={false}
+                                                        className="scale-75"
+                                                    />
+                                                </td>
+                                                <td className="py-2 px-3">
+                                                    <div className="flex gap-2 justify-center">
+                                                        <button
+                                                            onClick={() => {
+                                                                handleServiceEdit(service);
+                                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                            }}
+                                                            className="p-1.5 text-green-600 hover:bg-green-50 rounded transition duration-150"
+                                                            title="Edit service type"
+                                                        >
+                                                            <MdModeEdit size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => confirmServiceDelete(service.id)}
+                                                            className="p-1.5 text-red-600 hover:bg-red-50 rounded transition duration-150"
+                                                            title="Delete service type"
+                                                        >
+                                                            <RiDeleteBin6Fill size={18} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="7" className="py-6 text-center text-gray-500">
+                                                <div className="flex flex-col items-center justify-center">
+                                                    <svg className="w-10 h-10 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                                    </svg>
+                                                    <p className="text-sm">No Service Types Available</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <ConfirmModal
+                            show={showDeleteModal}
+                            onClose={() => setShowDeleteModal(false)}
+                            onConfirm={handleConfirmDelete}
+                            title="Are you sure?"
+                            message="Do you really want to delete this service type? This action cannot be undone."
+                            confirmText="Delete"
+                            cancelText="Cancel"
+                        />
                     </div>
                 </div>
             )}
         </DashboardLayout>
     );
 };
-
 
 export default ListServicesType;

@@ -14,6 +14,7 @@ const AddService = () => {
 
     const [formData, setFormData] = useState({
         name: '',
+        slug: '',
         service_type_id: '',
         rate: '',
         rate_type: '',
@@ -27,7 +28,11 @@ const AddService = () => {
         images: [],
         imagePreviews: [],
         room_ids: [],
-        addons: []
+        addons: [],
+        primary_key: '',
+        secondary_key: '',
+        partner_price: '',
+        with_material: false
     });
     const [loading, setLoading] = useState(false);
     const [serviceTypeData, setServiceTypeData] = useState([])
@@ -40,6 +45,22 @@ const AddService = () => {
         if (e.target.name == "service_type_id") {
             getServiesRooms(e.target.value)
         }
+    };
+
+    // Generate slug from service name
+    const generateSlug = (name) => {
+        return name
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]/g, '');
+    };
+
+    // Handle service name change and auto-generate slug
+    const handleNameChange = (e) => {
+        const name = e.target.value;
+        const slug = generateSlug(name);
+        setFormData({ ...formData, name, slug });
     };
 
     // const handleImageChange = (e) => {
@@ -137,6 +158,7 @@ const AddService = () => {
 
         const raw = {
             name: formData.name,
+            slug: formData.slug,
             service_type_id: formData.service_type_id,
             rate: formData.rate,
             rate_type: formData.rate_type,
@@ -149,6 +171,10 @@ const AddService = () => {
             status: formData.status,
             image: JSON.stringify(formData.imagePreviews),
             room_ids: formData.room_ids,
+            primary_key: formData.primary_key,
+            secondary_key: formData.secondary_key,
+            partner_price: formData.partner_price,
+            with_material: formData.with_material ? 1 : 0,
             addons: addons.map((addon) => ({
                 id: addon?.id,
                 group_name: addon.group_name,
@@ -191,6 +217,9 @@ const AddService = () => {
             'warranty_details',
             'quality_promise',
             'status',
+            'primary_key',
+            'secondary_key',
+            'partner_price',
         ];
 
         for (const field of requiredFields) {
@@ -258,7 +287,7 @@ const AddService = () => {
                 setFormData({
                     ...result.data,
                     imagePreviews: images,
-                    images: []
+                    images: [],
                 });
                 setAddons(result?.data?.addons || []);
 
@@ -319,10 +348,32 @@ const AddService = () => {
                                     name="name"
                                     value={formData.name}
                                     required
-                                    onChange={handleChange}
+                                    onChange={handleNameChange}
                                     className="block w-full text-sm text-gray-700 border rounded px-1.5 py-1.5 leading-tight"
                                     placeholder="Service Name"
                                 />
+                            </div>
+                            <div className="w-full px-4">
+                                <label className="text-gray-700 text-xs font-bold mb-2">Slug</label>
+                                <input
+                                    type="text"
+                                    name="slug"
+                                    value={formData.slug}
+                                    required
+                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                    className="block w-full text-sm text-gray-700 border rounded px-1.5 py-1.5 leading-tight"
+                                    placeholder="service-slug (auto-generated)"
+                                />
+                                <div className="mt-1 flex items-center gap-2">
+                                    <p className="text-xs text-gray-500">Suggested:</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, slug: generateSlug(formData.name) })}
+                                        className="text-xs text-blue-600 hover:text-blue-800 font-semibold cursor-pointer"
+                                    >
+                                        {generateSlug(formData.name)}
+                                    </button>
+                                </div>
                             </div>
                             <div className="w-full px-4">
                                 <label className="text-gray-700 text-xs font-bold mb-2">Service Type</label>
@@ -391,6 +442,55 @@ const AddService = () => {
                                     <option value="running_meter">Running Meter</option>
                                     <option value="points">Points</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        {/* Primary Key & Secondary Key */}
+                        <div className="flex">
+                            <div className="w-full px-4">
+                                <label className="text-gray-700 text-xs font-bold mb-2">Primary Key</label>
+                                <input
+                                    type="text"
+                                    name="primary_key"
+                                    value={formData.primary_key}
+                                    onChange={handleChange}
+                                    className="block w-full text-sm text-gray-700 border rounded px-1.5 py-1.5 leading-tight"
+                                    placeholder="Enter Primary Key"
+                                />
+                            </div>
+                            <div className="w-full px-4">
+                                <label className="text-gray-700 text-xs font-bold mb-2">Secondary Key</label>
+                                <input
+                                    type="text"
+                                    name="secondary_key"
+                                    value={formData.secondary_key}
+                                    onChange={handleChange}
+                                    className="block w-full text-sm text-gray-700 border rounded px-1.5 py-1.5 leading-tight"
+                                    placeholder="Enter Secondary Key"
+                                />
+                            </div>
+                            <div className="w-full px-4">
+                                <label className="text-gray-700 text-xs font-bold mb-2">Partner Price</label>
+                                <input
+                                    type="number"
+                                    name="partner_price"
+                                    value={formData.partner_price}
+                                    onChange={handleChange}
+                                    className="block w-full text-sm text-gray-700 border rounded px-1.5 py-1.5 leading-tight"
+                                    placeholder="Partner Price"
+                                />
+                            </div>
+                            <div className="w-full px-4">
+                                <label className="text-gray-700 text-xs font-bold mb-2">With Material</label>
+                                <div className="flex items-center pt-1">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.with_material}
+                                        onChange={(e) => setFormData({ ...formData, with_material: e.target.checked })}
+                                        className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    <label className="ml-2 text-sm text-gray-700">Include Material</label>
+                                </div>
                             </div>
                         </div>
                         <div className="flex">

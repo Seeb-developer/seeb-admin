@@ -19,7 +19,7 @@ const ListRooms = () => {
     const [filteredRooms, setFilteredRooms] = useState([]);
     const [Loader, setLoader] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [roomFormData, setRoomFormData] = useState({ name: '', image: null, imagePreview: null, type: '' });
+    const [roomFormData, setRoomFormData] = useState({ name: '', slug: '', image: null, imagePreview: null, type: '' });
     const [editMode, setEditMode] = useState(false);
     const [roomIdToEdit, setRoomIdToEdit] = useState(null);
     const navigate = useNavigate();
@@ -48,6 +48,15 @@ const ListRooms = () => {
         }
     };
 
+    // Generate slug from room name
+    const generateSlug = (name) => {
+        return name
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]/g, '');
+    };
+
     // Handle search change
     const handleSearchChange = (e) => {
         const value = e.target.value;
@@ -61,6 +70,13 @@ const ListRooms = () => {
             );
             setFilteredRooms(filtered);
         }
+    };
+
+    // Handle room name change and auto-generate slug
+    const handleRoomNameChange = (e) => {
+        const name = e.target.value;
+        const slug = generateSlug(name);
+        setRoomFormData({ ...roomFormData, name, slug });
     };
 
     const handleRoomDelete = async () => {
@@ -90,6 +106,7 @@ const ListRooms = () => {
 
         const data = {
             name: roomFormData.name,
+            slug: roomFormData.slug,
             image: roomFormData.imagePreview,
             type: roomFormData.type
         };
@@ -125,14 +142,15 @@ const ListRooms = () => {
 
     // Reset form state
     const resetForm = () => {
-        setRoomFormData({ name: '', image: null, imagePreview: null, type: '' });
+        setRoomFormData({ name: '', slug: '', image: null, imagePreview: null, type: '' });
         setEditMode(false);
         setRoomIdToEdit(null);
     };
 
     // Handle edit mode
     const handleRoomEdit = (room) => {
-        setRoomFormData({ name: room.name, image: null, imagePreview: room.image, type: room.type });
+         const slug = generateSlug(room.name);
+        setRoomFormData({ name: room.name, slug: slug || '', image: null, imagePreview: room.image, type: room.type });
         setRoomIdToEdit(room.id);
         setEditMode(true);
     };
@@ -213,31 +231,47 @@ const ListRooms = () => {
                     <Spin indicator={antIcon} />
                 </div>
             ) : (
-                <div className="border-solid border-2 black-indigo-600 mt-6">
-                    <div style={{ fontSize: 15 }} className="px-8 mt-5">
-                        {editMode ? 'Edit Room' : 'Add New Room'}
-                    </div>
+                <div className="mt-4 mx-4 md:mx-6">
+                    {/* Form Section */}
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-4">
+                        <h2 className="text-sm font-semibold text-gray-800 mb-4 flex items-center">
+                            <span className="w-1 h-5 bg-indigo-500 mr-2 rounded"></span>
+                            {editMode ? 'Edit Room' : 'Add New Room'}
+                        </h2>
 
-                    {/* Add/Edit Room Form */}
-                    <form className="" onSubmit={handleRoomSubmit}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-8 mt-4">
+                        {/* Add/Edit Room Form */}
+                        <form onSubmit={handleRoomSubmit}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {/* Room Name Input */}
                             <div className="relative w-full">
-                                <label className="block mb-1 text-sm font-medium text-gray-900">Room Name</label>
+                                <label className="block mb-1.5 text-xs font-semibold text-gray-700">Room Name</label>
                                 <input
                                     type="text"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-3 p-2.5"
-                                    placeholder="Room Name"
+                                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent block w-full p-2 transition duration-200"
+                                    placeholder="Enter room name"
                                     value={roomFormData.name}
-                                    onChange={(e) => setRoomFormData({ ...roomFormData, name: e.target.value })}
+                                    onChange={handleRoomNameChange}
+                                    required
+                                />
+                            </div>
+
+                            {/* Room Slug Input */}
+                            <div className="relative w-full">
+                                <label className="block mb-1.5 text-xs font-semibold text-gray-700">Room Slug</label>
+                                <input
+                                    type="text"
+                                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent block w-full p-2 transition duration-200"
+                                    placeholder="room-slug (auto-generated)"
+                                    value={roomFormData.slug}
+                                    onChange={(e) => setRoomFormData({ ...roomFormData, slug: e.target.value })}
                                     required
                                 />
                             </div>
                             {/* Select Room Type (residential/commercial) */}
                             <div className="relative w-full">
-                                <label className="block mb-1 text-sm font-medium text-gray-900">Room Type</label>
+                                <label className="block mb-1.5 text-xs font-semibold text-gray-700">Room Type</label>
                                 <select
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-3 p-2.5"
+                                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent block w-full p-2 transition duration-200"
                                     value={roomFormData.type}
                                     onChange={(e) => setRoomFormData({ ...roomFormData, type: e.target.value })}
                                     required
@@ -250,43 +284,43 @@ const ListRooms = () => {
                             </div>
 
                             {/* Image Upload Section */}
-                            <div className='flex relative w-full'>
-                                <div className="relative w-1/2">
-                                    <label className="block mb-1 text-sm font-medium text-gray-900">Room Icon</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-3 p-2.5"
-                                        onChange={handleImageChange}
-                                    />
-                                    {roomFormData.imagePreview && (
-                                        <div className="mt-2 relative">
-                                            <img
-                                                src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + roomFormData.imagePreview}
-                                                alt="Preview"
-                                                className="w-32 h-32 object-cover"
-                                            />
+                            <div className='w-full'>
+                                <label className="block mb-1.5 text-xs font-semibold text-gray-700">Room Icon</label>
+                                <div className="flex gap-3 items-start">
+                                    <div className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent block w-full p-2 transition duration-200"
+                                            onChange={handleImageChange}
+                                        />
+                                    </div>
+                                    {roomFormData?.image && (
+                                        <div className="flex gap-2">
                                             <button
                                                 type="button"
-                                                onClick={handleImageDelete}
-                                                className="absolute top-0 left-0 text-red-500 bg-white rounded-full p-1 shadow-md"
+                                                onClick={handleImageUpload}
+                                                className="py-1.5 px-3 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-lg transition duration-200 whitespace-nowrap"
                                             >
-                                                <RiDeleteBin6Fill color='red' size={24} />
+                                                Upload
                                             </button>
                                         </div>
                                     )}
                                 </div>
-
-
-                                {/* Upload Button */}
-                                {roomFormData?.image && (
-                                    <div className="flex justify-center items-center ml-4 sm:mt-0">
+                                {roomFormData.imagePreview && (
+                                    <div className="mt-2 relative inline-block">
+                                        <img
+                                            src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + roomFormData.imagePreview}
+                                            alt="Preview"
+                                            className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                        />
                                         <button
                                             type="button"
-                                            onClick={handleImageUpload}
-                                            className="py-2 px-3 text-center bg-indigo-500 text-white rounded-lg"
+                                            onClick={handleImageDelete}
+                                            className="absolute -top-2 -right-2 text-red-500 bg-white rounded-full p-1 shadow-lg hover:bg-gray-100 transition duration-200"
+                                            title="Delete image"
                                         >
-                                            Upload Image
+                                            <RiDeleteBin6Fill color='red' size={16} />
                                         </button>
                                     </div>
                                 )}
@@ -294,69 +328,123 @@ const ListRooms = () => {
 
                             {/* Submit/Cancel Buttons */}
                         </div>
-                        <div className="flex justify-center mt-6">
-                            <button type="submit" className="px-4 py-2 bg-indigo-500 text-white rounded-lg mr-4">
+                        <div className="flex gap-2 justify-center mt-4 pt-4 border-t border-gray-200">
+                            <button 
+                                type="submit" 
+                                className="px-5 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white font-medium text-sm rounded-lg transition duration-200 shadow-sm hover:shadow-md"
+                            >
                                 {editMode ? 'Update Room' : 'Add Room'}
                             </button>
-                            <button type="button" onClick={resetForm} className="px-4 py-2 bg-gray-400 text-white rounded-lg">
+                            <button 
+                                type="button" 
+                                onClick={resetForm} 
+                                className="px-5 py-1.5 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium text-sm rounded-lg transition duration-200"
+                            >
                                 Cancel
                             </button>
                         </div>
                     </form>
+                    </div>
 
-                    {/* Display Rooms */}
-                    <div className="overflow-x-auto relative mt-6 mx-6">
-                        <table className="w-full text-sm text-left text-gray-500">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                                <tr>
-                                    <th className="py-3 px-4 w-1/4">Sr. No</th>
-                                    <th className="py-3 px-6 w-1/4">Name</th>
-                                    <th className="py-3 px-6 w-1/6">Type</th>
-                                    <th className="py-3 px-6 w-1/6">Image</th>
-                                    <th className="py-3 px-6 w-1/8">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredRooms?.length > 0 ? (
-                                    filteredRooms.map((room, index) => (
-                                        <tr className="bg-white border-b hover:bg-gray-50" key={room.id}>
-                                            <td className="py-4 px-4">{index + 1}</td>
-                                            <td className="py-4 px-6">{room.name}</td>
-                                            <td className="py-4 px-6">{room.type ? room.type.charAt(0).toUpperCase() + room.type.slice(1) : 'N/A'}</td>
-                                            <td className="py-4 px-4">
-                                                {room.image && (
-                                                    <img
-                                                        src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + room.image}
-                                                        alt={room.name}
-                                                        className="w-16 h-16 object-cover rounded-full"
-                                                    />
-                                                )}
-                                            </td>
-                                            <td className="py-4 px-6 flex items-center">
-                                                <MdModeEdit
-                                                    size={24}
-                                                    style={editstyle}
-                                                    onClick={() => {
-                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                        handleRoomEdit(room)
-                                                    }}
-                                                />
-                                                <RiDeleteBin6Fill
-                                                    size={24}
-                                                    className='ml-4'
-                                                    style={deletstyle}
-                                                    onClick={() => confirmServiceDelete(room.id)}
-                                                />
+                    {/* Display Rooms Section */}
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div className="p-4 border-b border-gray-200">
+                            <div className="flex gap-4 items-end">
+                                <div className="flex items-center">
+                                    <h2 className="text-sm font-semibold text-gray-800 flex items-center whitespace-nowrap">
+                                        <span className="w-1 h-5 bg-indigo-500 mr-2 rounded"></span>
+                                        Rooms List
+                                    </h2>
+                                </div>
+                                {/* Search Input */}
+                                <div className="relative">
+                                    <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <input
+                                        type="text"
+                                        placeholder="Search by room name..."
+                                        value={searchTerm}
+                                        onChange={handleSearchChange}
+                                        className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent pl-9 pr-4 py-2 transition duration-200"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Table Section */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-xs text-left text-gray-700">
+                                <thead className="bg-gray-100 border-b border-gray-200 sticky top-0">
+                                    <tr>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Sr.</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Name</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Slug</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Type</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800">Image</th>
+                                        <th className="py-2 px-3 font-semibold text-gray-800 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredRooms?.length > 0 ? (
+                                        filteredRooms.map((room, index) => (
+                                            <tr className="border-b hover:bg-gray-50 transition duration-150" key={room.id}>
+                                                <td className="py-2 px-3 font-medium text-gray-900">{index + 1}</td>
+                                                <td className="py-2 px-3 text-gray-700">{room.name}</td>
+                                                <td className="py-2 px-3 text-gray-600 font-mono text-xs bg-gray-50 rounded px-2 inline-block">{room.slug || 'N/A'}</td>
+                                                <td className="py-2 px-3">
+                                                    <span className="px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded text-xs font-medium">
+                                                        {room.type ? room.type.charAt(0).toUpperCase() + room.type.slice(1) : 'N/A'}
+                                                    </span>
+                                                </td>
+                                                <td className="py-2 px-3">
+                                                    {room.image && (
+                                                        <img
+                                                            src={process.env.REACT_APP_HAPS_MAIN_BASE_URL + room.image}
+                                                            alt={room.name}
+                                                            className="w-10 h-10 object-cover rounded border border-gray-200"
+                                                        />
+                                                    )}
+                                                </td>
+                                                <td className="py-2 px-3">
+                                                    <div className="flex gap-2 justify-center">
+                                                        <button
+                                                            onClick={() => {
+                                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                                handleRoomEdit(room)
+                                                            }}
+                                                            className="p-1.5 text-green-600 hover:bg-green-50 rounded transition duration-150"
+                                                            title="Edit room"
+                                                        >
+                                                            <MdModeEdit size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => confirmServiceDelete(room.id)}
+                                                            className="p-1.5 text-red-600 hover:bg-red-50 rounded transition duration-150"
+                                                            title="Delete room"
+                                                        >
+                                                            <RiDeleteBin6Fill size={18} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="6" className="py-6 text-center text-gray-500">
+                                                <div className="flex flex-col items-center justify-center">
+                                                    <svg className="w-10 h-10 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                                    </svg>
+                                                    <p className="text-sm">No Rooms Available</p>
+                                                </div>
                                             </td>
                                         </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="5" className="py-4 text-center">No Rooms Available</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
                         <ConfirmModal
                             show={showDeleteModal}
                             onClose={() => setShowDeleteModal(false)}
