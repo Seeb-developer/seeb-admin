@@ -39,3 +39,34 @@ jobs:
           password: ${{ secrets.FTP_PASS }}
           local-dir: build/
           server-dir: /public_html/
+          protocol: ftps
+          timeout: 300000
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/node_modules/**
+            **/*.map
+      
+      - name: FTP Deploy Retry
+        if: failure()
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: build/
+          server-dir: /public_html/
+          protocol: ftps
+          timeout: 300000
+          dangerous-clean-slate: false
+
+      - name: Deployment Success
+        if: success()
+        run: echo "✅ Deployment to FTP completed successfully!"
+
+      - name: Deployment Failed
+        if: failure()
+        run: |
+          echo "❌ FTP Deployment failed after retries"
+          echo "Please check FTP server connectivity and try again"
+          exit 1

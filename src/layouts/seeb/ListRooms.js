@@ -12,9 +12,6 @@ import { apiCall } from 'utils/apiClient';
 
 const ListRooms = () => {
     const antIcon = <LoadingOutlined style={{ fontSize: 60 }} spin />;
-    const deletstyle = { color: "red" };
-    const editstyle = { color: "green" };
-
     const [roomData, setRoomData] = useState([]);
     const [filteredRooms, setFilteredRooms] = useState([]);
     const [Loader, setLoader] = useState(false);
