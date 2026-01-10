@@ -217,9 +217,7 @@ const AddService = () => {
             'warranty_details',
             'quality_promise',
             'status',
-            'primary_key',
-            'secondary_key',
-            'partner_price',
+            'slug'
         ];
 
         for (const field of requiredFields) {
@@ -397,6 +395,8 @@ const AddService = () => {
                                 <Select
                                     mode="multiple"
                                     tagRender={tagRender}
+                                    maxTagCount={2}
+                                    maxTagPlaceholder={(omittedValues) => `+${omittedValues.length} more`}
                                     value={formData.room_ids?.map(String)}
                                     style={{ width: "100%" }}
                                     placeholder="Select rooms"
